@@ -434,11 +434,58 @@ fun WebViewScreen(
                         fileChooserParams: FileChooserParams?
                     ): Boolean {
                         activity.filePathCallback = filePathCallback
+
+                        // Debug: Log accept types from web page
+                        val acceptTypes = fileChooserParams?.acceptTypes
+                        Log.d(TAG, "File chooser accept types: ${acceptTypes?.joinToString()}")
+
+                        // Filter and process accept types
+                        val filteredTypes = acceptTypes?.filter {
+                            it.isNotEmpty() && it != "*/*"
+                        }?.toTypedArray()
+
+                        Log.d(TAG, "Filtered MIME types: ${filteredTypes?.joinToString()}")
+
                         val intent = android.content.Intent(android.content.Intent.ACTION_GET_CONTENT)
-                        intent.type = "*/*"
+
+                        // Strategy: Use the most specific MIME type as primary type
+                        if (!filteredTypes.isNullOrEmpty()) {
+                            // Use the first specific type instead of */*
+                            intent.type = filteredTypes[0]
+
+                            // Add all types as extra if there are multiple
+                            if (filteredTypes.size > 1) {
+                                intent.putExtra(android.content.Intent.EXTRA_MIME_TYPES, filteredTypes)
+                                Log.d(TAG, "Primary type: ${filteredTypes[0]}, Additional types: ${filteredTypes.drop(1).joinToString()}")
+                            } else {
+                                Log.d(TAG, "Single MIME type restriction: ${filteredTypes[0]}")
+                            }
+                        } else {
+                            // Fallback to all files only if no specific types are requested
+                            intent.type = "*/*"
+                            Log.d(TAG, "No specific MIME types - allowing all files")
+                        }
+
                         intent.putExtra(android.content.Intent.EXTRA_ALLOW_MULTIPLE, true)
-                        activity.fileChooserLauncher.launch(intent)
-                        return true
+
+                        // Use Intent.createChooser for better compatibility across devices
+                        val chooserIntent = android.content.Intent.createChooser(intent, "Select file")
+
+                        try {
+                            activity.fileChooserLauncher.launch(chooserIntent)
+                            Log.d(TAG, "File chooser launched successfully")
+                            return true
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error launching file chooser", e)
+                            // Fallback: try without chooser
+                            try {
+                                activity.fileChooserLauncher.launch(intent)
+                                return true
+                            } catch (fallbackException: Exception) {
+                                Log.e(TAG, "Fallback file chooser also failed", fallbackException)
+                                return false
+                            }
+                        }
                     }
                 }
 
