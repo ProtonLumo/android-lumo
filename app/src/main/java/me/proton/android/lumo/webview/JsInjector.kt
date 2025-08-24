@@ -1069,7 +1069,8 @@ fun injectAndroidInterfacePolyfill(webView: WebView) {
                 console.log('✅ Android.showPayment is immediately available');
             } else {
                 console.log('⚠️ Android.showPayment not yet available - retry logic will be used');
-                window.AndroidInterface.debugStatus();
+                // Note: debugStatus method not implemented - using console logging instead
+                console.log('AndroidInterface status: methods available =', Object.keys(window.Android || {}));
             }
         })();
     """.trimIndent()
