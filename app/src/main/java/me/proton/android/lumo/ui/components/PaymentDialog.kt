@@ -425,8 +425,9 @@ private fun PaymentDialogContentPreview(
 @SuppressLint("DefaultLocale")
 @Composable
 fun PaymentDialog(
-    showDialog: MutableState<Boolean>,
-    billingManager: BillingManager
+    visible: Boolean,
+    billingManager: BillingManager,
+    onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
     val mainActivity = context as? MainActivity
@@ -451,8 +452,8 @@ fun PaymentDialog(
     val isRefreshingPurchases by billingManager.isRefreshingPurchases.collectAsStateWithLifecycle()
 
     // Load subscriptions whenever dialog opens
-    LaunchedEffect(showDialog.value) {
-        if (showDialog.value) {
+    LaunchedEffect(visible) {
+        if (visible) {
             // Refresh status from Google Play and load subscriptions
             subscriptionViewModel.refreshSubscriptionStatus()
         }
@@ -473,7 +474,7 @@ fun PaymentDialog(
         }
     }
 
-    if (showDialog.value) {
+    if (visible) {
         // If payment is being processed, show that screen instead
         if (paymentProcessingState != null) {
             Dialog(
@@ -482,7 +483,7 @@ fun PaymentDialog(
                     if (paymentProcessingState !is PaymentProcessingState.Loading &&
                         paymentProcessingState !is PaymentProcessingState.Verifying
                     ) {
-                        showDialog.value = false
+                        onDismiss()
                         billingManager.resetPaymentState()
                     }
                 },
@@ -499,7 +500,7 @@ fun PaymentDialog(
                         state = paymentProcessingState!!,
                         onRetry = { billingManager.retryPaymentVerification() },
                         onClose = {
-                            showDialog.value = false
+                            onDismiss()
                             billingManager.resetPaymentState()
                         }
                     )
@@ -512,7 +513,7 @@ fun PaymentDialog(
         // Check if user already has a valid subscription
         if (hasValidSubscription) {
             Dialog(
-                onDismissRequest = { showDialog.value = false },
+                onDismissRequest = { onDismiss() },
                 properties = DialogProperties(usePlatformDefaultWidth = false)
             ) {
                 Surface(
@@ -525,7 +526,7 @@ fun PaymentDialog(
                     SubscriptionOverviewSection(
                         billingManager = billingManager,
                         subscriptions = subscriptions,
-                        onClose = { showDialog.value = false }
+                        onClose = { onDismiss() }
                     )
                 }
             }
@@ -535,7 +536,7 @@ fun PaymentDialog(
 
         // --- Dialog UI for plan selection --- 
         Dialog(
-            onDismissRequest = { showDialog.value = false },
+            onDismissRequest = { onDismiss() },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             Surface(
@@ -554,7 +555,7 @@ fun PaymentDialog(
                 ) {
                     // Close Button
                     IconButton(
-                        onClick = { showDialog.value = false },
+                        onClick = { onDismiss() },
                         modifier = Modifier.align(Alignment.End)
                     ) {
                         Icon(
@@ -739,7 +740,7 @@ fun PaymentDialog(
                             Spacer(modifier = Modifier.height(8.dp))
 
                             TextButton(
-                                onClick = { showDialog.value = false },
+                                onClick = { onDismiss() },
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = ButtonDefaults.textButtonColors(
                                     contentColor = GrayText

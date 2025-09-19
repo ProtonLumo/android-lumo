@@ -108,7 +108,7 @@ private fun addJavaScriptInterfaceSafely(webView: WebView, activity: MainActivit
 
         // Add the interface
         webView.addJavascriptInterface(
-            WebAppInterface(activity),
+            WebAppInterface(activity.viewModel),
             "Android"
         )
         Log.d(TAG, "JavaScript interface 'Android' added successfully")
@@ -228,7 +228,7 @@ fun WebViewScreen(
                             Log.d(TAG, ">>> KEYBOARD STATE CHANGED - Notifying JavaScript <<<")
 
                             try {
-                                val webAppInterface = WebAppInterface(activity)
+                                val webAppInterface = WebAppInterface(activity.viewModel)
                                 webAppInterface.onKeyboardVisibilityChanged(
                                     isKeyboardVisible,
                                     keyboardHeightCss
