@@ -28,9 +28,9 @@ class WebAppInterface(
     }
 
     @JavascriptInterface
-    fun onPageTypeChanged(isLumo: Boolean) {
+    fun onPageTypeChanged(isLumo: Boolean, url: String) {
         Log.d(TAG, "Page type changed: isLumo = $isLumo")
-        viewModel.onWebEvent(WebEvent.PageTypeChanged(isLumo))
+        viewModel.onWebEvent(WebEvent.PageTypeChanged(isLumo, url))
     }
 
     @JavascriptInterface
@@ -46,12 +46,6 @@ class WebAppInterface(
     }
 
     @JavascriptInterface
-    fun onKeyboardVisibilityChanged(isVisible: Boolean, keyboardHeight: Int) {
-        Log.d(TAG, "Keyboard visibility changed: visible=$isVisible, height=$keyboardHeight")
-        viewModel.onWebEvent(WebEvent.KeyboardVisibilityChanged(isVisible, keyboardHeight))
-    }
-
-    @JavascriptInterface
     fun postResult(transactionId: String, resultJson: String) {
         Log.d(TAG, "postResult received: id=$transactionId")
         viewModel.onWebEvent(WebEvent.PostResult(transactionId, resultJson))
@@ -61,6 +55,17 @@ class WebAppInterface(
     fun onBillingUnavailable(message: String) {
         Log.d(TAG, "onBillingUnavailable: $message")
         viewModel.onWebEvent(WebEvent.BillingUnavailable(message))
+    }
+
+    @JavascriptInterface
+    fun log(message: String) {
+        Log.d(TAG, "Web logs: $message")
+    }
+
+    @JavascriptInterface
+    fun onThemeChanged(mode: String) {
+        Log.d(TAG, "onThemeChanged: $mode")
+        viewModel.onWebEvent(WebEvent.ThemeResult(mode))
     }
 
     companion object {

@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.webkit.JavascriptInterface
 import android.webkit.ServiceWorkerClient
 import android.webkit.ServiceWorkerController
 import android.webkit.WebResourceRequest
@@ -15,10 +14,13 @@ import android.webkit.WebResourceResponse
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,13 +40,13 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -74,8 +76,9 @@ import me.proton.android.lumo.ui.components.LoadingScreen
 import me.proton.android.lumo.ui.components.PaymentDialog
 import me.proton.android.lumo.ui.components.SpeechInputSheetContent
 import me.proton.android.lumo.ui.theme.LumoTheme
-import me.proton.android.lumo.ui.theme.Purple
+import me.proton.android.lumo.ui.theme.Primary
 import me.proton.android.lumo.webview.WebViewScreen
+import me.proton.android.lumo.webview.injectTheme
 
 private const val TAG = "MainActivity"
 
@@ -83,7 +86,9 @@ private const val TAG = "MainActivity"
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity(), WebViewProvider {
     // Make viewModel accessible to WebAppInterface
-    internal val viewModel: MainActivityViewModel by viewModels()
+    internal val viewModel: MainActivityViewModel by viewModels {
+        MainActivityViewModelFactory(application)
+    }
 
     // Manager instances for separation of concerns
     private lateinit var billingManagerWrapper: BillingManagerWrapper
@@ -166,7 +171,7 @@ class MainActivity : ComponentActivity(), WebViewProvider {
                     when (event) {
                         is UiEvent.EvaluateJavascript -> {
                             Log.d(TAG, "Received EvaluateJavascript event")
-                            webView?.evaluateJavascript(event.script) { result ->
+                            webViewManager.evaluateJavaScript(event.script) { result ->
                                 viewModel.handleJavascriptResult(result)
                             }
                         }
@@ -218,11 +223,71 @@ class MainActivity : ComponentActivity(), WebViewProvider {
             }
         }, 5000) // Reduced to 5 seconds for faster fallback
 
+        enableEdgeToEdge()
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val initialUrl by viewModel.initialUrl.collectAsStateWithLifecycle()
+            val isDarkTheme = uiState.theme?.let { theme ->
+                when (theme) {
+                    is LumoTheme.System -> {
+                        webViewManager.webView?.let {
+                            injectTheme(
+                                webView = it,
+                                theme = if (isSystemInDarkTheme()) 15 else 14,
+                                mode = 0
+                            )
+                        }
+                        isSystemInDarkTheme()
+                    }
 
-            LumoTheme {
+                    is LumoTheme.Light -> {
+                        webViewManager.webView?.let {
+                            injectTheme(
+                                webView = it,
+                                theme = 14,
+                                mode = 2
+                            )
+                        }
+                        false
+                    }
+
+                    is LumoTheme.Dark -> {
+                        webViewManager.webView?.let {
+                            injectTheme(
+                                webView = it,
+                                theme = 15,
+                                mode = 1
+                            )
+                        }
+                        true
+                    }
+                }
+            } ?: isSystemInDarkTheme()
+
+            val barColor = MaterialTheme.colorScheme.background.toArgb()
+            LaunchedEffect(isDarkTheme) {
+                if (isDarkTheme) {
+                    enableEdgeToEdge(
+                        statusBarStyle = SystemBarStyle.dark(
+                            barColor,
+                        ),
+                        navigationBarStyle = SystemBarStyle.dark(
+                            barColor,
+                        ),
+                    )
+                } else {
+                    enableEdgeToEdge(
+                        statusBarStyle = SystemBarStyle.light(
+                            barColor, barColor,
+                        ),
+                        navigationBarStyle = SystemBarStyle.light(
+                            barColor, barColor,
+                        ),
+                    )
+                }
+            }
+
+            LumoTheme(darkTheme = isDarkTheme) {
                 val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
                 val scope = rememberCoroutineScope()
 
@@ -273,7 +338,7 @@ class MainActivity : ComponentActivity(), WebViewProvider {
                     ModalBottomSheet(
                         onDismissRequest = { viewModel.onCancelListening() },
                         sheetState = sheetState,
-                        containerColor = Purple,
+                        containerColor = Primary,
                     ) {
                         SpeechInputSheetContent(
                             isListening = uiState.isListening,
@@ -326,7 +391,8 @@ class MainActivity : ComponentActivity(), WebViewProvider {
                                         Spacer(Modifier.width(8.dp))
                                         Text(
                                             text = stringResource(id = R.string.back_to_lumo),
-                                            style = MaterialTheme.typography.titleLarge
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = MaterialTheme.colorScheme.onBackground
                                         )
                                     }
                                 }
@@ -352,6 +418,7 @@ class MainActivity : ComponentActivity(), WebViewProvider {
                                 }
                             )
                         }
+
                         // Overlay LoadingScreen if loading (use only ViewModel state)
                         androidx.compose.animation.AnimatedVisibility(
                             visible = uiState.isLoading && !uiState.hasSeenLumoContainer && uiState.isLumoPage,

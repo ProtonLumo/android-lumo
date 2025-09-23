@@ -8,15 +8,17 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.config.LumoConfig
+import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.domain.WebEvent
 import me.proton.android.lumo.speech.SpeechRecognitionManager
+import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.utils.isHostReachable
+import me.proton.android.lumo.webview.keyboardHeightChange
 
 private const val TAG = "MainActivityViewModel"
 
@@ -33,9 +35,10 @@ data class MainUiState(
     val initialLoadError: String? = null,
     val isLumoPage: Boolean = true,
     val hasSeenLumoContainer: Boolean = false,
-    val currentUrl: String = "",
-    val shouldShowBackButton: Boolean = false
+    val shouldShowBackButton: Boolean = false,
+    val theme: LumoTheme? = null
 )
+
 // Define Events for communication (e.g., JS evaluation)
 sealed class UiEvent {
     data class EvaluateJavascript(val script: String) : UiEvent()
@@ -45,12 +48,15 @@ sealed class UiEvent {
     data class ShowBillingUnavailable(val message: String) : UiEvent()
 }
 
-class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
+class MainActivityViewModel(
+    application: Application,
+    private val themeRepository: ThemeRepository
+) : AndroidViewModel(application) {
 
     internal val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
-    val _eventChannel = Channel<UiEvent>()
+    internal val _eventChannel = Channel<UiEvent>()
     val events = _eventChannel.receiveAsFlow()
 
     private val speechRecognitionManager = SpeechRecognitionManager(application)
@@ -67,8 +73,15 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         setupSpeechRecognition()
         updatePermissionStatus()
         determineSpeechStatusText()
-        // Don't call performInitialNetworkCheck here, call from Activity onCreate
 
+        viewModelScope.launch {
+            val theme = themeRepository.getTheme()
+            _uiState.update { state ->
+                state.copy(theme = theme)
+            }
+        }
+
+        // Don't call performInitialNetworkCheck here, call from Activity onCreate
         viewModelScope.launch {
             _webEvents.collect { event ->
                 when (event) {
@@ -89,20 +102,18 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                     is WebEvent.PageTypeChanged -> {
                         _uiState.update { state ->
                             val newIsLumo = event.isLumo
-                            val showBack = computeBackButton(state.currentUrl, newIsLumo)
+                            val showBack = LumoConfig.isAccountDomain(event.url)
                             state.copy(
                                 isLumoPage = newIsLumo,
-                                shouldShowBackButton = showBack
+                                shouldShowBackButton = showBack,
                             )
                         }
                     }
 
                     is WebEvent.Navigated -> {
                         _uiState.update { state ->
-                            val newUrl = event.url
-                            val showBack = computeBackButton(newUrl, state.isLumoPage)
+                            val showBack = LumoConfig.isAccountDomain(event.url)
                             state.copy(
-                                currentUrl = newUrl,
                                 shouldShowBackButton = showBack
                             )
                         }
@@ -114,11 +125,14 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                     }
 
                     is WebEvent.KeyboardVisibilityChanged -> {
-                        val jsCall =
-                            "if (window.onNativeKeyboardChange) { " +
-                                    "window.onNativeKeyboardChange(${event.isVisible}, ${event.keyboardHeightPx}); " +
-                                    "} else { console.error('❌ window.onNativeKeyboardChange not found!'); }"
-                        _eventChannel.trySend(UiEvent.EvaluateJavascript(jsCall))
+                        _eventChannel.trySend(
+                            UiEvent.EvaluateJavascript(
+                                keyboardHeightChange(
+                                    event.isVisible,
+                                    event.keyboardHeightPx
+                                )
+                            )
+                        )
                     }
 
                     is WebEvent.BillingUnavailable -> {
@@ -132,15 +146,25 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                             UiEvent.ForwardBillingResult(event.transactionId, event.resultJson)
                         )
                     }
+
+                    is WebEvent.ThemeResult -> {
+                        _uiState.update { state ->
+                            if (event.theme != state.theme?.mode) {
+                                val lumoTheme = LumoTheme.fromInt(event.theme)
+                                viewModelScope.launch {
+                                    themeRepository.saveTheme(lumoTheme)
+                                }
+                                state.copy(
+                                    theme = lumoTheme
+                                )
+                            } else {
+                                state
+                            }
+                        }
+                    }
                 }
             }
         }
-    }
-
-    private fun computeBackButton(url: String, isLumoPage: Boolean): Boolean {
-        // Example policy: show back only on account pages, not on Lumo root.
-        val isAccountPage = LumoConfig.isAccountDomain(url)
-        return isAccountPage && !isLumoPage
     }
 
     fun onWebEvent(event: WebEvent) {
@@ -149,10 +173,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun dismissPaymentDialog() {
         _uiState.update { it.copy(showPaymentDialog = false) }
-    }
-
-    fun setShouldShowBackButton(show: Boolean) {
-        _uiState.update { it.copy(shouldShowBackButton = show) }
     }
 
     // --- Initial Network Check --- 

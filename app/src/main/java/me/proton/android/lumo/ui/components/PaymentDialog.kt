@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -32,10 +33,6 @@ import me.proton.android.lumo.R
 import me.proton.android.lumo.billing.BillingManager
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
-import me.proton.android.lumo.models.SubscriptionItemResponse
-import me.proton.android.lumo.ui.theme.Purple
-import me.proton.android.lumo.ui.theme.DarkText
-import me.proton.android.lumo.ui.theme.GrayText
 import me.proton.android.lumo.viewmodels.SubscriptionViewModel
 import me.proton.android.lumo.viewmodels.ViewModelFactory
 
@@ -43,6 +40,7 @@ private const val TAG = "PaymentDialog"
 
 // Preview Functions for Different Dialog States
 
+@PreviewLightDark
 @Preview(name = "Loading Subscriptions", showBackground = true)
 @Composable
 fun PaymentDialogLoadingSubscriptionsPreview() {
@@ -55,6 +53,7 @@ fun PaymentDialogLoadingSubscriptionsPreview() {
     )
 }
 
+@PreviewLightDark
 @Preview(name = "Loading Plans", showBackground = true)
 @Composable
 fun PaymentDialogLoadingPlansPreview() {
@@ -67,6 +66,7 @@ fun PaymentDialogLoadingPlansPreview() {
     )
 }
 
+@PreviewLightDark
 @Preview(name = "Error State", showBackground = true)
 @Composable
 fun PaymentDialogErrorPreview() {
@@ -79,6 +79,7 @@ fun PaymentDialogErrorPreview() {
     )
 }
 
+@PreviewLightDark
 @Preview(name = "No Plans Available", showBackground = true)
 @Composable
 fun PaymentDialogNoPlansPreview() {
@@ -91,6 +92,7 @@ fun PaymentDialogNoPlansPreview() {
     )
 }
 
+@PreviewLightDark
 @Preview(name = "Plans Available", showBackground = true)
 @Composable
 fun PaymentDialogPlansAvailablePreview() {
@@ -154,6 +156,7 @@ fun PaymentDialogPlansAvailablePreview() {
     )
 }
 
+@PreviewLightDark
 @Preview(name = "Plans with Error", showBackground = true)
 @Composable
 fun PaymentDialogPlansWithErrorPreview() {
@@ -184,7 +187,7 @@ fun PaymentDialogPlansWithErrorPreview() {
 }
 
 // Payment Processing State Previews
-
+@PreviewLightDark
 @Preview(name = "Payment Processing - Loading", showBackground = true)
 @Composable
 fun PaymentProcessingLoadingPreview() {
@@ -195,6 +198,7 @@ fun PaymentProcessingLoadingPreview() {
     )
 }
 
+@PreviewLightDark
 @Preview(name = "Payment Processing - Verifying", showBackground = true)
 @Composable
 fun PaymentProcessingVerifyingPreview() {
@@ -205,6 +209,7 @@ fun PaymentProcessingVerifyingPreview() {
     )
 }
 
+@PreviewLightDark
 @Preview(name = "Payment Processing - Error", showBackground = true)
 @Composable
 fun PaymentProcessingErrorPreview() {
@@ -225,6 +230,7 @@ fun PaymentProcessingNetworkErrorPreview() {
     )
 }
 
+@PreviewLightDark
 @Preview(name = "Payment Processing - Success", showBackground = true)
 @Composable
 fun PaymentProcessingSuccessPreview() {
@@ -244,20 +250,13 @@ private fun PaymentDialogContentPreview(
     planFeatures: List<PlanFeature> = emptyList(),
     selectedPlan: JsPlanInfo? = null
 ) {
-    MaterialTheme(
-        colorScheme = MaterialTheme.colorScheme.copy(
-            primary = Purple,
-            surface = Color.White,
-            onSurface = DarkText,
-            onSurfaceVariant = GrayText
-        )
-    ) {
+    MaterialTheme {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.9f) // Limit height to allow scrolling
                 .clip(RoundedCornerShape(16.dp)),
-            color = Color.White
+            color = MaterialTheme.colorScheme.background
         ) {
             Column(
                 modifier = Modifier
@@ -274,7 +273,7 @@ private fun PaymentDialogContentPreview(
                     Icon(
                         Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = GrayText
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -289,14 +288,14 @@ private fun PaymentDialogContentPreview(
                 Text(
                     text = stringResource(id = R.string.payment_title),
                     style = MaterialTheme.typography.titleMedium,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center
                 )
 
                 Text(
                     text = stringResource(id = R.string.payment_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = GrayText,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
                 )
@@ -304,22 +303,22 @@ private fun PaymentDialogContentPreview(
                 // Dynamic Content based on loading/error/success
                 when {
                     isLoadingSubscriptions -> {
-                        CircularProgressIndicator(color = Purple)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = stringResource(id = R.string.payment_checking),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = GrayText
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
                     isLoadingPlans -> {
-                        CircularProgressIndicator(color = Purple)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = stringResource(id = R.string.payment_loading_plans),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = GrayText
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
@@ -368,7 +367,7 @@ private fun PaymentDialogContentPreview(
                         Text(
                             stringResource(id = R.string.subscription_renewal),
                             fontSize = 12.sp,
-                            color = Color.DarkGray,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
 
                         Spacer(modifier = Modifier.height(6.dp))
@@ -380,8 +379,8 @@ private fun PaymentDialogContentPreview(
                                 .fillMaxWidth()
                                 .height(50.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Purple,
-                                contentColor = Color.White
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
                             ),
                             shape = RoundedCornerShape(24.dp),
                             enabled = selectedPlan != null && selectedPlan.totalPrice.isNotEmpty()
@@ -399,7 +398,7 @@ private fun PaymentDialogContentPreview(
                             onClick = { /* Preview - no action */ },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.textButtonColors(
-                                contentColor = GrayText
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         ) {
                             Text(
@@ -412,7 +411,7 @@ private fun PaymentDialogContentPreview(
                     else -> {
                         Text(
                             text = stringResource(id = R.string.payment_no_plans_available),
-                            color = GrayText,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -494,7 +493,7 @@ fun PaymentDialog(
                         .fillMaxWidth(0.9f)
                         .fillMaxHeight(0.9f) // Limit height to allow scrolling
                         .clip(RoundedCornerShape(16.dp)),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     PaymentProcessingScreen(
                         state = paymentProcessingState!!,
@@ -521,7 +520,7 @@ fun PaymentDialog(
                         .fillMaxWidth(0.9f)
                         .fillMaxHeight(0.9f) // Limit height to allow scrolling
                         .clip(RoundedCornerShape(16.dp)),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     SubscriptionOverviewSection(
                         billingManager = billingManager,
@@ -544,7 +543,7 @@ fun PaymentDialog(
                     .fillMaxWidth(0.9f)
                     .fillMaxHeight(0.9f) // Limit height to allow scrolling
                     .clip(RoundedCornerShape(16.dp)),
-                color = Color.White
+                color = MaterialTheme.colorScheme.background
             ) {
                 Column(
                     modifier = Modifier
@@ -561,7 +560,7 @@ fun PaymentDialog(
                         Icon(
                             Icons.Default.Close,
                             contentDescription = "Close",
-                            tint = GrayText
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
@@ -578,14 +577,14 @@ fun PaymentDialog(
                     Text(
                         text = stringResource(id = R.string.payment_title),
                         style = MaterialTheme.typography.titleMedium,
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center
                     )
 
                     Text(
                         text = stringResource(id = R.string.payment_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = GrayText,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
                     )
@@ -594,23 +593,23 @@ fun PaymentDialog(
                     when {
                         isLoadingSubscriptions -> {
                             // Show loading UI while checking subscriptions
-                            CircularProgressIndicator(color = Purple)
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
                                 text = stringResource(id = R.string.payment_checking),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = GrayText
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
 
                         isLoadingPlans -> {
                             // Show loading UI
-                            CircularProgressIndicator(color = Purple)
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
                                 text = stringResource(id = R.string.payment_loading_plans),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = GrayText
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
 
@@ -640,7 +639,7 @@ fun PaymentDialog(
                                         "Free",
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = DarkText,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         modifier = Modifier.weight(0.8f),
                                         textAlign = TextAlign.Center
                                     )
@@ -650,7 +649,7 @@ fun PaymentDialog(
                                         "Plus",
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = Purple,
+                                        color = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.weight(0.8f),
                                         textAlign = TextAlign.Center
                                     )
@@ -724,8 +723,8 @@ fun PaymentDialog(
                                     .fillMaxWidth()
                                     .height(50.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Purple,
-                                    contentColor = Color.White
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
                                 ),
                                 shape = RoundedCornerShape(24.dp),
                                 enabled = selectedPlan != null && selectedPlan?.totalPrice?.isNotEmpty() == true
@@ -743,7 +742,7 @@ fun PaymentDialog(
                                 onClick = { onDismiss() },
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = ButtonDefaults.textButtonColors(
-                                    contentColor = GrayText
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             ) {
                                 Text(
@@ -757,7 +756,7 @@ fun PaymentDialog(
                             // No plans available
                             Text(
                                 text = stringResource(id = R.string.payment_no_plans_available),
-                                color = GrayText,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center
                             )
                         }

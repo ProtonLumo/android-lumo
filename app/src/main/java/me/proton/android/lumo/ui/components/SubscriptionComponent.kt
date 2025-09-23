@@ -23,10 +23,7 @@ import com.android.billingclient.api.ProductDetails
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.SubscriptionEntitlement
 import me.proton.android.lumo.models.SubscriptionItemResponse
-import me.proton.android.lumo.ui.theme.Purple
 import me.proton.android.lumo.ui.theme.LightPurple
-import me.proton.android.lumo.ui.theme.DarkText
-import me.proton.android.lumo.ui.theme.GrayText
 import me.proton.android.lumo.ui.theme.BorderGray
 import me.proton.android.lumo.ui.theme.ProgressBarColor
 import java.text.SimpleDateFormat
@@ -183,7 +180,7 @@ fun SubscriptionComponent(
                         Text(
                             text = planTitle,
                             style = MaterialTheme.typography.titleMedium,
-                            color = Purple
+                            color = MaterialTheme.colorScheme.primary
                         )
 
                         // Show cancellation badge if cancelled
@@ -244,7 +241,7 @@ fun SubscriptionComponent(
                     Text(
                         text = message,
                         fontSize = 14.sp,
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
 
@@ -253,7 +250,7 @@ fun SubscriptionComponent(
                         Text(
                             text = it,
                             fontSize = 14.sp,
-                            color = GrayText
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -296,12 +293,12 @@ fun SubscriptionComponent(
                     Text(
                         text = priceText,
                         style = MaterialTheme.typography.titleSmall,
-                        color = DarkText
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "a $periodText",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = GrayText
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -320,14 +317,14 @@ fun SubscriptionComponent(
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = null,
-                                        tint = Purple,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = entitlement.text,
                                         fontSize = 14.sp,
-                                        color = GrayText
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -346,7 +343,7 @@ fun SubscriptionComponent(
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Purple
+                        containerColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(24.dp)
                 ) {
@@ -362,7 +359,7 @@ fun SubscriptionComponent(
                 Text(
                     text = stringResource(id = R.string.subscription_manage_info),
                     fontSize = 14.sp,
-                    color = GrayText,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
@@ -386,7 +383,7 @@ fun StorageUsageIndicator(
                 )
             }",
             style = MaterialTheme.typography.bodyLarge,
-            color = DarkText
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         // Progress bar - fixed the height issue
@@ -439,7 +436,7 @@ fun FeatureItem(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = Purple,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(16.dp)
             )
         }
@@ -449,7 +446,7 @@ fun FeatureItem(
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = DarkText
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

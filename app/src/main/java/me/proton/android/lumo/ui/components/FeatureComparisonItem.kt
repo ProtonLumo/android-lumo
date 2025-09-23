@@ -12,9 +12,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import me.proton.android.lumo.models.PlanFeature
-import me.proton.android.lumo.ui.theme.DarkText
-import me.proton.android.lumo.ui.theme.GrayText
-import me.proton.android.lumo.ui.theme.Purple
 
 /**
  * Displays a feature comparison row between free and paid plans
@@ -46,7 +43,7 @@ fun FeatureComparisonItem(feature: PlanFeature) {
         Text(
             text = feature.name,
             style = MaterialTheme.typography.bodyMedium,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Left,
             modifier = Modifier.weight(1f)
         )
@@ -55,7 +52,7 @@ fun FeatureComparisonItem(feature: PlanFeature) {
         Text(
             text = feature.paidText,
             style = MaterialTheme.typography.bodyMedium,
-            color = Purple,
+            color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Right,
             modifier = Modifier.weight(0.8f)
