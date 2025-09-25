@@ -175,7 +175,15 @@ class MainActivityViewModel(
         _uiState.update { it.copy(showPaymentDialog = false) }
     }
 
-    // --- Initial Network Check --- 
+    fun onWebEvent(event: WebEvent) {
+        _webEvents.tryEmit(event)
+    }
+
+    fun dismissPaymentDialog() {
+        _uiState.update { it.copy(showPaymentDialog = false) }
+    }
+
+    // --- Initial Network Check ---
     fun performInitialNetworkCheck() {
         if (checkCompleted) {
             Log.d(TAG, "Initial network check already completed, skipping.")

@@ -5,10 +5,7 @@ import android.webkit.JavascriptInterface
 import me.proton.android.lumo.MainActivityViewModel
 import me.proton.android.lumo.domain.WebEvent
 
-class WebAppInterface(
-    private val viewModel: MainActivityViewModel
-) {
-
+class WebAppInterface(private val viewModel: MainActivityViewModel) {
     @JavascriptInterface
     fun showPayment() {
         Log.d(TAG, "showPayment called from JavaScript")
