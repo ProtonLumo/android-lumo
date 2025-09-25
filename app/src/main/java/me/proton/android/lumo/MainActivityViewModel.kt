@@ -175,14 +175,6 @@ class MainActivityViewModel(
         _uiState.update { it.copy(showPaymentDialog = false) }
     }
 
-    fun onWebEvent(event: WebEvent) {
-        _webEvents.tryEmit(event)
-    }
-
-    fun dismissPaymentDialog() {
-        _uiState.update { it.copy(showPaymentDialog = false) }
-    }
-
     // --- Initial Network Check ---
     fun performInitialNetworkCheck() {
         if (checkCompleted) {
