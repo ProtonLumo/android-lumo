@@ -53,7 +53,13 @@ class WebAppInterface(private val viewModel: MainActivityViewModel) {
         Log.d(TAG, "Web logs: $message")
     }
 
+    @JavascriptInterface
+    fun onThemeChanged(mode: String) {
+        Log.d(TAG, "onThemeChanged: $mode")
+        viewModel.onWebEvent(WebEvent.ThemeResult(mode))
+    }
+
     companion object {
         private const val TAG = "WebAppInterface"
     }
-} 
+}

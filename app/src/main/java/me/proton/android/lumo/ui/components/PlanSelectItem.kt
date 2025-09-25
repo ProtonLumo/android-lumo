@@ -16,10 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
-import me.proton.android.lumo.ui.theme.Purple
+import me.proton.android.lumo.ui.theme.Primary
 import me.proton.android.lumo.ui.theme.LightPurple
-import me.proton.android.lumo.ui.theme.DarkText
-import me.proton.android.lumo.ui.theme.GrayText
 import me.proton.android.lumo.ui.theme.Green
 import me.proton.android.lumo.ui.theme.BorderGray
 
@@ -30,7 +28,7 @@ import me.proton.android.lumo.ui.theme.BorderGray
 fun PlanSelectItem(
     plan: JsPlanInfo, isSelected: Boolean, onSelected: () -> Unit
 ) {
-    val borderColor = if (isSelected) Purple else BorderGray
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else BorderGray
     val backgroundColor = if (isSelected) LightPurple else Color.White
 
     Row(
@@ -47,8 +45,11 @@ fun PlanSelectItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
-            selected = isSelected, onClick = onSelected, colors = RadioButtonDefaults.colors(
-                selectedColor = Purple, unselectedColor = BorderGray
+            selected = isSelected,
+            onClick = onSelected,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = MaterialTheme.colorScheme.onSecondary,
+                unselectedColor = BorderGray
             )
         )
         Spacer(modifier = Modifier.width(12.dp))
@@ -59,13 +60,15 @@ fun PlanSelectItem(
                     "12 year" -> "12 " + stringResource(id = R.string.months)
                     "12 months" -> "12 " + stringResource(id = R.string.months)
                     else -> plan.duration
-                }, style = MaterialTheme.typography.labelLarge, color = DarkText
+                },
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSecondary,
             )
             if (plan.pricePerMonth.isNotEmpty() && plan.cycle > 1) {
                 Text(
                     "${plan.pricePerMonth}/" + stringResource(id = R.string.month),
                     style = MaterialTheme.typography.bodySmall,
-                    color = GrayText
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -77,7 +80,7 @@ fun PlanSelectItem(
                 Text(
                     stringResource(id = R.string.for_price) + " ${plan.totalPrice}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Purple,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
                 )
             }

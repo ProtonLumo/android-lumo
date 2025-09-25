@@ -18,8 +18,6 @@ import androidx.compose.ui.unit.dp
 import me.proton.android.lumo.R
 import me.proton.android.lumo.billing.BillingManager
 import me.proton.android.lumo.models.SubscriptionItemResponse
-import me.proton.android.lumo.ui.theme.DarkText
-import me.proton.android.lumo.ui.theme.GrayText
 import java.util.Date
 
 /**
@@ -65,7 +63,7 @@ fun SubscriptionOverviewSection(
             Icon(
                 Icons.Default.Close,
                 contentDescription = "Close",
-                tint = GrayText
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -83,7 +81,7 @@ fun SubscriptionOverviewSection(
         Text(
             text = "Subscription Overview",
             style = MaterialTheme.typography.titleLarge,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 16.dp)
         )

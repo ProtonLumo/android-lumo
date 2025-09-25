@@ -13,8 +13,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.config.LumoConfig
+import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.domain.WebEvent
 import me.proton.android.lumo.speech.SpeechRecognitionManager
+import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.utils.isHostReachable
 import me.proton.android.lumo.webview.keyboardHeightChange
 
@@ -34,6 +36,7 @@ data class MainUiState(
     val isLumoPage: Boolean = true,
     val hasSeenLumoContainer: Boolean = false,
     val shouldShowBackButton: Boolean = false,
+    val theme: LumoTheme? = null
 )
 
 // Define Events for communication (e.g., JS evaluation)
@@ -44,7 +47,10 @@ sealed class UiEvent {
     data class ForwardBillingResult(val transactionId: String, val resultJson: String) : UiEvent()
 }
 
-class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
+class MainActivityViewModel(
+    application: Application,
+    private val themeRepository: ThemeRepository
+) : AndroidViewModel(application) {
 
     internal val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
@@ -67,6 +73,14 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         updatePermissionStatus()
         determineSpeechStatusText()
 
+        viewModelScope.launch {
+            val theme = themeRepository.getTheme()
+            _uiState.update { state ->
+                state.copy(theme = theme)
+            }
+        }
+
+        // Don't call performInitialNetworkCheck here, call from Activity onCreate
         viewModelScope.launch {
             _webEvents.collect { event ->
                 when (event) {
@@ -127,10 +141,25 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                             UiEvent.ForwardBillingResult(event.transactionId, event.resultJson)
                         )
                     }
+
+                    is WebEvent.ThemeResult -> {
+                        _uiState.update { state ->
+                            if (event.theme != state.theme?.mode) {
+                                val lumoTheme = LumoTheme.fromInt(event.theme)
+                                viewModelScope.launch {
+                                    themeRepository.saveTheme(lumoTheme)
+                                }
+                                state.copy(
+                                    theme = lumoTheme
+                                )
+                            } else {
+                                state
+                            }
+                        }
+                    }
                 }
             }
         }
-        // Don't call performInitialNetworkCheck here, call from Activity onCreate
     }
 
     fun onWebEvent(event: WebEvent) {
@@ -141,7 +170,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         _uiState.update { it.copy(showPaymentDialog = false) }
     }
 
-    // --- Initial Network Check --- 
+    // --- Initial Network Check ---
     fun performInitialNetworkCheck() {
         if (checkCompleted) {
             Log.d(TAG, "Initial network check already completed, skipping.")

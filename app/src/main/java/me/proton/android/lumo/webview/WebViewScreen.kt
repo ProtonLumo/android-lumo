@@ -340,6 +340,7 @@ fun WebViewScreen(
                                 injectLumoContainerCheck(view)
                                 injectPromotionButtonHandlers(view)
                                 injectUpgradeLinkHandlers(view)
+                                themeChangeListener(view)
                                 Log.d(
                                     TAG,
                                     "Calling injectSignupPlanParamFix from onPageFinished for URL: $url"

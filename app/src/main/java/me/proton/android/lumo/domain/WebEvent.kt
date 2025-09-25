@@ -11,4 +11,11 @@ sealed interface WebEvent {
         WebEvent
 
     data class PostResult(val transactionId: String, val resultJson: String) : WebEvent
+    data class ThemeResult(val mode: String) : WebEvent {
+        val theme = when (mode) {
+            "Dark" -> 1
+            "Light" -> 2
+            else -> 0
+        }
+    }
 }

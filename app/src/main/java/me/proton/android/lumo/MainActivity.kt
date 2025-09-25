@@ -14,10 +14,13 @@ import android.webkit.WebResourceResponse
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -72,8 +76,9 @@ import me.proton.android.lumo.ui.components.PaymentDialog
 import me.proton.android.lumo.ui.components.SimpleAlertDialog
 import me.proton.android.lumo.ui.components.SpeechInputSheetContent
 import me.proton.android.lumo.ui.theme.LumoTheme
-import me.proton.android.lumo.ui.theme.Purple
+import me.proton.android.lumo.ui.theme.Primary
 import me.proton.android.lumo.webview.WebViewScreen
+import me.proton.android.lumo.webview.injectTheme
 
 private const val TAG = "MainActivity"
 
@@ -81,7 +86,9 @@ private const val TAG = "MainActivity"
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     // Make viewModel accessible to WebAppInterface
-    internal val viewModel: MainActivityViewModel by viewModels()
+    internal val viewModel: MainActivityViewModel by viewModels {
+        MainActivityViewModelFactory(application)
+    }
 
     // Manager instances for separation of concerns
     private lateinit var billingManagerWrapper: BillingManagerWrapper
@@ -180,7 +187,6 @@ class MainActivity : ComponentActivity() {
                             permissionManager.requestRecordAudioPermission()
                         }
 
-
                         is UiEvent.ForwardBillingResult -> {
                             // Previously done via MainActivity.postResult(); now fully event-driven.
                             billingManagerWrapper.handleJavaScriptResult(
@@ -208,11 +214,71 @@ class MainActivity : ComponentActivity() {
             }
         }, 5000) // Reduced to 5 seconds for faster fallback
 
+        enableEdgeToEdge()
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val initialUrl by viewModel.initialUrl.collectAsStateWithLifecycle()
+            val isDarkTheme = uiState.theme?.let { theme ->
+                when (theme) {
+                    is LumoTheme.System -> {
+                        webViewManager.webView?.let {
+                            injectTheme(
+                                webView = it,
+                                theme = if (isSystemInDarkTheme()) 15 else 14,
+                                mode = 0
+                            )
+                        }
+                        isSystemInDarkTheme()
+                    }
 
-            LumoTheme {
+                    is LumoTheme.Light -> {
+                        webViewManager.webView?.let {
+                            injectTheme(
+                                webView = it,
+                                theme = 14,
+                                mode = 2
+                            )
+                        }
+                        false
+                    }
+
+                    is LumoTheme.Dark -> {
+                        webViewManager.webView?.let {
+                            injectTheme(
+                                webView = it,
+                                theme = 15,
+                                mode = 1
+                            )
+                        }
+                        true
+                    }
+                }
+            } ?: isSystemInDarkTheme()
+
+            val barColor = MaterialTheme.colorScheme.background.toArgb()
+            LaunchedEffect(isDarkTheme) {
+                if (isDarkTheme) {
+                    enableEdgeToEdge(
+                        statusBarStyle = SystemBarStyle.dark(
+                            barColor,
+                        ),
+                        navigationBarStyle = SystemBarStyle.dark(
+                            barColor,
+                        ),
+                    )
+                } else {
+                    enableEdgeToEdge(
+                        statusBarStyle = SystemBarStyle.light(
+                            barColor, barColor,
+                        ),
+                        navigationBarStyle = SystemBarStyle.light(
+                            barColor, barColor,
+                        ),
+                    )
+                }
+            }
+
+            LumoTheme(darkTheme = isDarkTheme) {
                 val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
                 val scope = rememberCoroutineScope()
 
@@ -263,7 +329,7 @@ class MainActivity : ComponentActivity() {
                     ModalBottomSheet(
                         onDismissRequest = { viewModel.onCancelListening() },
                         sheetState = sheetState,
-                        containerColor = Purple,
+                        containerColor = Primary,
                     ) {
                         SpeechInputSheetContent(
                             isListening = uiState.isListening,
@@ -316,7 +382,8 @@ class MainActivity : ComponentActivity() {
                                         Spacer(Modifier.width(8.dp))
                                         Text(
                                             text = stringResource(id = R.string.back_to_lumo),
-                                            style = MaterialTheme.typography.titleLarge
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = MaterialTheme.colorScheme.onBackground
                                         )
                                     }
                                 }
@@ -342,6 +409,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+
                         // Overlay LoadingScreen if loading (use only ViewModel state)
                         androidx.compose.animation.AnimatedVisibility(
                             visible = uiState.isLoading && !uiState.hasSeenLumoContainer && uiState.isLumoPage,

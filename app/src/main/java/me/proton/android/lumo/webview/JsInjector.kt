@@ -1088,6 +1088,97 @@ fun verifyAndroidInterface(webView: WebView) {
     }
 }
 
+fun injectTheme(webView: WebView, theme: Int, mode: Int) {
+    val js = """
+        (function() {
+            function getLocalId() {
+                try {
+                    const url = window.location.href;
+                    const pathName = new URL(url).pathname;
+                    const match = pathName.match(/\/u\/(\d+)\//);
+                    return match ? match[1] : null;
+                } catch {
+                    return null;
+                }
+            }
+            
+            const localId = getLocalId();
+            const key = `lumo-settings${"$"}{localId === null ? '' : `:${"$"}{localId}`}`;
+            
+            const themeObj = {
+                theme: $theme,  // Int
+                mode: $mode     // Int
+            };
+
+            localStorage.setItem(key, JSON.stringify(themeObj));
+        })();
+    """.trimIndent()
+
+    webView.evaluateJavascript(js, null)
+}
+
+fun themeChangeListener(webView: WebView) {
+    val js = """
+        (function() {
+            let currentObserver = null;
+        
+            function attachAriaObserver(button) {
+                if (!button) return;
+        
+                // Disconnect old observer if any
+                if (currentObserver) {
+                    currentObserver.disconnect();
+                    currentObserver = null;
+                }
+            
+                window.Android?.log("✅ Observing button, aria-label=" + button.getAttribute("aria-label"));
+            
+                currentObserver = new MutationObserver(mutations => {
+                    for (const mutation of mutations) {
+                        if (mutation.type === "attributes" && mutation.attributeName === "aria-label") {
+                            const mode = button.getAttribute("aria-label");
+                            window.Android?.log("🎯 aria-label changed to: " + mode);
+                            window.Android?.onThemeChanged(mode);
+                        }
+                    }
+                });
+            
+                currentObserver.observe(button, {
+                    attributes: true,
+                    attributeFilter: ["aria-label"]
+                });
+            }
+        
+          // Body observer to detect when .theme-dropdown buttons appear
+          const bodyObserver = new MutationObserver(mutations => {
+            for (const mutation of mutations) {
+                for (const node of mutation.addedNodes) {
+                    if (!(node instanceof HTMLElement)) continue;
+        
+                    // Case 1: the node itself is the button
+                    if (node.matches(".theme-dropdown")) {
+                        attachAriaObserver(node);
+                    }
+        
+                    // Case 2: the button is inside the added node
+                    const btn = node.querySelector(".theme-dropdown");
+                    if (btn) {
+                        attachAriaObserver(btn);
+                    }
+                }
+            }
+          });
+        
+          bodyObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+        })();
+    """.trimIndent()
+    webView.evaluateJavascript(js, null)
+}
+
+
 fun keyboardHeightChange(isVisible: Boolean, keyboardHeight: Int): String =
     """(function() {
         if (window.onNativeKeyboardChange) {
