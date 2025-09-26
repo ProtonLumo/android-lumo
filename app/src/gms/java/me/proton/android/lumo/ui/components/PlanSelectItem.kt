@@ -16,7 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
-import me.proton.android.lumo.ui.theme.Primary
 import me.proton.android.lumo.ui.theme.LightPurple
 import me.proton.android.lumo.ui.theme.Green
 import me.proton.android.lumo.ui.theme.BorderGray

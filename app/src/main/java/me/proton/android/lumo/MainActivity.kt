@@ -63,17 +63,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import me.proton.android.lumo.billing.BillingDelegateImpl
 import me.proton.android.lumo.config.LumoConfig
-import me.proton.android.lumo.di.DependencyProvider
-import me.proton.android.lumo.managers.BillingManagerWrapper
 import me.proton.android.lumo.managers.PermissionManager
 import me.proton.android.lumo.managers.UIManager
 import me.proton.android.lumo.managers.WebViewManager
 import me.proton.android.lumo.models.Feature
+import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.speech.SpeechRecognitionManager
 import me.proton.android.lumo.ui.components.LoadingScreen
-import me.proton.android.lumo.ui.components.PaymentDialog
-import me.proton.android.lumo.ui.components.SimpleAlertDialog
 import me.proton.android.lumo.ui.components.SpeechInputSheetContent
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.ui.theme.Primary
@@ -90,8 +88,7 @@ class MainActivity : ComponentActivity() {
         MainActivityViewModelFactory(application)
     }
 
-    // Manager instances for separation of concerns
-    private lateinit var billingManagerWrapper: BillingManagerWrapper
+    private lateinit var billingDelegate: BillingDelegateImpl
     private lateinit var webViewManager: WebViewManager
     private lateinit var permissionManager: PermissionManager
     private lateinit var uiManager: UIManager
@@ -189,7 +186,7 @@ class MainActivity : ComponentActivity() {
 
                         is UiEvent.ForwardBillingResult -> {
                             // Previously done via MainActivity.postResult(); now fully event-driven.
-                            billingManagerWrapper.handleJavaScriptResult(
+                            billingDelegate.handleJavaScriptResult(
                                 event.transactionId,
                                 event.resultJson
                             )
@@ -428,17 +425,8 @@ class MainActivity : ComponentActivity() {
                         }
                         if (initialUrl != null) {
                             Log.d(TAG, "Showing, or trying to show PaymentDialog. ")
-                            billingManagerWrapper.getBillingManager()?.let { manager ->
-                                PaymentDialog(
-                                    visible = uiState.showPaymentDialog,
-                                    billingManager = manager,
-                                    onDismiss = { viewModel.dismissPaymentDialog() }
-                                )
-                            } ?: run {
-                                // When billing is unavailable, show a simple dialog informing the user
-                                SimpleAlertDialog(uiState.showPaymentDialog) {
-                                    viewModel.dismissPaymentDialog()
-                                }
+                            billingDelegate.ShowPaymentOrError(uiState) {
+                                viewModel.dismissPaymentDialog()
                             }
                         }
                         if (initialUrl == null) {
@@ -468,16 +456,16 @@ class MainActivity : ComponentActivity() {
 
     fun getPlansFromWebView(
         webView: android.webkit.WebView,
-        callback: ((Result<me.proton.android.lumo.models.PaymentJsResponse>) -> Unit)? = null
+        callback: ((Result<PaymentJsResponse>) -> Unit)? = null
     ) {
-        billingManagerWrapper.getPlansFromWebView(webView, callback)
+        billingDelegate.getPlansFromWebView(webView, callback)
     }
 
     fun getSubscriptionsFromWebView(
         webView: android.webkit.WebView,
-        callback: ((Result<me.proton.android.lumo.models.PaymentJsResponse>) -> Unit)? = null
+        callback: ((Result<PaymentJsResponse>) -> Unit)? = null
     ) {
-        billingManagerWrapper.getSubscriptionsFromWebView(webView, callback)
+        billingDelegate.getSubscriptionsFromWebView(webView, callback)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -502,8 +490,8 @@ class MainActivity : ComponentActivity() {
         }, webViewManager)
 
         // Get BillingManagerWrapper from dependency provider
-        billingManagerWrapper = DependencyProvider.getBillingManagerWrapper(this)
-        billingManagerWrapper.initializeBilling()
+        billingDelegate = BillingDelegateImpl()
+        billingDelegate.initialise(activity = this)
 
         Log.d(TAG, "All managers initialized successfully")
     }

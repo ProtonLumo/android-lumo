@@ -45,13 +45,8 @@ android {
         }
     }
     
-    flavorDimensions += listOf("environment", "debugging")
+    flavorDimensions += listOf("debugging", "services")
     productFlavors {
-        create("production") {
-            dimension = "environment"
-            // Uses default values from defaultConfig
-        }
-        
         // Debugging variants for WebView debugging capability
         create("standard") {
             dimension = "debugging"
@@ -63,6 +58,15 @@ android {
             dimension = "debugging"
             // Never enables WebView debugging (for GrapheneOS and privacy-focused users)
             buildConfigField("boolean", "ENABLE_WEBVIEW_DEBUG", "false")
+        }
+
+        create("gms") {
+            dimension = "services"
+            versionNameSuffix = "-gms"
+        }
+        create("noGms") {
+            dimension = "services"
+            versionNameSuffix = "-nogms"
         }
     }
 
@@ -119,9 +123,10 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("com.google.android.material:material:1.11.0")
-    implementation(libs.billing.ktx)
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("com.airbnb.android:lottie-compose:6.4.0")
+
+    "gmsImplementation"(libs.billing.ktx)
 
     // Hilt removed - using lightweight DependencyProvider instead
 

@@ -5,6 +5,7 @@ import android.util.Log
 import com.android.billingclient.api.ProductDetails
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
@@ -147,7 +148,7 @@ class SubscriptionRepositoryImpl(
 
     override fun getGooglePlayProducts(): Flow<List<ProductDetails>> {
         return billingManager?.productDetailsList
-            ?: kotlinx.coroutines.flow.flowOf(emptyList())
+            ?: flowOf(emptyList())
     }
 
     override fun updatePlanPricing(

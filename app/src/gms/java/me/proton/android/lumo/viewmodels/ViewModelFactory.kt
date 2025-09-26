@@ -3,6 +3,7 @@ package me.proton.android.lumo.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import me.proton.android.lumo.MainActivity
+import me.proton.android.lumo.data.repository.SubscriptionRepositoryImpl
 import me.proton.android.lumo.di.DependencyProvider
 
 /**
@@ -20,9 +21,10 @@ class ViewModelFactory(
                 // Get dependencies from the dependency provider
                 val billingManagerWrapper =
                     DependencyProvider.getBillingManagerWrapper(mainActivity)
-                val repository = DependencyProvider.getSubscriptionRepository(
+                val repository = SubscriptionRepositoryImpl(
+                    context = mainActivity.applicationContext,
                     mainActivity = mainActivity,
-                    billingManagerWrapper = billingManagerWrapper
+                    billingManager = billingManagerWrapper.getBillingManager()
                 )
 
                 // Create ViewModel with injected dependencies
