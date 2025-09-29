@@ -1,4 +1,4 @@
-package me.proton.lumo
+package me.proton.android.lumo
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

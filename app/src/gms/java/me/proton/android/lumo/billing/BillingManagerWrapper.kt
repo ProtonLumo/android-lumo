@@ -1,17 +1,12 @@
-package me.proton.android.lumo.managers
+package me.proton.android.lumo.billing
 
-import android.content.Context
 import android.util.Log
 import android.webkit.WebView
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.gson.Gson
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import me.proton.android.lumo.MainActivity
-import me.proton.android.lumo.billing.BillingManager
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.models.Subscription
@@ -115,8 +110,10 @@ class BillingManagerWrapper(private val activity: MainActivity) {
                                 payload: PaymentTokenPayload,
                                 callback: ((Result<PaymentJsResponse>) -> Unit)?
                             ) {
-                                activity.webView?.let {
-                                    sendPaymentTokenToWebView(it, payload, callback)
+                                activity.runOnUiThread {
+                                    activity.webView?.let {
+                                        sendPaymentTokenToWebView(it, payload, callback)
+                                    }
                                 }
                             }
 
@@ -124,8 +121,10 @@ class BillingManagerWrapper(private val activity: MainActivity) {
                                 payload: Subscription,
                                 callback: ((Result<PaymentJsResponse>) -> Unit)?
                             ) {
-                                activity.webView?.let {
-                                    sendSubscriptionEventToWebView(it, payload, callback)
+                                activity.runOnUiThread {
+                                    activity.webView?.let {
+                                        sendSubscriptionEventToWebView(it, payload, callback)
+                                    }
                                 }
                             }
                         }

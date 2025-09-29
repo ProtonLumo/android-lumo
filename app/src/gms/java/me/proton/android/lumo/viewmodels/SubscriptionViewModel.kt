@@ -12,17 +12,18 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.R
 import me.proton.android.lumo.data.repository.SubscriptionRepository
+import me.proton.android.lumo.data.repository.SubscriptionRepositoryImpl
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.models.SubscriptionItemResponse
-import me.proton.android.lumo.managers.BillingManagerWrapper
+import me.proton.android.lumo.billing.BillingManagerWrapper
 
 private const val TAG = "SubscriptionViewModel"
 
 /**
  * ViewModel that manages subscription data
  */
-class SubscriptionViewModel constructor(
+class SubscriptionViewModel(
     private val application: Application,
     private val repository: SubscriptionRepository,
     private val billingManagerWrapper: BillingManagerWrapper
@@ -87,7 +88,7 @@ class SubscriptionViewModel constructor(
                     // Parse subscriptions from response
                     if (response.data != null && response.data.isJsonObject) {
                         val parsedSubscriptions =
-                            (repository as? me.proton.android.lumo.data.repository.SubscriptionRepositoryImpl)
+                            (repository as? SubscriptionRepositoryImpl)
                                 ?.parseSubscriptions(response) ?: emptyList()
 
                         _subscriptions.value = parsedSubscriptions
@@ -266,7 +267,7 @@ class SubscriptionViewModel constructor(
      */
     fun checkSubscriptionSyncMismatch(): Boolean {
         // Get Google Play subscription status
-        val (hasGooglePlaySubscription, isAutoRenewing, expiryTime) = repository.getGooglePlaySubscriptionStatus()
+        val (hasGooglePlaySubscription, isAutoRenewing) = repository.getGooglePlaySubscriptionStatus()
 
         Log.d(
             TAG, "Subscription sync check - API hasValid: ${_hasValidSubscription.value}, " +

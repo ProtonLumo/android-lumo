@@ -1,21 +1,28 @@
 package me.proton.android.lumo.billing
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.util.Log
+import androidx.core.net.toUri
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
+import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
+import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
@@ -25,19 +32,14 @@ import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.models.Subscription
 import me.proton.android.lumo.models.SubscriptionPlan
-import java.util.*
-import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.QueryProductDetailsParams
-import kotlinx.coroutines.flow.asStateFlow
 import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.utils.ErrorClassifier
-import androidx.core.net.toUri
-import me.proton.android.lumo.managers.BillingManagerWrapper
+import java.util.Date
 
 class BillingManager(
     private val activity: MainActivity?,
     private val billingCallbacks: BillingManagerWrapper.BillingCallbacks,
-    ) {
+) {
     val isTestMode: Boolean = false
 
     private val TAG = "BillingManager"
@@ -91,7 +93,7 @@ class BillingManager(
     // Cache management
     private var lastPurchaseQueryTime = 0L
     private var lastProductDetailsQueryTime = 0L
-    private var periodicRefreshJob: kotlinx.coroutines.Job? = null
+    private var periodicRefreshJob: Job? = null
     private var cachedPurchases: List<Purchase> = emptyList()
 
     val purchaseState = _purchaseState.asStateFlow()
@@ -120,7 +122,12 @@ class BillingManager(
             try {
                 BillingClient.newBuilder(it)
                     .setListener(purchasesUpdatedListener)
-                    .enablePendingPurchases()
+                    .enablePendingPurchases(
+                        PendingPurchasesParams.newBuilder()
+                            .enableOneTimeProducts()
+                            .build()
+                    )
+                    .enableAutoServiceReconnection()
                     .build()
             } catch (e: Exception) {
                 Log.e(
@@ -168,7 +175,7 @@ class BillingManager(
                     // Initialize billing with additional safety
                     initializeBilling()
 
-                } catch (e: android.content.pm.PackageManager.NameNotFoundException) {
+                } catch (e: PackageManager.NameNotFoundException) {
                     Log.e(TAG, "Google Play Store is not installed", e)
                     _purchaseState.value = PurchaseState.Error(
                         activity?.getString(R.string.billing_google_play_required)
@@ -552,21 +559,22 @@ class BillingManager(
                 TAG,
                 "Product details query result: $responseCodeName, debug: ${billingResult.debugMessage}"
             )
-            Log.d(TAG, "Retrieved ${retrievedProductDetails.size} products")
+            val productDetailsList = retrievedProductDetails.productDetailsList
+            Log.d(TAG, "Retrieved $productDetailsList products")
 
             when (billingResult.responseCode) {
                 BillingClient.BillingResponseCode.OK -> {
                     Log.d(TAG, retrievedProductDetails.toString());
-                    if (retrievedProductDetails.isNotEmpty()) {
+                    if (productDetailsList.isNotEmpty()) {
                         // Store all retrieved product details
-                        _productDetailsList.value = retrievedProductDetails
+                        _productDetailsList.value = productDetailsList
 
                         // Also select the first product as default
-                        val firstProduct = retrievedProductDetails[0]
+                        val firstProduct = productDetailsList[0]
                         this.productDetails = firstProduct
 
                         // Log info about all retrieved products
-                        retrievedProductDetails.forEach { product ->
+                        productDetailsList.forEach { product ->
                             Log.d(TAG, "Product details retrieved:")
                             Log.d(TAG, "- Product ID: ${product.productId}")
                             Log.d(TAG, "- Name: ${product.name}")
@@ -583,7 +591,7 @@ class BillingManager(
                         }
 
                         // Update subscription plans with pricing information
-                        updateSubscriptionPlansWithPricing(retrievedProductDetails)
+                        updateSubscriptionPlansWithPricing(productDetailsList)
 
                         // Select the default plan (first one)
                         selectPlan(0)
@@ -1297,13 +1305,6 @@ class BillingManager(
             },
             forceRefresh = true // Always get fresh data for recovery
         )
-    }
-
-    /**
-     * Helper function to identify network errors using professional error classification
-     */
-    private fun isNetworkError(throwable: Throwable): Boolean {
-        return ErrorClassifier.isNetworkError(throwable)
     }
 
     sealed class PurchaseState {
