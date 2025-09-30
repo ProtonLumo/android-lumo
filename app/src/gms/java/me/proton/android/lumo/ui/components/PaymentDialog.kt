@@ -5,6 +5,7 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.content.res.Configuration.UI_MODE_TYPE_NORMAL
 import android.util.Log
 import android.view.WindowManager
+import android.webkit.WebView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -47,14 +48,16 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.collectLatest
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
-import me.proton.android.lumo.billing.BillingManager
+import me.proton.android.lumo.billing.BillingManagerWrapper
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.viewmodels.SubscriptionViewModel
-import me.proton.android.lumo.viewmodels.ViewModelFactory
+import me.proton.android.lumo.viewmodels.SubscriptionViewModel.UiEvent
+import me.proton.android.lumo.viewmodels.SubscriptionViewModelFactory
 
 private const val TAG = "PaymentDialog"
 
@@ -472,93 +475,132 @@ private fun PaymentDialogContentPreview(
 @SuppressLint("DefaultLocale")
 @Composable
 fun PaymentDialog(
+    webView: WebView,
     visible: Boolean,
     isDarkTheme: Boolean,
-    billingManager: BillingManager,
+    billingManagerWrapper: BillingManagerWrapper,
     onDismiss: () -> Unit,
 ) {
-    val context = LocalContext.current
-    val mainActivity = context as? MainActivity
+    billingManagerWrapper.getBillingManager()?.let { billingManager ->
+        val context = LocalContext.current
+        val mainActivity = context as? MainActivity
 
-    // Create ViewModel using the modern factory approach
-    val subscriptionViewModel: SubscriptionViewModel = viewModel(
-        factory = ViewModelFactory(mainActivity ?: return)
-    )
+        val subscriptionViewModel: SubscriptionViewModel = viewModel(
+            factory = SubscriptionViewModelFactory(mainActivity ?: return)
+        )
 
-    // Collect state from ViewModel
-    val uiState by subscriptionViewModel.uiStateFlow.collectAsStateWithLifecycle()
+        val uiState by subscriptionViewModel.uiStateFlow.collectAsStateWithLifecycle()
 
-    // Get payment processing state from BillingManager
-    val paymentProcessingState by billingManager.paymentProcessingState.collectAsStateWithLifecycle()
-    val isRefreshingPurchases by billingManager.isRefreshingPurchases.collectAsStateWithLifecycle()
+        // Get payment processing state from BillingManager
+        val paymentProcessingState by billingManager.paymentProcessingState.collectAsStateWithLifecycle()
+        val isRefreshingPurchases by billingManager.isRefreshingPurchases.collectAsStateWithLifecycle()
 
-    // Load subscriptions whenever dialog opens
-    LaunchedEffect(visible) {
-        if (visible) {
-            // Refresh status from Google Play and load subscriptions
-            subscriptionViewModel.refreshSubscriptionStatus()
-        }
-    }
+        LaunchedEffect(Unit) {
+            subscriptionViewModel.events.collectLatest { event ->
+                when (event) {
+                    UiEvent.LoadPlans ->
+                        billingManagerWrapper.getPlansFromWebView(webView) {
+                            subscriptionViewModel.plansLoaded(it)
+                        }
 
-    // Check for subscription sync mismatch after BOTH loading operations are complete
-    LaunchedEffect(
-        uiState.isLoadingSubscriptions,
-        isRefreshingPurchases,
-        uiState.hasValidSubscription
-    ) {
-        if (!uiState.isLoadingSubscriptions && !isRefreshingPurchases && !uiState.hasValidSubscription) {
-            Log.d(
-                TAG,
-                "Both loading operations complete, checking for subscription sync mismatch..."
-            )
-            // Check if there's a mismatch that needs recovery
-            if (subscriptionViewModel.checkSubscriptionSyncMismatch()) {
-                // Trigger the recovery flow
-                subscriptionViewModel.triggerSubscriptionRecovery()
+                    UiEvent.LoadSubscriptions ->
+                        billingManagerWrapper.getSubscriptionsFromWebView(webView) {
+                            subscriptionViewModel.subscriptionsLoaded(it)
+                        }
+                }
             }
         }
-    }
 
-    if (visible) {
-        // If payment is being processed, show that screen instead
-        if (paymentProcessingState != null) {
-            Dialog(
-                onDismissRequest = {
-                    // Don't allow dismissing during loading or verification
-                    if (paymentProcessingState !is PaymentProcessingState.Loading &&
-                        paymentProcessingState !is PaymentProcessingState.Verifying
-                    ) {
-                        onDismiss()
-                        billingManager.resetPaymentState()
-                    }
-                },
-                properties = DialogProperties(usePlatformDefaultWidth = false)
-            ) {
-                DisableDimFor(isDarkTheme = isDarkTheme)
+        LaunchedEffect(visible) {
+            if (visible) {
+                subscriptionViewModel.refreshSubscriptionStatus()
+            }
+        }
 
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .fillMaxHeight(0.9f) // Limit height to allow scrolling
-                        .clip(RoundedCornerShape(16.dp)),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    PaymentProcessingScreen(
-                        state = paymentProcessingState!!,
-                        onRetry = { billingManager.retryPaymentVerification() },
-                        onClose = {
+        // Check for subscription sync mismatch after BOTH loading operations are complete
+        LaunchedEffect(
+            uiState.isLoadingSubscriptions,
+            isRefreshingPurchases,
+            uiState.hasValidSubscription
+        ) {
+            if (!uiState.isLoadingSubscriptions && !isRefreshingPurchases && !uiState.hasValidSubscription) {
+                Log.d(
+                    TAG,
+                    "Both loading operations complete, checking for subscription sync mismatch..."
+                )
+                // Check if there's a mismatch that needs recovery
+                if (subscriptionViewModel.checkSubscriptionSyncMismatch()) {
+                    // Trigger the recovery flow
+                    billingManager.triggerSubscriptionRecovery()
+                }
+            }
+        }
+
+        if (visible) {
+            // If payment is being processed, show that screen instead
+            if (paymentProcessingState != null) {
+                Dialog(
+                    onDismissRequest = {
+                        // Don't allow dismissing during loading or verification
+                        if (paymentProcessingState !is PaymentProcessingState.Loading &&
+                            paymentProcessingState !is PaymentProcessingState.Verifying
+                        ) {
                             onDismiss()
                             billingManager.resetPaymentState()
                         }
-                    )
+                    },
+                    properties = DialogProperties(usePlatformDefaultWidth = false)
+                ) {
+                    DisableDimFor(isDarkTheme = isDarkTheme)
+
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                            .fillMaxHeight(0.9f) // Limit height to allow scrolling
+                            .clip(RoundedCornerShape(16.dp)),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        PaymentProcessingScreen(
+                            state = paymentProcessingState!!,
+                            onRetry = { billingManager.retryPaymentVerification() },
+                            onClose = {
+                                onDismiss()
+                                billingManager.resetPaymentState()
+                            }
+                        )
+                    }
                 }
+
+                return
             }
 
-            return
-        }
+            // Check if user already has a valid subscription
+            if (uiState.hasValidSubscription) {
+                Dialog(
+                    onDismissRequest = { onDismiss() },
+                    properties = DialogProperties(usePlatformDefaultWidth = false)
+                ) {
+                    DisableDimFor(isDarkTheme = isDarkTheme)
 
-        // Check if user already has a valid subscription
-        if (uiState.hasValidSubscription) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                            .fillMaxHeight(0.9f) // Limit height to allow scrolling
+                            .clip(RoundedCornerShape(16.dp)),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        SubscriptionOverviewSection(
+                            billingManager = billingManager,
+                            subscriptions = uiState.subscriptions,
+                            onClose = { onDismiss() }
+                        )
+                    }
+                }
+
+                return
+            }
+
+            // --- Dialog UI for plan selection ---
             Dialog(
                 onDismissRequest = { onDismiss() },
                 properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -572,220 +614,199 @@ fun PaymentDialog(
                         .clip(RoundedCornerShape(16.dp)),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SubscriptionOverviewSection(
-                        billingManager = billingManager,
-                        subscriptions = uiState.subscriptions,
-                        onClose = { onDismiss() }
-                    )
-                }
-            }
-
-            return
-        }
-
-        // --- Dialog UI for plan selection ---
-        Dialog(
-            onDismissRequest = { onDismiss() },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            DisableDimFor(isDarkTheme = isDarkTheme)
-
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .fillMaxHeight(0.9f) // Limit height to allow scrolling
-                    .clip(RoundedCornerShape(16.dp)),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 24.dp, vertical = 20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Close Button
-                    IconButton(
-                        onClick = { onDismiss() },
-                        modifier = Modifier.align(Alignment.End)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 24.dp, vertical = 20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = "Close",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        // Close Button
+                        IconButton(
+                            onClick = { onDismiss() },
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = "Close",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Image(
+                            painter = painterResource(id = R.drawable.lumo_cat_on_laptop),
+                            contentDescription = "Lumo Plus",
+                            modifier = Modifier.height(80.dp)
                         )
-                    }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    Image(
-                        painter = painterResource(id = R.drawable.lumo_cat_on_laptop),
-                        contentDescription = "Lumo Plus",
-                        modifier = Modifier.height(80.dp)
-                    )
+                        Text(
+                            text = stringResource(id = R.string.payment_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center
+                        )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = stringResource(id = R.string.payment_subtitle),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                        )
 
-                    Text(
-                        text = stringResource(id = R.string.payment_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.Center
-                    )
+                        // --- Dynamic Content based on loading/error/success ---
+                        when {
+                            uiState.isLoadingSubscriptions -> {
+                                // Show loading UI while checking subscriptions
+                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = stringResource(id = R.string.payment_checking),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
 
-                    Text(
-                        text = stringResource(id = R.string.payment_subtitle),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
-                    )
+                            uiState.isLoadingPlans -> {
+                                // Show loading UI
+                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = stringResource(id = R.string.payment_loading_plans),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
 
-                    // --- Dynamic Content based on loading/error/success ---
-                    when {
-                        uiState.isLoadingSubscriptions -> {
-                            // Show loading UI while checking subscriptions
-                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = stringResource(id = R.string.payment_checking),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-
-                        uiState.isLoadingPlans -> {
-                            // Show loading UI
-                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = stringResource(id = R.string.payment_loading_plans),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-
-                        uiState.errorMessage != null -> {
-                            // Show error state
-                            Text(
-                                text = uiState.errorMessage ?: stringResource(id = R.string.error_generic),
-                                color = MaterialTheme.colorScheme.error,
-                                textAlign = TextAlign.Center
-                            )
-                        }
+                            uiState.errorMessage != null -> {
+                                // Show error state
+                                Text(
+                                    text = uiState.errorMessage
+                                        ?: stringResource(id = R.string.error_generic),
+                                    color = MaterialTheme.colorScheme.error,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
 
                         uiState.planOptions.isNotEmpty() -> {
                             // Features comparison table
                             if (uiState.planFeatures.isNotEmpty()) {
                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                // Display features
-                                uiState.planFeatures.take(5).forEach { feature ->
-                                    FeatureComparisonItem(feature)
+                                    // Display features
+                                    uiState.planFeatures.take(5).forEach { feature ->
+                                        FeatureComparisonItem(feature)
+                                    }
+
+                                    Spacer(modifier = Modifier.height(16.dp))
                                 }
 
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
+                                // Plan Selection Section
+                                uiState.planOptions.forEach { plan ->
+                                    // Skip plans with no pricing info
+                                    if (plan.totalPrice.isNotEmpty()) {
+                                        PlanSelectItem(
+                                            plan = plan,
+                                            isSelected = uiState.selectedPlan?.id == plan.id,
+                                            onSelected = { subscriptionViewModel.selectPlan(plan) }
+                                        )
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                    }
+                                }
 
-                            // Plan Selection Section
-                            uiState.planOptions.forEach { plan ->
-                                // Skip plans with no pricing info
-                                if (plan.totalPrice.isNotEmpty()) {
-                                    PlanSelectItem(
-                                        plan = plan,
-                                        isSelected = uiState.selectedPlan?.id == plan.id,
-                                        onSelected = { subscriptionViewModel.selectPlan(plan) }
+                                // Display error message if any
+                                uiState.errorMessage?.let { errorMsg ->
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        errorMsg,
+                                        color = MaterialTheme.colorScheme.error,
+                                        fontSize = 14.sp,
+                                        textAlign = TextAlign.Center
                                     )
-                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                }
+
+                                Text(
+                                    stringResource(id = R.string.subscription_renewal),
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                // Continue Button (Purchase)
+                                Button(
+                                    onClick = {
+                                        uiState.selectedPlan?.let { planToPurchase ->
+                                            if (planToPurchase.offerToken == null && planToPurchase.totalPrice.isEmpty()) {
+                                                subscriptionViewModel.clearError()
+                                                return@Button
+                                            }
+                                            Log.d(
+                                                TAG,
+                                                "Purchase button clicked for plan: ${planToPurchase.id}, ProductID: ${planToPurchase.productId}, OfferToken: ${planToPurchase.offerToken}"
+                                            )
+                                            billingManager.launchBillingFlowForProduct(
+                                                planToPurchase.productId,
+                                                planToPurchase.offerToken,
+                                                planToPurchase.customerId
+                                            )
+                                        } ?: run {
+                                            Log.w(TAG, "Purchase clicked but no plan selected.")
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                    ),
+                                    shape = RoundedCornerShape(24.dp),
+                                    enabled = uiState.selectedPlan != null && uiState.selectedPlan?.totalPrice?.isNotEmpty() == true
+                                ) {
+                                    Text(
+                                        stringResource(id = R.string.subscription_buy_lumo),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                TextButton(
+                                    onClick = { onDismiss() },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.textButtonColors(
+                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                ) {
+                                    Text(
+                                        "Not now",
+                                        fontSize = 14.sp
+                                    )
                                 }
                             }
 
-                            // Display error message if any
-                            uiState.errorMessage?.let { errorMsg ->
-                                Spacer(modifier = Modifier.height(6.dp))
+                            else -> {
+                                // No plans available
                                 Text(
-                                    errorMsg,
-                                    color = MaterialTheme.colorScheme.error,
-                                    fontSize = 14.sp,
+                                    text = stringResource(id = R.string.payment_no_plans_available),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Center
                                 )
-                                Spacer(modifier = Modifier.height(6.dp))
                             }
-
-                            Text(
-                                stringResource(id = R.string.subscription_renewal),
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            // Continue Button (Purchase)
-                            Button(
-                                onClick = {
-                                    uiState.selectedPlan?.let { planToPurchase ->
-                                        if (planToPurchase.offerToken == null && planToPurchase.totalPrice.isEmpty()) {
-                                            subscriptionViewModel.clearError()
-                                            return@Button
-                                        }
-                                        Log.d(
-                                            TAG,
-                                            "Purchase button clicked for plan: ${planToPurchase.id}, ProductID: ${planToPurchase.productId}, OfferToken: ${planToPurchase.offerToken}"
-                                        )
-                                        billingManager.launchBillingFlowForProduct(
-                                            planToPurchase.productId,
-                                            planToPurchase.offerToken,
-                                            planToPurchase.customerId
-                                        )
-                                    } ?: run {
-                                        Log.w(TAG, "Purchase clicked but no plan selected.")
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(50.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    contentColor = MaterialTheme.colorScheme.onPrimary
-                                ),
-                                shape = RoundedCornerShape(24.dp),
-                                enabled = uiState.selectedPlan != null && uiState.selectedPlan?.totalPrice?.isNotEmpty() == true
-                            ) {
-                                Text(
-                                    stringResource(id = R.string.subscription_buy_lumo),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            TextButton(
-                                onClick = { onDismiss() },
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            ) {
-                                Text(
-                                    "Not now",
-                                    fontSize = 14.sp
-                                )
-                            }
-                        }
-
-                        else -> {
-                            // No plans available
-                            Text(
-                                text = stringResource(id = R.string.payment_no_plans_available),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center
-                            )
                         }
                     }
                 }
             }
         }
+    } ?: run {
+        SimpleAlertDialog(visible, onDismiss)
     }
 }
 

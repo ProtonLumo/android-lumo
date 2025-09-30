@@ -20,9 +20,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,7 +42,6 @@ import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.managers.PermissionManager
 import me.proton.android.lumo.managers.UIManager
 import me.proton.android.lumo.managers.WebViewManager
-import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.speech.SpeechRecognitionManager
 import me.proton.android.lumo.ui.components.MainScreen
 import me.proton.android.lumo.ui.components.MainScreenListeners
@@ -55,7 +54,7 @@ import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     // Make viewModel accessible to WebAppInterface
-    internal val viewModel: MainActivityViewModel by viewModels {
+    internal val mainActivityViewModel: MainActivityViewModel by viewModels {
         MainActivityViewModelFactory(application)
     }
 
@@ -137,12 +136,12 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.events.collectLatest { event ->
+                mainActivityViewModel.events.collectLatest { event ->
                     when (event) {
                         is MainUiEvent.EvaluateJavascript -> {
                             Log.d(TAG, "Received EvaluateJavascript event")
                             webViewManager.evaluateJavaScript(event.script) { result ->
-                                viewModel.handleJavascriptResult(result)
+                                mainActivityViewModel.handleJavascriptResult(result)
                             }
                         }
 
@@ -162,15 +161,15 @@ class MainActivity : ComponentActivity() {
         }
 
         // Trigger the initial network connectivity check (independent of billing)
-        viewModel.performInitialNetworkCheck()
+        mainActivityViewModel.performInitialNetworkCheck()
 
         // Add a global safety timer to ensure loading screen doesn't get stuck
         Handler(Looper.getMainLooper()).postDelayed({
             Log.d(TAG, "Global safety timeout reached for loading screen")
-            val currentState = viewModel.uiState.value
+            val currentState = mainActivityViewModel.uiState.value
             if (currentState.isLoading) {
                 Log.d(TAG, "Forcing loading screen to hide from global timer")
-                viewModel._uiState.update {
+                mainActivityViewModel._uiState.update {
                     it.copy(isLoading = false, hasSeenLumoContainer = true)
                 }
             }
@@ -178,8 +177,8 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            val initialUrl by viewModel.initialUrl.collectAsStateWithLifecycle()
+            val uiState by mainActivityViewModel.uiState.collectAsStateWithLifecycle()
+            val initialUrl by mainActivityViewModel.initialUrl.collectAsStateWithLifecycle()
 
             val isDarkTheme = uiState.theme?.let { theme ->
                 when (theme) {
@@ -228,7 +227,8 @@ class MainActivity : ComponentActivity() {
                         Color.Transparent.toArgb(),
                         Color.Transparent.toArgb()
                     )
-                )            }
+                )
+            }
 
             LumoTheme(darkTheme = isDarkTheme) {
                 MainScreen(
@@ -237,8 +237,13 @@ class MainActivity : ComponentActivity() {
                     lottieComposition = lottieComposition.collectAsStateWithLifecycle().value,
                     mainScreenListeners = MainScreenListeners(
                         handlePaymentDialog = {
-                            billingDelegate.ShowPaymentOrError(uiState) {
-                                viewModel.dismissPaymentDialog()
+                            webView?.let {
+                                billingDelegate.ShowPaymentOrError(
+                                    uiState = uiState,
+                                    webView = it
+                                ) {
+                                    mainActivityViewModel.dismissPaymentDialog()
+                                }
                             }
                         },
                         onWebViewCreated = {
@@ -246,7 +251,7 @@ class MainActivity : ComponentActivity() {
                             try {
                                 addJavaScriptInterfaceSafely(
                                     webView = it,
-                                    mainViewModel = viewModel,
+                                    mainViewModel = mainActivityViewModel,
                                     billingDelegate = billingDelegate
                                 )
                             } catch (e: Exception) {
@@ -269,10 +274,10 @@ class MainActivity : ComponentActivity() {
                             webViewManager.clearHistory()
                         },
                         cancelSpeech = {
-                            viewModel.onCancelListening()
+                            mainActivityViewModel.onCancelListening()
                         },
                         submitSpeechTranscript = {
-                            viewModel.onSubmitTranscription()
+                            mainActivityViewModel.onSubmitTranscription()
                         },
                     )
                 )
@@ -289,20 +294,6 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         speechRecognitionManager.destroy() // Release the recognizer
         webViewManager.destroy()
-    }
-
-    fun getPlansFromWebView(
-        webView: android.webkit.WebView,
-        callback: ((Result<PaymentJsResponse>) -> Unit)? = null
-    ) {
-        billingDelegate.getPlansFromWebView(webView, callback)
-    }
-
-    fun getSubscriptionsFromWebView(
-        webView: android.webkit.WebView,
-        callback: ((Result<PaymentJsResponse>) -> Unit)? = null
-    ) {
-        billingDelegate.getSubscriptionsFromWebView(webView, callback)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -339,17 +330,17 @@ class MainActivity : ComponentActivity() {
     private fun handlePermissionResult(permission: String, isGranted: Boolean) {
         when (permission) {
             Manifest.permission.RECORD_AUDIO -> {
-                viewModel.updatePermissionStatus() // Update ViewModel's knowledge regardless
+                mainActivityViewModel.updatePermissionStatus() // Update ViewModel's knowledge regardless
                 if (isGranted) {
                     Log.d(
                         TAG,
                         "RECORD_AUDIO permission granted by user, re-triggering voice entry request"
                     )
-                    viewModel.onStartVoiceEntryRequested()
+                    mainActivityViewModel.onStartVoiceEntryRequested()
                 } else {
                     Log.w(TAG, "RECORD_AUDIO permission denied by user")
-                    viewModel.viewModelScope.launch {
-                        viewModel._eventChannel.send(
+                    mainActivityViewModel.viewModelScope.launch {
+                        mainActivityViewModel._eventChannel.send(
                             MainUiEvent.ShowToast(getString(R.string.permission_mic_rationale))
                         )
                     }

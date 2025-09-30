@@ -3,12 +3,12 @@ package me.proton.android.lumo.billing
 import android.webkit.WebView
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.MainUiState
 import me.proton.android.lumo.di.DependencyProvider
-import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.ui.components.PaymentDialog
-import me.proton.android.lumo.ui.components.SimpleAlertDialog
+import me.proton.android.lumo.viewmodels.SubscriptionViewModel
 
 class BillingDelegateImpl() : BillingDelegate {
 
@@ -19,38 +19,21 @@ class BillingDelegateImpl() : BillingDelegate {
         billingManagerWrapper.initializeBilling()
     }
 
-    override fun getPlansFromWebView(
-        webView: WebView,
-        callback: ((Result<PaymentJsResponse>) -> Unit)?
-    ) {
-        billingManagerWrapper.getPlansFromWebView(webView, callback)
-    }
-
-    override fun getSubscriptionsFromWebView(
-        webView: WebView,
-        callback: ((Result<PaymentJsResponse>) -> Unit)?
-    ) {
-        billingManagerWrapper.getSubscriptionsFromWebView(webView, callback)
-    }
-
     override fun handleJavaScriptResult(transactionId: String, resultJson: String): Boolean =
         billingManagerWrapper.handleJavaScriptResult(transactionId, resultJson)
 
     @Composable
     override fun ShowPaymentOrError(
         uiState: MainUiState,
+        webView: WebView,
         onDismiss: () -> Unit,
     ) {
-        billingManagerWrapper.getBillingManager()?.let { manager ->
-            PaymentDialog(
-                visible = uiState.showPaymentDialog,
-                isDarkTheme = isSystemInDarkTheme(),
-                billingManager = manager,
-                onDismiss = onDismiss
-            )
-        } ?: run {
-            // When billing is unavailable, show a simple dialog informing the user
-            SimpleAlertDialog(uiState.showPaymentDialog, onDismiss)
-        }
+        PaymentDialog(
+            webView = remember { webView },
+            visible = uiState.showPaymentDialog,
+            isDarkTheme = isSystemInDarkTheme(),
+            billingManagerWrapper = billingManagerWrapper,
+            onDismiss = onDismiss,
+        )
     }
 }

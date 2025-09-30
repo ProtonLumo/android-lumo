@@ -5,16 +5,21 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.ProductDetails
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import me.proton.android.lumo.MainActivityViewModel
 import me.proton.android.lumo.R
-import me.proton.android.lumo.billing.BillingManagerWrapper
 import me.proton.android.lumo.data.repository.SubscriptionRepository
 import me.proton.android.lumo.data.repository.SubscriptionRepositoryImpl
 import me.proton.android.lumo.models.JsPlanInfo
+import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.models.SubscriptionItemResponse
 
@@ -25,9 +30,14 @@ private const val TAG = "SubscriptionViewModel"
  */
 class SubscriptionViewModel(
     private val application: Application,
-    private val repository: SubscriptionRepository,
-    private val billingManagerWrapper: BillingManagerWrapper
+    private val repository: SubscriptionRepository
 ) : ViewModel() {
+
+    sealed interface UiEvent {
+        data object LoadSubscriptions: UiEvent
+        data object LoadPlans: UiEvent
+    }
+
     data class UiState(
         val isLoadingSubscriptions: Boolean = false,
         val subscriptions: List<SubscriptionItemResponse> = emptyList(),
@@ -41,6 +51,9 @@ class SubscriptionViewModel(
 
     private val _uiStateFlow = MutableStateFlow(UiState())
     val uiStateFlow = _uiStateFlow.asStateFlow()
+
+    private val _events = MutableSharedFlow<UiEvent>()
+    val events: Flow<UiEvent> = _events
 
     // Google Play product details
     private val _googleProductDetails = MutableStateFlow<List<ProductDetails>>(emptyList())
@@ -63,7 +76,7 @@ class SubscriptionViewModel(
     /**
      * Load user subscriptions
      */
-    fun loadSubscriptions() {
+    private fun loadSubscriptions() {
         _uiStateFlow.update {
             it.copy(
                 isLoadingSubscriptions = true,
@@ -72,76 +85,78 @@ class SubscriptionViewModel(
         }
 
         viewModelScope.launch {
-            try {
-                val result = repository.getSubscriptions()
+            _events.emit(UiEvent.LoadSubscriptions)
+        }
+    }
 
-                result.onSuccess { response ->
-                    // Parse subscriptions from response
-                    if (response.data != null && response.data.isJsonObject) {
-                        val parsedSubscriptions =
-                            (repository as? SubscriptionRepositoryImpl)
-                                ?.parseSubscriptions(response) ?: emptyList()
+    fun subscriptionsLoaded(result: Result<PaymentJsResponse>) {
+        try {
+            result.onSuccess { response ->
+                // Parse subscriptions from response
+                if (response.data != null && response.data.isJsonObject) {
+                    val parsedSubscriptions =
+                        (repository as? SubscriptionRepositoryImpl)
+                            ?.parseSubscriptions(response) ?: emptyList()
 
-                        _uiStateFlow.update {
-                            it.copy(
-                                subscriptions = parsedSubscriptions,
-                                hasValidSubscription = repository.hasValidSubscription(
-                                    parsedSubscriptions
-                                )
-                            )
-                        }
-
-                        Log.d(
-                            TAG,
-                            "Loaded ${parsedSubscriptions.size} subscriptions, " +
-                                    "hasValid=${_uiStateFlow.value.hasValidSubscription}"
-                        )
-                    } else {
-                        Log.e(TAG, "Invalid subscription data format")
-                        _uiStateFlow.update {
-                            it.copy(
-                                subscriptions = emptyList(),
-                                hasValidSubscription = false,
-                            )
-                        }
-                    }
-                }.onFailure { error ->
-                    Log.e(TAG, "Failed to load subscriptions: ${error.message}", error)
                     _uiStateFlow.update {
                         it.copy(
-                            errorMessage = application.getString(
-                                R.string.error_failed_to_load_subscriptions,
-                                error.message ?: "Unknown error"
-                            ),
+                            subscriptions = parsedSubscriptions,
+                            hasValidSubscription = repository.hasValidSubscription(
+                                parsedSubscriptions
+                            )
+                        )
+                    }
+
+                    Log.d(
+                        TAG,
+                        "Loaded ${parsedSubscriptions.size} subscriptions, " +
+                                "hasValid=${_uiStateFlow.value.hasValidSubscription}"
+                    )
+                } else {
+                    Log.e(TAG, "Invalid subscription data format")
+                    _uiStateFlow.update {
+                        it.copy(
                             subscriptions = emptyList(),
-                            hasValidSubscription = false
+                            hasValidSubscription = false,
                         )
                     }
                 }
-
-                // If the user doesn't have a valid subscription, load plans
-                if (!_uiStateFlow.value.hasValidSubscription) {
-                    loadPlans()
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error loading subscriptions", e)
+            }.onFailure { error ->
+                Log.e(TAG, "Failed to load subscriptions: ${error.message}", error)
                 _uiStateFlow.update {
                     it.copy(
                         errorMessage = application.getString(
-                            R.string.error_loading_subscriptions,
-                            e.message ?: "Unknown error"
+                            R.string.error_failed_to_load_subscriptions,
+                            error.message ?: "Unknown error"
                         ),
                         subscriptions = emptyList(),
                         hasValidSubscription = false
                     )
                 }
+            }
 
-                // Try to load plans anyway
+            // If the user doesn't have a valid subscription, load plans
+            if (!_uiStateFlow.value.hasValidSubscription) {
                 loadPlans()
-            } finally {
-                _uiStateFlow.update {
-                    it.copy(isLoadingSubscriptions = false)
-                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error loading subscriptions", e)
+            _uiStateFlow.update {
+                it.copy(
+                    errorMessage = application.getString(
+                        R.string.error_loading_subscriptions,
+                        e.message ?: "Unknown error"
+                    ),
+                    subscriptions = emptyList(),
+                    hasValidSubscription = false
+                )
+            }
+
+            // Try to load plans anyway
+            loadPlans()
+        } finally {
+            _uiStateFlow.update {
+                it.copy(isLoadingSubscriptions = false)
             }
         }
     }
@@ -158,79 +173,81 @@ class SubscriptionViewModel(
         }
 
         viewModelScope.launch {
-            try {
-                val result = repository.getPlans()
+            _events.emit(UiEvent.LoadPlans)
+        }
+    }
 
-                result.onSuccess { response ->
-                    // Extract features from the response
-                    _uiStateFlow.update {
-                        it.copy(
-                            planFeatures = repository.extractPlanFeatures(response)
-                        )
-                    }
+    fun plansLoaded(result: Result<PaymentJsResponse>) {
+        try {
+            result.onSuccess { response ->
+                // Extract features from the response
+                _uiStateFlow.update {
+                    it.copy(
+                        planFeatures = repository.extractPlanFeatures(response)
+                    )
+                }
 
-                    // Extract plans from the response
-                    val extractedPlans = repository.extractPlans(response)
+                // Extract plans from the response
+                val extractedPlans = repository.extractPlans(response)
 
-                    if (extractedPlans.isNotEmpty()) {
-                        // Update plan pricing
-                        val updatedPlans = repository.updatePlanPricing(
-                            extractedPlans,
-                            _googleProductDetails.value
-                        )
+                if (extractedPlans.isNotEmpty()) {
+                    // Update plan pricing
+                    val updatedPlans = repository.updatePlanPricing(
+                        extractedPlans,
+                        _googleProductDetails.value
+                    )
 
-                        // Only update if we have pricing info
-                        if (updatedPlans.any { it.totalPrice.isNotEmpty() }) {
-                            _uiStateFlow.update {
-                                it.copy(
-                                    planOptions = updatedPlans,
-                                    selectedPlan = updatedPlans.firstOrNull()
-                                )
-                            }
-                            Log.d(TAG, "Loaded ${updatedPlans.size} plans with pricing")
-                        } else {
-                            _uiStateFlow.update {
-                                it.copy(
-                                    errorMessage = application.getString(R.string.error_no_plans_with_pricing)
-                                )
-                            }
-                            Log.e(TAG, "No plans with pricing information available")
-                        }
-                    } else {
-                        Log.e(TAG, "No valid plans found")
+                    // Only update if we have pricing info
+                    if (updatedPlans.any { it.totalPrice.isNotEmpty() }) {
                         _uiStateFlow.update {
                             it.copy(
-                                errorMessage = application.getString(R.string.error_problem_loading_subscriptions)
+                                planOptions = updatedPlans,
+                                selectedPlan = updatedPlans.firstOrNull()
                             )
                         }
+                        Log.d(TAG, "Loaded ${updatedPlans.size} plans with pricing")
+                    } else {
+                        _uiStateFlow.update {
+                            it.copy(
+                                errorMessage = application.getString(R.string.error_no_plans_with_pricing)
+                            )
+                        }
+                        Log.e(TAG, "No plans with pricing information available")
                     }
-                }.onFailure { error ->
-                    Log.e(TAG, "Failed to load plans: ${error.message}", error)
+                } else {
+                    Log.e(TAG, "No valid plans found")
                     _uiStateFlow.update {
                         it.copy(
-                            errorMessage = application.getString(
-                                R.string.error_failed_to_load_plans,
-                                error.message ?: "Unknown error"
-                            )
+                            errorMessage = application.getString(R.string.error_problem_loading_subscriptions)
                         )
                     }
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error loading plans", e)
+            }.onFailure { error ->
+                Log.e(TAG, "Failed to load plans: ${error.message}", error)
                 _uiStateFlow.update {
                     it.copy(
                         errorMessage = application.getString(
-                            R.string.error_loading_plans,
-                            e.message ?: "Unknown error"
+                            R.string.error_failed_to_load_plans,
+                            error.message ?: "Unknown error"
                         )
                     )
                 }
-            } finally {
-                _uiStateFlow.update {
-                    it.copy(
-                        isLoadingPlans = false
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error loading plans", e)
+            _uiStateFlow.update {
+                it.copy(
+                    errorMessage = application.getString(
+                        R.string.error_loading_plans,
+                        e.message ?: "Unknown error"
                     )
-                }
+                )
+            }
+        } finally {
+            _uiStateFlow.update {
+                it.copy(
+                    isLoadingPlans = false
+                )
             }
         }
     }
@@ -332,11 +349,4 @@ class SubscriptionViewModel(
 
         return hasMismatch
     }
-
-    /**
-     * Trigger subscription recovery flow
-     */
-    fun triggerSubscriptionRecovery() {
-        billingManagerWrapper.getBillingManager()?.triggerSubscriptionRecovery()
-    }
-} 
+}

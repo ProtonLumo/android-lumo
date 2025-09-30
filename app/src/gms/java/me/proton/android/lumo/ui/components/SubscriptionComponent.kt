@@ -177,11 +177,13 @@ fun SubscriptionComponent(
                         // Get plan title from either direct Title field or from Plans array
                         val planTitle = subscription.Title ?: subscription.Name
 
-                        Text(
-                            text = planTitle,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                        planTitle?.let {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
 
                         // Show cancellation badge if cancelled
                         if (isCancelled) {

@@ -22,7 +22,6 @@ import androidx.core.view.WindowInsetsCompat
 import kotlinx.coroutines.flow.update
 import me.proton.android.lumo.BuildConfig
 import me.proton.android.lumo.MainActivity
-import me.proton.android.lumo.MainActivityViewModel
 import me.proton.android.lumo.MainActivityViewModel.WebEvent
 import me.proton.android.lumo.config.LumoConfig
 
@@ -198,7 +197,7 @@ fun WebViewScreen(
                             Log.d(TAG, ">>> KEYBOARD STATE CHANGED - Notifying JavaScript <<<")
 
                             try {
-                                activity.viewModel.onWebEvent(
+                                activity.mainActivityViewModel.onWebEvent(
                                     event = WebEvent.KeyboardVisibilityChanged(
                                         isVisible = isKeyboardVisible,
                                         keyboardHeightPx = keyboardHeightCss
@@ -271,7 +270,7 @@ fun WebViewScreen(
 
                         // Only show loading screen when navigating to Lumo pages
                         if (isLumoDomain) {
-                            activity.viewModel._uiState.update {
+                            activity.mainActivityViewModel._uiState.update {
                                 it.copy(isLoading = true, hasSeenLumoContainer = false)
                             }
                             Log.d(TAG, "Lumo page loading started - showing loading overlay")
@@ -289,7 +288,7 @@ fun WebViewScreen(
                             // *** NOW, check if it's the error page and skip the rest if it is ***
                             if (url == errorPageUrl) {
                                 Log.d(TAG, "Skipping non-essential JS injection for error page.")
-                                activity.viewModel._uiState.update { it.copy(isLoading = false) }
+                                activity.mainActivityViewModel._uiState.update { it.copy(isLoading = false) }
                                 return // Exit after adding the interface
                             }
 
@@ -327,7 +326,7 @@ fun WebViewScreen(
 
                                 // Add a safety timeout to ensure loading state is cleared
                                 Handler(Looper.getMainLooper()).postDelayed({
-                                    val currentState = activity.viewModel.uiState.value
+                                    val currentState = activity.mainActivityViewModel.uiState.value
                                     Log.d(
                                         TAG,
                                         "Safety timeout reached, current loading state: ${currentState.isLoading}"
@@ -338,7 +337,7 @@ fun WebViewScreen(
                                             "Forcing loading state off and setting hasSeenLumoContainer to true"
                                         )
                                         activity.runOnUiThread {
-                                            activity.viewModel._uiState.update {
+                                            activity.mainActivityViewModel._uiState.update {
                                                 it.copy(
                                                     isLoading = false,
                                                     hasSeenLumoContainer = true
@@ -353,7 +352,7 @@ fun WebViewScreen(
                         } catch (e: Exception) {
                             Log.e(TAG, "Error during onPageFinished setup", e)
                             // Ensure loading state is cleared even on error
-                            activity.viewModel._uiState.update { it.copy(isLoading = false) }
+                            activity.mainActivityViewModel._uiState.update { it.copy(isLoading = false) }
                         }
                     }
 

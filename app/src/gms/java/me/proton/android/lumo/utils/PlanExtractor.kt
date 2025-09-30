@@ -20,7 +20,7 @@ object PlanExtractor {
      * @param context Context for accessing string resources (optional)
      * @return List of extracted JsPlanInfo objects
      */
-    fun extractPlans(dataObject: JsonObject, context: Context? = null): List<JsPlanInfo> {
+    fun extractPlans(dataObject: JsonObject): List<JsPlanInfo> {
         val extractedPlans = mutableListOf<JsPlanInfo>()
 
         if (dataObject.has("Plans") && dataObject.get("Plans").isJsonArray) {
@@ -49,17 +49,17 @@ object PlanExtractor {
 
                             // Only create plans for instances with valid Google productId
                             if (productId != null) {
+                                // TODO: fix me, no context
                                 val durationText = when (cycle) {
-                                    1 -> context?.getString(R.string.plan_duration_1_month)
-                                        ?: "1 month"
+                                    1 -> "1 month" //context?.getString(R.string.plan_duration_1_month) ?: "1 month"
 
-                                    12 -> context?.getString(R.string.plan_duration_12_months)
-                                        ?: "12 months"
+                                    12 -> "12 months" //context?.getString(R.string.plan_duration_12_months) ?: "12 months"
 
-                                    else -> context?.getString(
-                                        R.string.plan_duration_n_months,
-                                        cycle
-                                    ) ?: "$cycle Months"
+                                    else -> "$cycle Months"
+//                                    context?.getString(
+//                                        R.string.plan_duration_n_months,
+//                                        cycle
+//                                    ) ?: "$cycle Months"
                                 }
 
                                 val jsPlan = JsPlanInfo(
