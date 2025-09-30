@@ -98,32 +98,6 @@ private fun injectSafeAreaInsets(
     }
 }
 
-/**
- * Safely adds the JavaScript interface to the WebView with proper error handling
- * and prevents duplicate registrations
- */
-private fun addJavaScriptInterfaceSafely(webView: WebView, activity: MainActivity) {
-    try {
-        // Remove any existing interface first to prevent duplicates
-        webView.removeJavascriptInterface("Android")
-
-        val webAppInterface = WebAppInterface(activity.viewModel)
-        // Add the interface
-        webView.addJavascriptInterface(
-            webAppInterface,
-            "Android"
-        )
-        Log.d(TAG, "JavaScript interface 'Android' added successfully")
-
-        // Inject a simple test to verify interface is working
-        webView.evaluateJavascript(
-            "console.log('Android interface available:', typeof window.Android !== 'undefined');",
-            null
-        )
-    } catch (e: Exception) {
-        Log.e(TAG, "Error adding JavaScript interface", e)
-    }
-}
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -136,13 +110,6 @@ fun WebViewScreen(
         factory = { context ->
             WebView(context).apply {
                 onWebViewCreated(this)
-
-                // *** Add JS Interface during initial setup ***
-                try {
-                    addJavaScriptInterfaceSafely(this, activity)
-                } catch (e: Exception) {
-                    Log.e(TAG, "WebView factory: Error adding JavascriptInterface", e)
-                }
 
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
