@@ -3,17 +3,26 @@ package me.proton.android.lumo.webview
 import android.util.Log
 import android.webkit.WebView
 import me.proton.android.lumo.MainActivity
+import me.proton.android.lumo.MainActivityViewModel
+import me.proton.android.lumo.billing.BillingDelegate
 
 /**
  * Safely adds the JavaScript interface to the WebView with proper error handling
  * and prevents duplicate registrations
  */
-fun addJavaScriptInterfaceSafely(webView: WebView, activity: MainActivity) {
+fun addJavaScriptInterfaceSafely(
+    webView: WebView,
+    mainViewModel: MainActivityViewModel,
+    billingDelegate: BillingDelegate
+) {
     try {
         // Remove any existing interface first to prevent duplicates
         webView.removeJavascriptInterface("Android")
 
-        val webAppInterface = WebAppInterface(activity.viewModel)
+        val webAppInterface = WebAppInterface(
+            viewModel = mainViewModel,
+            billingDelegate = billingDelegate
+        )
         // Add the interface
         webView.addJavascriptInterface(
             webAppInterface,

@@ -22,8 +22,9 @@ import androidx.core.view.WindowInsetsCompat
 import kotlinx.coroutines.flow.update
 import me.proton.android.lumo.BuildConfig
 import me.proton.android.lumo.MainActivity
+import me.proton.android.lumo.MainActivityViewModel
+import me.proton.android.lumo.MainActivityViewModel.WebEvent
 import me.proton.android.lumo.config.LumoConfig
-import me.proton.android.lumo.domain.WebEvent
 
 private const val TAG = "WebViewScreen"
 

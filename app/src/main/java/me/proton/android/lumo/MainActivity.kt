@@ -49,6 +49,7 @@ import me.proton.android.lumo.ui.components.MainScreenListeners
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.webview.addJavaScriptInterfaceSafely
 import me.proton.android.lumo.webview.injectTheme
+import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -138,30 +139,22 @@ class MainActivity : ComponentActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.events.collectLatest { event ->
                     when (event) {
-                        is UiEvent.EvaluateJavascript -> {
+                        is MainUiEvent.EvaluateJavascript -> {
                             Log.d(TAG, "Received EvaluateJavascript event")
                             webViewManager.evaluateJavaScript(event.script) { result ->
                                 viewModel.handleJavascriptResult(result)
                             }
                         }
 
-                        is UiEvent.ShowToast -> {
+                        is MainUiEvent.ShowToast -> {
                             Log.d(TAG, "Received ShowToast event: ${event.message}")
                             Toast.makeText(this@MainActivity, event.message, Toast.LENGTH_LONG)
                                 .show()
                         }
 
-                        is UiEvent.RequestAudioPermission -> {
+                        is MainUiEvent.RequestAudioPermission -> {
                             Log.d(TAG, "Received RequestAudioPermission event")
                             permissionManager.requestRecordAudioPermission()
-                        }
-
-                        is UiEvent.ForwardBillingResult -> {
-                            // Previously done via MainActivity.postResult(); now fully event-driven.
-                            billingDelegate.handleJavaScriptResult(
-                                event.transactionId,
-                                event.resultJson
-                            )
                         }
                     }
                 }
@@ -251,7 +244,11 @@ class MainActivity : ComponentActivity() {
                         onWebViewCreated = {
                             webViewManager.setWebView(it)
                             try {
-                                addJavaScriptInterfaceSafely(it, this)
+                                addJavaScriptInterfaceSafely(
+                                    webView = it,
+                                    mainViewModel = viewModel,
+                                    billingDelegate = billingDelegate
+                                )
                             } catch (e: Exception) {
                                 Log.e(
                                     TAG,
@@ -352,7 +349,9 @@ class MainActivity : ComponentActivity() {
                 } else {
                     Log.w(TAG, "RECORD_AUDIO permission denied by user")
                     viewModel.viewModelScope.launch {
-                        viewModel._eventChannel.send(UiEvent.ShowToast(getString(R.string.permission_mic_rationale)))
+                        viewModel._eventChannel.send(
+                            MainUiEvent.ShowToast(getString(R.string.permission_mic_rationale))
+                        )
                     }
                 }
             }

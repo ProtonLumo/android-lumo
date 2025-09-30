@@ -486,14 +486,7 @@ fun PaymentDialog(
     )
 
     // Collect state from ViewModel
-    val isLoadingSubscriptions by subscriptionViewModel.isLoadingSubscriptions.collectAsStateWithLifecycle()
-    val isLoadingPlans by subscriptionViewModel.isLoadingPlans.collectAsStateWithLifecycle()
-    val subscriptions by subscriptionViewModel.subscriptions.collectAsStateWithLifecycle()
-    val hasValidSubscription by subscriptionViewModel.hasValidSubscription.collectAsStateWithLifecycle()
-    val planOptions by subscriptionViewModel.planOptions.collectAsStateWithLifecycle()
-    val selectedPlan by subscriptionViewModel.selectedPlan.collectAsStateWithLifecycle()
-    val planFeatures by subscriptionViewModel.planFeatures.collectAsStateWithLifecycle()
-    val errorMessage by subscriptionViewModel.errorMessage.collectAsStateWithLifecycle()
+    val uiState by subscriptionViewModel.uiStateFlow.collectAsStateWithLifecycle()
 
     // Get payment processing state from BillingManager
     val paymentProcessingState by billingManager.paymentProcessingState.collectAsStateWithLifecycle()
@@ -508,8 +501,12 @@ fun PaymentDialog(
     }
 
     // Check for subscription sync mismatch after BOTH loading operations are complete
-    LaunchedEffect(isLoadingSubscriptions, isRefreshingPurchases, hasValidSubscription) {
-        if (!isLoadingSubscriptions && !isRefreshingPurchases && !hasValidSubscription) {
+    LaunchedEffect(
+        uiState.isLoadingSubscriptions,
+        isRefreshingPurchases,
+        uiState.hasValidSubscription
+    ) {
+        if (!uiState.isLoadingSubscriptions && !isRefreshingPurchases && !uiState.hasValidSubscription) {
             Log.d(
                 TAG,
                 "Both loading operations complete, checking for subscription sync mismatch..."
@@ -561,7 +558,7 @@ fun PaymentDialog(
         }
 
         // Check if user already has a valid subscription
-        if (hasValidSubscription) {
+        if (uiState.hasValidSubscription) {
             Dialog(
                 onDismissRequest = { onDismiss() },
                 properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -577,7 +574,7 @@ fun PaymentDialog(
                 ) {
                     SubscriptionOverviewSection(
                         billingManager = billingManager,
-                        subscriptions = subscriptions,
+                        subscriptions = uiState.subscriptions,
                         onClose = { onDismiss() }
                     )
                 }
@@ -646,7 +643,7 @@ fun PaymentDialog(
 
                     // --- Dynamic Content based on loading/error/success ---
                     when {
-                        isLoadingSubscriptions -> {
+                        uiState.isLoadingSubscriptions -> {
                             // Show loading UI while checking subscriptions
                             CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                             Spacer(modifier = Modifier.height(16.dp))
@@ -657,7 +654,7 @@ fun PaymentDialog(
                             )
                         }
 
-                        isLoadingPlans -> {
+                        uiState.isLoadingPlans -> {
                             // Show loading UI
                             CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                             Spacer(modifier = Modifier.height(16.dp))
@@ -668,22 +665,22 @@ fun PaymentDialog(
                             )
                         }
 
-                        errorMessage != null -> {
+                        uiState.errorMessage != null -> {
                             // Show error state
                             Text(
-                                text = errorMessage ?: stringResource(id = R.string.error_generic),
+                                text = uiState.errorMessage ?: stringResource(id = R.string.error_generic),
                                 color = MaterialTheme.colorScheme.error,
                                 textAlign = TextAlign.Center
                             )
                         }
 
-                        planOptions.isNotEmpty() -> {
+                        uiState.planOptions.isNotEmpty() -> {
                             // Features comparison table
-                            if (planFeatures.isNotEmpty()) {
+                            if (uiState.planFeatures.isNotEmpty()) {
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 // Display features
-                                planFeatures.take(5).forEach { feature ->
+                                uiState.planFeatures.take(5).forEach { feature ->
                                     FeatureComparisonItem(feature)
                                 }
 
@@ -691,12 +688,12 @@ fun PaymentDialog(
                             }
 
                             // Plan Selection Section
-                            planOptions.forEach { plan ->
+                            uiState.planOptions.forEach { plan ->
                                 // Skip plans with no pricing info
                                 if (plan.totalPrice.isNotEmpty()) {
                                     PlanSelectItem(
                                         plan = plan,
-                                        isSelected = selectedPlan?.id == plan.id,
+                                        isSelected = uiState.selectedPlan?.id == plan.id,
                                         onSelected = { subscriptionViewModel.selectPlan(plan) }
                                     )
                                     Spacer(modifier = Modifier.height(12.dp))
@@ -704,7 +701,7 @@ fun PaymentDialog(
                             }
 
                             // Display error message if any
-                            errorMessage?.let { errorMsg ->
+                            uiState.errorMessage?.let { errorMsg ->
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
                                     errorMsg,
@@ -726,7 +723,7 @@ fun PaymentDialog(
                             // Continue Button (Purchase)
                             Button(
                                 onClick = {
-                                    selectedPlan?.let { planToPurchase ->
+                                    uiState.selectedPlan?.let { planToPurchase ->
                                         if (planToPurchase.offerToken == null && planToPurchase.totalPrice.isEmpty()) {
                                             subscriptionViewModel.clearError()
                                             return@Button
@@ -752,7 +749,7 @@ fun PaymentDialog(
                                     contentColor = MaterialTheme.colorScheme.onPrimary
                                 ),
                                 shape = RoundedCornerShape(24.dp),
-                                enabled = selectedPlan != null && selectedPlan?.totalPrice?.isNotEmpty() == true
+                                enabled = uiState.selectedPlan != null && uiState.selectedPlan?.totalPrice?.isNotEmpty() == true
                             ) {
                                 Text(
                                     stringResource(id = R.string.subscription_buy_lumo),
