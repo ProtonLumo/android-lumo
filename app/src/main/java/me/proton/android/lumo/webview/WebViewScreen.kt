@@ -107,9 +107,10 @@ private fun addJavaScriptInterfaceSafely(webView: WebView, activity: MainActivit
         // Remove any existing interface first to prevent duplicates
         webView.removeJavascriptInterface("Android")
 
+        val webAppInterface = WebAppInterface(activity.viewModel)
         // Add the interface
         webView.addJavascriptInterface(
-            WebAppInterface(activity.viewModel),
+            webAppInterface,
             "Android"
         )
         Log.d(TAG, "JavaScript interface 'Android' added successfully")
@@ -317,15 +318,6 @@ fun WebViewScreen(
                         Log.d(TAG, ">>> onPageFinished CALLED for URL: $url")
 
                         try {
-                            // *** ALWAYS ADD THE INTERFACE, even for the error page ***
-                            view?.let {
-                                addJavaScriptInterfaceSafely(it, activity)
-                                // Add a small delay to ensure interface is registered before JS execution
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    Log.d(TAG, "JavaScript interface registration completed")
-                                }, 100)
-                            }
-
                             // *** NOW, check if it's the error page and skip the rest if it is ***
                             if (url == errorPageUrl) {
                                 Log.d(TAG, "Skipping non-essential JS injection for error page.")

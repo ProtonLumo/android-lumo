@@ -1,21 +1,39 @@
 package me.proton.android.lumo.ui.components
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.content.res.Configuration.UI_MODE_TYPE_NORMAL
 import android.util.Log
+import android.view.WindowManager
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.proton.android.lumo.MainActivity
@@ -33,6 +52,7 @@ import me.proton.android.lumo.R
 import me.proton.android.lumo.billing.BillingManager
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
+import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.viewmodels.SubscriptionViewModel
 import me.proton.android.lumo.viewmodels.ViewModelFactory
 
@@ -40,8 +60,8 @@ private const val TAG = "PaymentDialog"
 
 // Preview Functions for Different Dialog States
 
-@PreviewLightDark
 @Preview(name = "Loading Subscriptions", showBackground = true)
+@Preview(name = "Dark - Loading Subscriptions", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
 fun PaymentDialogLoadingSubscriptionsPreview() {
     PaymentDialogContentPreview(
@@ -53,8 +73,8 @@ fun PaymentDialogLoadingSubscriptionsPreview() {
     )
 }
 
-@PreviewLightDark
 @Preview(name = "Loading Plans", showBackground = true)
+@Preview(name = "Dark - Loading Plans", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
 fun PaymentDialogLoadingPlansPreview() {
     PaymentDialogContentPreview(
@@ -66,8 +86,8 @@ fun PaymentDialogLoadingPlansPreview() {
     )
 }
 
-@PreviewLightDark
 @Preview(name = "Error State", showBackground = true)
+@Preview(name = "Dark - Error State", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
 fun PaymentDialogErrorPreview() {
     PaymentDialogContentPreview(
@@ -79,8 +99,8 @@ fun PaymentDialogErrorPreview() {
     )
 }
 
-@PreviewLightDark
 @Preview(name = "No Plans Available", showBackground = true)
+@Preview(name = "Dark - No Plans Available", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
 fun PaymentDialogNoPlansPreview() {
     PaymentDialogContentPreview(
@@ -92,8 +112,8 @@ fun PaymentDialogNoPlansPreview() {
     )
 }
 
-@PreviewLightDark
 @Preview(name = "Plans Available", showBackground = true)
+@Preview(name = "Dark - Plans Available", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
 fun PaymentDialogPlansAvailablePreview() {
     val mockPlans = listOf(
@@ -156,8 +176,8 @@ fun PaymentDialogPlansAvailablePreview() {
     )
 }
 
-@PreviewLightDark
 @Preview(name = "Plans with Error", showBackground = true)
+@Preview(name = "Dark - Plans with Error", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
 fun PaymentDialogPlansWithErrorPreview() {
     val mockPlans = listOf(
@@ -187,60 +207,88 @@ fun PaymentDialogPlansWithErrorPreview() {
 }
 
 // Payment Processing State Previews
-@PreviewLightDark
 @Preview(name = "Payment Processing - Loading", showBackground = true)
+@Preview(
+    name = "Dark - Payment Processing - Loading",
+    uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL
+)
 @Composable
 fun PaymentProcessingLoadingPreview() {
-    PaymentProcessingScreen(
-        state = PaymentProcessingState.Loading,
-        onRetry = { /* Preview - no action */ },
-        onClose = { /* Preview - no action */ }
-    )
+    LumoTheme {
+        PaymentProcessingScreen(
+            state = PaymentProcessingState.Loading,
+            onRetry = { /* Preview - no action */ },
+            onClose = { /* Preview - no action */ }
+        )
+    }
 }
 
-@PreviewLightDark
 @Preview(name = "Payment Processing - Verifying", showBackground = true)
+@Preview(
+    name = "Dark - Payment Processing - Verifying",
+    uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL
+)
 @Composable
 fun PaymentProcessingVerifyingPreview() {
-    PaymentProcessingScreen(
-        state = PaymentProcessingState.Verifying,
-        onRetry = { /* Preview - no action */ },
-        onClose = { /* Preview - no action */ }
-    )
+    LumoTheme {
+        PaymentProcessingScreen(
+            state = PaymentProcessingState.Verifying,
+            onRetry = { /* Preview - no action */ },
+            onClose = { /* Preview - no action */ }
+        )
+    }
 }
 
-@PreviewLightDark
 @Preview(name = "Payment Processing - Error", showBackground = true)
+@Preview(
+    name = "Dark - Payment Processing - Error",
+    uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL
+)
 @Composable
 fun PaymentProcessingErrorPreview() {
-    PaymentProcessingScreen(
-        state = PaymentProcessingState.Error("Payment failed. Please check your payment method and try again."),
-        onRetry = { /* Preview - no action */ },
-        onClose = { /* Preview - no action */ }
-    )
+    LumoTheme {
+        PaymentProcessingScreen(
+            state = PaymentProcessingState.Error(
+                "Payment failed. Please check your payment method and try again."
+            ),
+            onRetry = { /* Preview - no action */ },
+            onClose = { /* Preview - no action */ }
+        )
+    }
 }
 
 @Preview(name = "Payment Processing - Network Error", showBackground = true)
+@Preview(name = "Dark - Payment Processing - Network Error", uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun PaymentProcessingNetworkErrorPreview() {
-    PaymentProcessingScreen(
-        state = PaymentProcessingState.NetworkError("Network connection failed. Please check your internet connection."),
-        onRetry = { /* Preview - no action */ },
-        onClose = { /* Preview - no action */ }
-    )
+    LumoTheme {
+        PaymentProcessingScreen(
+            state = PaymentProcessingState.NetworkError(
+                "Network connection failed. Please check your internet connection."
+            ),
+            onRetry = { /* Preview - no action */ },
+            onClose = { /* Preview - no action */ }
+        )
+    }
+}
+
+@Preview(name = "Payment Processing - Success", showBackground = true)
+@Preview(
+    name = "Dark - Payment Processing - Success",
+    uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL
+)
+@Composable
+fun PaymentProcessingSuccessPreview() {
+    LumoTheme {
+        PaymentProcessingScreen(
+            state = PaymentProcessingState.Success,
+            onRetry = { /* Preview - no action */ },
+            onClose = { /* Preview - no action */ }
+        )
+    }
 }
 
 @PreviewLightDark
-@Preview(name = "Payment Processing - Success", showBackground = true)
-@Composable
-fun PaymentProcessingSuccessPreview() {
-    PaymentProcessingScreen(
-        state = PaymentProcessingState.Success,
-        onRetry = { /* Preview - no action */ },
-        onClose = { /* Preview - no action */ }
-    )
-}
-
 @Composable
 private fun PaymentDialogContentPreview(
     isLoadingSubscriptions: Boolean = false,
@@ -250,7 +298,7 @@ private fun PaymentDialogContentPreview(
     planFeatures: List<PlanFeature> = emptyList(),
     selectedPlan: JsPlanInfo? = null
 ) {
-    MaterialTheme {
+    LumoTheme {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -425,6 +473,7 @@ private fun PaymentDialogContentPreview(
 @Composable
 fun PaymentDialog(
     visible: Boolean,
+    isDarkTheme: Boolean,
     billingManager: BillingManager,
     onDismiss: () -> Unit,
 ) {
@@ -488,6 +537,8 @@ fun PaymentDialog(
                 },
                 properties = DialogProperties(usePlatformDefaultWidth = false)
             ) {
+                DisableDimFor(isDarkTheme = isDarkTheme)
+
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
@@ -515,6 +566,8 @@ fun PaymentDialog(
                 onDismissRequest = { onDismiss() },
                 properties = DialogProperties(usePlatformDefaultWidth = false)
             ) {
+                DisableDimFor(isDarkTheme = isDarkTheme)
+
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
@@ -533,11 +586,13 @@ fun PaymentDialog(
             return
         }
 
-        // --- Dialog UI for plan selection --- 
+        // --- Dialog UI for plan selection ---
         Dialog(
             onDismissRequest = { onDismiss() },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
+            DisableDimFor(isDarkTheme = isDarkTheme)
+
             Surface(
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
@@ -625,36 +680,6 @@ fun PaymentDialog(
                         planOptions.isNotEmpty() -> {
                             // Features comparison table
                             if (planFeatures.isNotEmpty()) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Empty space for feature name
-                                    Spacer(modifier = Modifier.weight(1f))
-
-                                    // Free column header
-                                    Text(
-                                        "Free",
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        modifier = Modifier.weight(0.8f),
-                                        textAlign = TextAlign.Center
-                                    )
-
-                                    // Plus column header
-                                    Text(
-                                        "Plus",
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.weight(0.8f),
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
-
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 // Display features
@@ -693,7 +718,7 @@ fun PaymentDialog(
                             Text(
                                 stringResource(id = R.string.subscription_renewal),
                                 fontSize = 12.sp,
-                                color = Color.DarkGray,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
 
                             Spacer(modifier = Modifier.height(6.dp))
@@ -765,4 +790,12 @@ fun PaymentDialog(
             }
         }
     }
-} 
+}
+
+@Composable
+private fun DisableDimFor(isDarkTheme: Boolean) {
+    if (isDarkTheme) {
+        val window = (LocalView.current.parent as? DialogWindowProvider)?.window
+        window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+    }
+}

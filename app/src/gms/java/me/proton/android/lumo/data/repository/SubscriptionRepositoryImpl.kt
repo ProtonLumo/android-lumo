@@ -95,7 +95,7 @@ class SubscriptionRepositoryImpl(
     }
 
     override fun hasValidSubscription(subscriptions: List<SubscriptionItemResponse>): Boolean {
-        Log.e(TAG, "${subscriptions}")
+        Log.e(TAG, "$subscriptions")
         return subscriptions.any { subscription ->
             // Check for Lumo or Visionary plans
             subscription.Name?.contains("lumo", ignoreCase = true) == true ||
@@ -170,8 +170,4 @@ class SubscriptionRepositoryImpl(
     override fun invalidateSubscriptionCache() {
         billingManager?.invalidateCache()
     }
-
-    override fun openSubscriptionManagementScreen() {
-        billingManager?.openSubscriptionManagementScreen()
-    }
-} 
+}
