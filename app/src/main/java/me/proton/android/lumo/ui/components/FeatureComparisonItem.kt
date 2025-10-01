@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -34,6 +35,7 @@ fun FeatureComparisonItem(feature: PlanFeature) {
                     .build(),
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
             )
         }
 

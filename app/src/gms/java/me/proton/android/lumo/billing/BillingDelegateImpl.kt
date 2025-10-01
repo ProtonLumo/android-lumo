@@ -1,6 +1,7 @@
 package me.proton.android.lumo.billing
 
 import android.webkit.WebView
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.MainUiState
@@ -43,6 +44,7 @@ class BillingDelegateImpl() : BillingDelegate {
         billingManagerWrapper.getBillingManager()?.let { manager ->
             PaymentDialog(
                 visible = uiState.showPaymentDialog,
+                isDarkTheme = isSystemInDarkTheme(),
                 billingManager = manager,
                 onDismiss = onDismiss
             )

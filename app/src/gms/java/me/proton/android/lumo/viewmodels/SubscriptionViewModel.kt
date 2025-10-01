@@ -241,20 +241,6 @@ class SubscriptionViewModel(
     }
 
     /**
-     * Get Google Play subscription status
-     */
-    fun getSubscriptionStatus(): Triple<Boolean, Boolean, Long> {
-        return repository.getGooglePlaySubscriptionStatus()
-    }
-
-    /**
-     * Open subscription management screen
-     */
-    fun openSubscriptionManagement() {
-        repository.openSubscriptionManagementScreen()
-    }
-
-    /**
      * Clear error message
      */
     fun clearError() {

@@ -84,9 +84,4 @@ interface SubscriptionRepository {
      * Invalidate cached subscription data and force fresh queries
      */
     fun invalidateSubscriptionCache()
-
-    /**
-     * Open Google Play subscription management screen
-     */
-    fun openSubscriptionManagementScreen()
-} 
+}

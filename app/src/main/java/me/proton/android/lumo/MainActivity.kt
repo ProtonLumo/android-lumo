@@ -252,28 +252,17 @@ class MainActivity : ComponentActivity() {
                 }
             } ?: isSystemInDarkTheme()
 
-            val barColor = MaterialTheme.colorScheme.background.toArgb()
             LaunchedEffect(isDarkTheme) {
-                if (isDarkTheme) {
-                    enableEdgeToEdge(
-                        statusBarStyle = SystemBarStyle.dark(
-                            barColor,
-                        ),
-                        navigationBarStyle = SystemBarStyle.dark(
-                            barColor,
-                        ),
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.auto(
+                        Color.Transparent.toArgb(),
+                        Color.Transparent.toArgb()
+                    ),
+                    navigationBarStyle = SystemBarStyle.auto(
+                        Color.Transparent.toArgb(),
+                        Color.Transparent.toArgb()
                     )
-                } else {
-                    enableEdgeToEdge(
-                        statusBarStyle = SystemBarStyle.light(
-                            barColor, barColor,
-                        ),
-                        navigationBarStyle = SystemBarStyle.light(
-                            barColor, barColor,
-                        ),
-                    )
-                }
-            }
+                )            }
 
             LumoTheme(darkTheme = isDarkTheme) {
                 val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)

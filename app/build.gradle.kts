@@ -9,17 +9,15 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "me.proton.android.lumo"
         minSdk = 29
         targetSdk = 35
         versionCode = 34
         versionName = "0.1.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
+
         // Default production environment
         buildConfigField("String", "ENV_NAME", "\"\"")
-        buildConfigField("String", "BASE_DOMAIN", "\"proton.me\"")
     }
 
     signingConfigs {
@@ -44,16 +42,14 @@ android {
             )
         }
     }
-    
-    flavorDimensions += listOf("debugging", "services")
+
+    flavorDimensions += listOf("env", "debugging", "services")
     productFlavors {
-        // Debugging variants for WebView debugging capability
         create("standard") {
             dimension = "debugging"
             // Allows WebView debugging in debug builds (for development)
             buildConfigField("boolean", "ENABLE_WEBVIEW_DEBUG", "true")
         }
-        
         create("noWebViewDebug") {
             dimension = "debugging"
             // Never enables WebView debugging (for GrapheneOS and privacy-focused users)
@@ -67,6 +63,16 @@ android {
         create("noGms") {
             dimension = "services"
             versionNameSuffix = "-nogms"
+        }
+        create("noble") {
+            dimension = "env"
+            applicationId = "me.proton.lumo"
+            buildConfigField("String", "BASE_DOMAIN", "\"gold.proton.black\"")
+        }
+        create("production") {
+            dimension = "env"
+            applicationId = "me.proton.android.lumo"
+            buildConfigField("String", "BASE_DOMAIN", "\"proton.me\"")
         }
     }
 
@@ -82,7 +88,7 @@ android {
         compose = true
         buildConfig = true
     }
-    
+
     // Optimize build performance
     packaging {
         resources {
@@ -90,7 +96,7 @@ android {
             excludes += "/META-INF/DEPENDENCIES"
         }
     }
-    
+
     // Custom APK naming
     applicationVariants.all {
         val variant = this
@@ -100,7 +106,7 @@ android {
             val versionName = variant.versionName
             val buildType = variant.buildType.name
             val flavor = variant.flavorName
-            
+
             // Format: lumo-v0.1.2-production-debug.apk
             output.outputFileName = "${appName}-v${versionName}-${flavor}-${buildType}.apk"
         }

@@ -20,3 +20,5 @@ val WarningYellow = Color(0xFFF59E0B)
 // Basic colors
 val White = Color.White
 val Black = Color.Black
+
+val DarkBackground = Color(0xFF16141B)
