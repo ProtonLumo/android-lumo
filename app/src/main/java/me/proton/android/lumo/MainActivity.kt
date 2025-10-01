@@ -219,14 +219,27 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(isDarkTheme) {
                 enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.auto(
-                        Color.Transparent.toArgb(),
-                        Color.Transparent.toArgb()
-                    ),
-                    navigationBarStyle = SystemBarStyle.auto(
-                        Color.Transparent.toArgb(),
-                        Color.Transparent.toArgb()
-                    )
+                    statusBarStyle = if (isDarkTheme) {
+                        SystemBarStyle.dark(
+                            Color.Transparent.toArgb(),
+                        )
+                    } else {
+                        SystemBarStyle.light(
+                            Color.Transparent.toArgb(),
+                            Color.Transparent.toArgb()
+                        )
+
+                    },
+                    navigationBarStyle = if (isDarkTheme) {
+                        SystemBarStyle.dark(
+                            Color.Transparent.toArgb(),
+                        )
+                    } else {
+                        SystemBarStyle.light(
+                            Color.Transparent.toArgb(),
+                            Color.Transparent.toArgb()
+                        )
+                    }
                 )
             }
 
@@ -240,6 +253,7 @@ class MainActivity : ComponentActivity() {
                             webView?.let {
                                 billingDelegate.ShowPaymentOrError(
                                     uiState = uiState,
+                                    isDarkMode = isDarkTheme,
                                     webView = it
                                 ) {
                                     mainActivityViewModel.dismissPaymentDialog()

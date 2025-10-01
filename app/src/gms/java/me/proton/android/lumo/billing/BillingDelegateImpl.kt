@@ -24,6 +24,7 @@ class BillingDelegateImpl() : BillingDelegate {
     @Composable
     override fun ShowPaymentOrError(
         uiState: MainUiState,
+        isDarkMode: Boolean,
         webView: WebView,
         onDismiss: () -> Unit,
     ) {
@@ -31,7 +32,7 @@ class BillingDelegateImpl() : BillingDelegate {
             webView = remember { webView },
             visible = uiState.showPaymentDialog,
             isReady = !uiState.isLoading && uiState.hasSeenLumoContainer,
-            isDarkTheme = isSystemInDarkTheme(),
+            isDarkTheme = isDarkMode,
             billingManagerWrapper = billingManagerWrapper,
             onDismiss = onDismiss,
         )

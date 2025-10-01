@@ -15,6 +15,7 @@ interface BillingDelegate {
     @Composable
     fun ShowPaymentOrError(
         uiState: MainUiState,
+        isDarkMode: Boolean,
         webView: WebView,
         onDismiss: () -> Unit,
     )
