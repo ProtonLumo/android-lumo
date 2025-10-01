@@ -126,7 +126,7 @@ fun PaymentDialogPlansAvailablePreview() {
         JsPlanInfo(
             id = "lumo-plus-monthly",
             name = "Lumo Plus",
-            duration = "1 month",
+            duration = UiText.StringText("1 month"),
             cycle = 1,
             description = "Monthly subscription",
             productId = "lumo_plus_monthly",
@@ -139,7 +139,7 @@ fun PaymentDialogPlansAvailablePreview() {
         JsPlanInfo(
             id = "lumo-plus-annual",
             name = "Lumo Plus",
-            duration = "12 months",
+            duration = UiText.StringText("12 months"),
             cycle = 12,
             description = "Annual subscription",
             productId = "lumo_plus_annual",
@@ -190,7 +190,7 @@ fun PaymentDialogPlansWithErrorPreview() {
         JsPlanInfo(
             id = "lumo-plus-monthly",
             name = "Lumo Plus",
-            duration = "1 month",
+            duration = UiText.StringText("1 month"),
             cycle = 1,
             description = "Monthly subscription",
             productId = "lumo_plus_monthly",

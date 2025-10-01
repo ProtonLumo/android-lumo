@@ -1,10 +1,10 @@
 package me.proton.android.lumo.utils
 
-import android.content.Context
 import android.util.Log
 import com.google.gson.JsonObject
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
+import me.proton.android.lumo.ui.components.UiText
 
 private const val TAG = "PlanExtractor"
 
@@ -49,17 +49,14 @@ object PlanExtractor {
 
                             // Only create plans for instances with valid Google productId
                             if (productId != null) {
-                                // TODO: fix me, no context
                                 val durationText = when (cycle) {
-                                    1 -> "1 month" //context?.getString(R.string.plan_duration_1_month) ?: "1 month"
-
-                                    12 -> "12 months" //context?.getString(R.string.plan_duration_12_months) ?: "12 months"
-
-                                    else -> "$cycle Months"
-//                                    context?.getString(
-//                                        R.string.plan_duration_n_months,
-//                                        cycle
-//                                    ) ?: "$cycle Months"
+                                    1 -> UiText.ResText(R.string.plan_duration_1_month)
+                                    12 -> UiText.ResText(R.string.plan_duration_12_months)
+                                    else ->
+                                        UiText.ResText(
+                                            R.string.plan_duration_n_months,
+                                            cycle
+                                        )
                                 }
 
                                 val jsPlan = JsPlanInfo(

@@ -1,12 +1,14 @@
 package me.proton.android.lumo.models
 
+import me.proton.android.lumo.ui.components.UiText
+
 /**
  * Represents a plan object parsed from the API response Instances
  */
 data class JsPlanInfo(
     val id: String,                // Plan ID from the instance
     val name: String,              // From parent Plan's Title (e.g., "Lumo Plus")
-    val duration: String,          // Readable duration text (e.g., "Monthly", "Annual")
+    val duration: UiText,          // Readable duration text (e.g., "Monthly", "Annual")
     val cycle: Int,                // Number of months (1, 12)
     val description: String,       // Description from Instance
     val productId: String,         // From Vendors.Google.ProductID

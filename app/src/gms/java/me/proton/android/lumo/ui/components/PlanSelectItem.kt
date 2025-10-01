@@ -2,10 +2,20 @@ package me.proton.android.lumo.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,16 +26,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
-import me.proton.android.lumo.ui.theme.LightPurple
-import me.proton.android.lumo.ui.theme.Green
 import me.proton.android.lumo.ui.theme.BorderGray
+import me.proton.android.lumo.ui.theme.Green
+import me.proton.android.lumo.ui.theme.LightPurple
 
 /**
  * A selectable item that displays a subscription plan option
  */
 @Composable
 fun PlanSelectItem(
-    plan: JsPlanInfo, isSelected: Boolean, onSelected: () -> Unit
+    plan: JsPlanInfo,
+    isSelected: Boolean,
+    onSelected: () -> Unit,
 ) {
     val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else BorderGray
     val backgroundColor = if (isSelected) LightPurple else Color.White
@@ -54,12 +66,7 @@ fun PlanSelectItem(
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                when (plan.duration) {
-                    "1 month" -> "1 " + stringResource(id = R.string.month)
-                    "12 year" -> "12 " + stringResource(id = R.string.months)
-                    "12 months" -> "12 " + stringResource(id = R.string.months)
-                    else -> plan.duration
-                },
+                text = plan.duration.asString(),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSecondary,
             )
