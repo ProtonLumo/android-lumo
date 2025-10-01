@@ -19,7 +19,7 @@ private const val TAG = "BillingManagerWrapper"
  * Wrapper class that handles all billing-related operations and Google Play Services integration.
  * Provides a clean interface for MainActivity while handling billing availability gracefully.
  */
-class BillingManagerWrapper(private val activity: MainActivity) {
+class BillingManagerWrapper {
 
     interface BillingCallbacks {
         fun sendPaymentTokenToWebView(
@@ -52,7 +52,7 @@ class BillingManagerWrapper(private val activity: MainActivity) {
     /**
      * Initialize billing with comprehensive Google Services availability check
      */
-    fun initializeBilling() {
+    fun initializeBilling(activity: MainActivity) {
         try {
             Log.d(TAG, "=== BILLING INITIALIZATION CHECK ===")
 
@@ -63,37 +63,46 @@ class BillingManagerWrapper(private val activity: MainActivity) {
             when (playServicesStatus) {
                 ConnectionResult.SUCCESS -> {
                     Log.d(TAG, "✅ Google Play Services is available")
-                    initializeBillingManager()
+                    initializeBillingManager(activity)
                 }
 
                 ConnectionResult.SERVICE_MISSING -> {
                     Log.w(TAG, "❌ Google Play Services is not installed")
-                    handleBillingUnavailable("Google Play Services is not available on this device")
+                    handleBillingUnavailable(
+                        activity,
+                        "Google Play Services is not available on this device"
+                    )
                 }
 
                 ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED -> {
                     Log.w(TAG, "❌ Google Play Services needs to be updated")
-                    handleBillingUnavailable("Google Play Services needs to be updated")
+                    handleBillingUnavailable(activity, "Google Play Services needs to be updated")
                 }
 
                 ConnectionResult.SERVICE_DISABLED -> {
                     Log.w(TAG, "❌ Google Play Services is disabled")
-                    handleBillingUnavailable("Google Play Services is disabled on this device")
+                    handleBillingUnavailable(
+                        activity,
+                        "Google Play Services is disabled on this device"
+                    )
                 }
 
                 else -> {
                     Log.w(TAG, "❌ Google Play Services unavailable: $playServicesStatus")
-                    handleBillingUnavailable("Google Play Services is not available (code: $playServicesStatus)")
+                    handleBillingUnavailable(
+                        activity,
+                        "Google Play Services is not available (code: $playServicesStatus)"
+                    )
                 }
             }
 
         } catch (e: Exception) {
             Log.e(TAG, "❌ Critical error during billing initialization", e)
-            handleBillingUnavailable("Billing services are not available: ${e.message}")
+            handleBillingUnavailable(activity, "Billing services are not available: ${e.message}")
         }
     }
 
-    private fun initializeBillingManager() {
+    private fun initializeBillingManager(activity: MainActivity) {
         // 2. Check if Google Play Store app is installed and accessible
         try {
             val pInfo = activity.packageManager.getPackageInfo("com.android.vending", 0)
@@ -136,7 +145,10 @@ class BillingManagerWrapper(private val activity: MainActivity) {
                     Log.d(TAG, "✅ BillingManager initialized successfully")
                 } else {
                     Log.w(TAG, "⚠️ BillingClient creation failed - billing unavailable")
-                    handleBillingUnavailable("Google Play Billing API is not available on this device")
+                    handleBillingUnavailable(
+                        activity,
+                        "Google Play Billing API is not available on this device"
+                    )
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "❌ BillingManager initialization failed", e)
@@ -154,19 +166,22 @@ class BillingManagerWrapper(private val activity: MainActivity) {
                         "Failed to initialize billing: $errorMessage"
                     }
                 }
-                handleBillingUnavailable(reason)
+                handleBillingUnavailable(activity, reason)
             }
 
         } catch (e: Exception) {
             Log.e(TAG, "❌ Google Play Store not accessible", e)
-            handleBillingUnavailable("Google Play Store is not accessible")
+            handleBillingUnavailable(activity, "Google Play Store is not accessible")
         }
     }
 
     /**
      * Handle the case where billing is unavailable
      */
-    private fun handleBillingUnavailable(reason: String) {
+    private fun handleBillingUnavailable(
+        activity: MainActivity,
+        reason: String,
+    ) {
         Log.w(TAG, "=== BILLING UNAVAILABLE - ENTERING GRACEFUL DEGRADATION MODE ===")
         Log.w(TAG, "Reason: $reason")
 

@@ -19,7 +19,7 @@ class SubscriptionViewModelFactory(
         return when {
             modelClass.isAssignableFrom(SubscriptionViewModel::class.java) -> {
                 val billingManagerWrapper =
-                    DependencyProvider.getBillingManagerWrapper(mainActivity)
+                    DependencyProvider.getBillingManagerWrapper()
                 val repository = SubscriptionRepositoryImpl(
                     billingManager = billingManagerWrapper.getBillingManager()
                 )

@@ -5,16 +5,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.ProductDetails
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import me.proton.android.lumo.MainActivityViewModel
 import me.proton.android.lumo.R
 import me.proton.android.lumo.data.repository.SubscriptionRepository
 import me.proton.android.lumo.data.repository.SubscriptionRepositoryImpl
@@ -29,13 +26,12 @@ private const val TAG = "SubscriptionViewModel"
  * ViewModel that manages subscription data
  */
 class SubscriptionViewModel(
-    private val application: Application,
-    private val repository: SubscriptionRepository
+    private val application: Application, private val repository: SubscriptionRepository
 ) : ViewModel() {
 
     sealed interface UiEvent {
-        data object LoadSubscriptions: UiEvent
-        data object LoadPlans: UiEvent
+        data object LoadSubscriptions : UiEvent
+        data object LoadPlans : UiEvent
     }
 
     data class UiState(
@@ -79,8 +75,7 @@ class SubscriptionViewModel(
     private fun loadSubscriptions() {
         _uiStateFlow.update {
             it.copy(
-                isLoadingSubscriptions = true,
-                errorMessage = null
+                isLoadingSubscriptions = true, errorMessage = null
             )
         }
 
@@ -95,8 +90,8 @@ class SubscriptionViewModel(
                 // Parse subscriptions from response
                 if (response.data != null && response.data.isJsonObject) {
                     val parsedSubscriptions =
-                        (repository as? SubscriptionRepositoryImpl)
-                            ?.parseSubscriptions(response) ?: emptyList()
+                        (repository as? SubscriptionRepositoryImpl)?.parseSubscriptions(response)
+                            ?: emptyList()
 
                     _uiStateFlow.update {
                         it.copy(
@@ -109,8 +104,7 @@ class SubscriptionViewModel(
 
                     Log.d(
                         TAG,
-                        "Loaded ${parsedSubscriptions.size} subscriptions, " +
-                                "hasValid=${_uiStateFlow.value.hasValidSubscription}"
+                        "Loaded ${parsedSubscriptions.size} subscriptions, " + "hasValid=${_uiStateFlow.value.hasValidSubscription}"
                     )
                 } else {
                     Log.e(TAG, "Invalid subscription data format")
@@ -128,9 +122,7 @@ class SubscriptionViewModel(
                         errorMessage = application.getString(
                             R.string.error_failed_to_load_subscriptions,
                             error.message ?: "Unknown error"
-                        ),
-                        subscriptions = emptyList(),
-                        hasValidSubscription = false
+                        ), subscriptions = emptyList(), hasValidSubscription = false
                     )
                 }
             }
@@ -144,11 +136,8 @@ class SubscriptionViewModel(
             _uiStateFlow.update {
                 it.copy(
                     errorMessage = application.getString(
-                        R.string.error_loading_subscriptions,
-                        e.message ?: "Unknown error"
-                    ),
-                    subscriptions = emptyList(),
-                    hasValidSubscription = false
+                        R.string.error_loading_subscriptions, e.message ?: "Unknown error"
+                    ), subscriptions = emptyList(), hasValidSubscription = false
                 )
             }
 
@@ -193,8 +182,7 @@ class SubscriptionViewModel(
                 if (extractedPlans.isNotEmpty()) {
                     // Update plan pricing
                     val updatedPlans = repository.updatePlanPricing(
-                        extractedPlans,
-                        _googleProductDetails.value
+                        extractedPlans, _googleProductDetails.value
                     )
 
                     // Only update if we have pricing info
@@ -227,8 +215,7 @@ class SubscriptionViewModel(
                 _uiStateFlow.update {
                     it.copy(
                         errorMessage = application.getString(
-                            R.string.error_failed_to_load_plans,
-                            error.message ?: "Unknown error"
+                            R.string.error_failed_to_load_plans, error.message ?: "Unknown error"
                         )
                     )
                 }
@@ -238,8 +225,7 @@ class SubscriptionViewModel(
             _uiStateFlow.update {
                 it.copy(
                     errorMessage = application.getString(
-                        R.string.error_loading_plans,
-                        e.message ?: "Unknown error"
+                        R.string.error_loading_plans, e.message ?: "Unknown error"
                     )
                 )
             }
@@ -264,8 +250,7 @@ class SubscriptionViewModel(
         Log.d(TAG, "Updating plan pricing from Google Play")
 
         val updatedPlans = repository.updatePlanPricing(
-            planOptions,
-            _googleProductDetails.value
+            planOptions, _googleProductDetails.value
         )
 
         // Only update if we have pricing info
@@ -289,10 +274,8 @@ class SubscriptionViewModel(
                 // Find and update the currently selected plan
                 val currentPlanId = selectedPlan.id
                 _uiStateFlow.update {
-                    it.copy(
-                        selectedPlan = updatedPlans.find { plan -> plan.id == currentPlanId }
-                            ?: updatedPlans.firstOrNull()
-                    )
+                    it.copy(selectedPlan = updatedPlans.find { plan -> plan.id == currentPlanId }
+                        ?: updatedPlans.firstOrNull())
                 }
             }
         }
@@ -334,8 +317,8 @@ class SubscriptionViewModel(
         val (hasGooglePlaySubscription, isAutoRenewing) = repository.getGooglePlaySubscriptionStatus()
 
         Log.d(
-            TAG, "Subscription sync check - API hasValid: $hasValidSubscriptions, " +
-                    "GooglePlay hasActive: $hasGooglePlaySubscription, isRenewing: $isAutoRenewing"
+            TAG,
+            "Subscription sync check - API hasValid: $hasValidSubscriptions, " + "GooglePlay hasActive: $hasGooglePlaySubscription, isRenewing: $isAutoRenewing"
         )
 
         // Check for mismatch: No valid subscription from API but active subscription on Google Play

@@ -46,7 +46,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
 import me.proton.android.lumo.MainActivity
@@ -477,6 +480,7 @@ private fun PaymentDialogContentPreview(
 fun PaymentDialog(
     webView: WebView,
     visible: Boolean,
+    isReady: Boolean,
     isDarkTheme: Boolean,
     billingManagerWrapper: BillingManagerWrapper,
     onDismiss: () -> Unit,
@@ -495,24 +499,29 @@ fun PaymentDialog(
         val paymentProcessingState by billingManager.paymentProcessingState.collectAsStateWithLifecycle()
         val isRefreshingPurchases by billingManager.isRefreshingPurchases.collectAsStateWithLifecycle()
 
-        LaunchedEffect(Unit) {
-            subscriptionViewModel.events.collectLatest { event ->
-                when (event) {
-                    UiEvent.LoadPlans ->
-                        billingManagerWrapper.getPlansFromWebView(webView) {
-                            subscriptionViewModel.plansLoaded(it)
-                        }
+        val lifecycleOwner = LocalLifecycleOwner.current
 
-                    UiEvent.LoadSubscriptions ->
-                        billingManagerWrapper.getSubscriptionsFromWebView(webView) {
-                            subscriptionViewModel.subscriptionsLoaded(it)
+        LaunchedEffect(Unit) {
+            lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                subscriptionViewModel.events.collectLatest { event ->
+                    when (event) {
+                        UiEvent.LoadPlans ->
+                            billingManagerWrapper.getPlansFromWebView(webView) {
+                                subscriptionViewModel.plansLoaded(it)
+                            }
+
+                        UiEvent.LoadSubscriptions -> {
+                            billingManagerWrapper.getSubscriptionsFromWebView(webView) {
+                                subscriptionViewModel.subscriptionsLoaded(it)
+                            }
                         }
+                    }
                 }
             }
         }
 
-        LaunchedEffect(visible) {
-            if (visible) {
+        LaunchedEffect(visible, isReady) {
+            if (visible && isReady) {
                 subscriptionViewModel.refreshSubscriptionStatus()
             }
         }

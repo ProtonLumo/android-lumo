@@ -96,7 +96,6 @@ class BillingManager(
     private var periodicRefreshJob: Job? = null
     private var cachedPurchases: List<Purchase> = emptyList()
 
-    val purchaseState = _purchaseState.asStateFlow()
     val productDetailsList = _productDetailsList.asStateFlow()
 
     private val _selectedPlanIndex = MutableStateFlow(0)
@@ -757,111 +756,104 @@ class BillingManager(
                         Currency = currencyCode,
                         Payment = payment
                     )
-                    Log.d(TAG, "Sending to createPaymentToken: ${paymentTokenPayload ?: "not set"}")
+                    Log.d(TAG, "Sending to createPaymentToken: ${paymentTokenPayload}")
 
-                    activity.webView?.let { webView ->
-                        // Update state to show we're processing with server
-                        _paymentProcessingState.value = PaymentProcessingState.Verifying
+                    // Update state to show we're processing with server
+                    _paymentProcessingState.value = PaymentProcessingState.Verifying
 
-                        billingCallbacks.sendPaymentTokenToWebView(
-                            paymentTokenPayload
-                        ) { result: Result<PaymentJsResponse> ->
-                            // Now within the call back we can do whatever else we need to do...
-                            result.onSuccess { paymentJsResponse ->
-                                // Now we can access the data from the successful PaymentJsResponse
-                                Log.d(TAG, "JavaScript result success: ${paymentJsResponse}")
+                    billingCallbacks.sendPaymentTokenToWebView(
+                        paymentTokenPayload
+                    ) { result: Result<PaymentJsResponse> ->
+                        // Now within the call back we can do whatever else we need to do...
+                        result.onSuccess { paymentJsResponse ->
+                            // Now we can access the data from the successful PaymentJsResponse
+                            Log.d(TAG, "JavaScript result success: $paymentJsResponse")
 
-                                // Check for error status in response
-                                if (paymentJsResponse.status == "error") {
-                                    Log.e(
-                                        TAG,
-                                        "Error in payment token response: ${paymentJsResponse.message}"
-                                    )
-                                    _paymentProcessingState.value = PaymentProcessingState.Error(
-                                        paymentJsResponse.message
-                                            ?: "Unknown error creating payment token"
-                                    )
-                                    return@sendPaymentTokenToWebView
+                            // Check for error status in response
+                            if (paymentJsResponse.status == "error") {
+                                Log.e(
+                                    TAG,
+                                    "Error in payment token response: ${paymentJsResponse.message}"
+                                )
+                                _paymentProcessingState.value = PaymentProcessingState.Error(
+                                    paymentJsResponse.message
+                                        ?: "Unknown error creating payment token"
+                                )
+                                return@sendPaymentTokenToWebView
+                            }
+
+                            val token = try {
+                                // If data is a JsonObject
+                                if (paymentJsResponse.data?.isJsonObject == true) {
+                                    paymentJsResponse.data.asJsonObject?.get("Token")?.asString
                                 }
-
-                                val token = try {
-                                    // If data is a JsonObject
-                                    if (paymentJsResponse.data?.isJsonObject == true) {
-                                        paymentJsResponse.data.asJsonObject?.get("Token")?.asString
-                                    }
-                                    // If data is directly a primitive (like a string)
-                                    else if (paymentJsResponse.data?.isJsonPrimitive == true) {
-                                        paymentJsResponse.data.asString
-                                    } else {
-                                        null
-                                    }
-                                } catch (e: Exception) {
-                                    Log.e(TAG, "Error parsing token from response", e)
-                                    _paymentProcessingState.value = PaymentProcessingState.Error(
-                                        "Error processing payment response: ${e.message}"
-                                    )
-                                    return@sendPaymentTokenToWebView
-                                }
-
-                                if (token != null) {
-                                    val subscriptionPayload = Subscription(
-                                        PaymentToken = token,
-                                        Currency = currencyCode,
-                                        Cycle = 1,
-                                        Plans = mapOf("lumo2024" to 1),
-                                        CouponCode = null,
-                                        BillingAddress = null
-                                    )
-
-                                    // Final step - send subscription to activate
-                                    billingCallbacks.sendSubscriptionEventToWebView(
-                                        subscriptionPayload
-                                    ) { subscriptionResult ->
-                                        subscriptionResult.onSuccess { response ->
-                                            // Success! Payment is fully processed
-                                            Log.d(
-                                                TAG,
-                                                "Subscription activated successfully: ${response}"
-                                            )
-                                            _paymentProcessingState.value =
-                                                PaymentProcessingState.Success
-                                        }.onFailure { error ->
-                                            Log.e(TAG, "Subscription request failed", error)
-                                            _paymentProcessingState.value =
-                                                PaymentProcessingState.Error(
-                                                    "Could not activate subscription: ${error.message}"
-                                                )
-                                        }
-                                    }
+                                // If data is directly a primitive (like a string)
+                                else if (paymentJsResponse.data?.isJsonPrimitive == true) {
+                                    paymentJsResponse.data.asString
                                 } else {
-                                    Log.e(TAG, "Token was null in payment response")
-                                    _paymentProcessingState.value = PaymentProcessingState.Error(
-                                        "Payment token was not found in the server response"
-                                    )
+                                    null
                                 }
-                            }.onFailure { error ->
-                                Log.e(TAG, "Payment token request failed", error)
-                                // Use professional error classification
-                                val errorInfo = ErrorClassifier.classify(error)
-                                val context = activity ?: return@onFailure
-                                _paymentProcessingState.value = when (errorInfo.type) {
-                                    ErrorClassifier.ErrorType.Network,
-                                    ErrorClassifier.ErrorType.Timeout,
-                                    ErrorClassifier.ErrorType.SSL -> PaymentProcessingState.NetworkError(
-                                        errorInfo.getUserMessage(context)
-                                    )
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Error parsing token from response", e)
+                                _paymentProcessingState.value = PaymentProcessingState.Error(
+                                    "Error processing payment response: ${e.message}"
+                                )
+                                return@sendPaymentTokenToWebView
+                            }
 
-                                    else -> PaymentProcessingState.Error(
-                                        errorInfo.getUserMessage(context)
-                                    )
+                            if (token != null) {
+                                val subscriptionPayload = Subscription(
+                                    PaymentToken = token,
+                                    Currency = currencyCode,
+                                    Cycle = 1,
+                                    Plans = mapOf("lumo2024" to 1),
+                                    CouponCode = null,
+                                    BillingAddress = null
+                                )
+
+                                // Final step - send subscription to activate
+                                billingCallbacks.sendSubscriptionEventToWebView(
+                                    subscriptionPayload
+                                ) { subscriptionResult ->
+                                    subscriptionResult.onSuccess { response ->
+                                        // Success! Payment is fully processed
+                                        Log.d(
+                                            TAG,
+                                            "Subscription activated successfully: ${response}"
+                                        )
+                                        _paymentProcessingState.value =
+                                            PaymentProcessingState.Success
+                                    }.onFailure { error ->
+                                        Log.e(TAG, "Subscription request failed", error)
+                                        _paymentProcessingState.value =
+                                            PaymentProcessingState.Error(
+                                                "Could not activate subscription: ${error.message}"
+                                            )
+                                    }
                                 }
+                            } else {
+                                Log.e(TAG, "Token was null in payment response")
+                                _paymentProcessingState.value = PaymentProcessingState.Error(
+                                    "Payment token was not found in the server response"
+                                )
+                            }
+                        }.onFailure { error ->
+                            Log.e(TAG, "Payment token request failed", error)
+                            // Use professional error classification
+                            val errorInfo = ErrorClassifier.classify(error)
+                            val context = activity
+                            _paymentProcessingState.value = when (errorInfo.type) {
+                                ErrorClassifier.ErrorType.Network,
+                                ErrorClassifier.ErrorType.Timeout,
+                                ErrorClassifier.ErrorType.SSL -> PaymentProcessingState.NetworkError(
+                                    errorInfo.getUserMessage(context)
+                                )
+
+                                else -> PaymentProcessingState.Error(
+                                    errorInfo.getUserMessage(context)
+                                )
                             }
                         }
-                    } ?: run {
-                        Log.e(TAG, "WebView not available for payment processing")
-                        _paymentProcessingState.value = PaymentProcessingState.Error(
-                            "Could not communicate with subscription servers"
-                        )
                     }
                 } else {
                     Log.e(TAG, "Activity or product details not available")
@@ -1025,7 +1017,7 @@ class BillingManager(
      * This method will return true even for cancelled subscriptions that are still within their valid period
      */
     fun hasActiveSubscription(): Boolean {
-        return purchaseState.value is PurchaseState.Purchased
+        return _purchaseState.value is PurchaseState.Purchased
     }
 
     /**
