@@ -157,9 +157,6 @@ class BillingManager(
             TAG,
             "Initializing BillingManager in ${if (isTestMode) "TEST" else "PRODUCTION"} mode"
         )
-        _purchaseState.value = PurchaseState.Error(
-            UiText.ResText(R.string.billing_application_context_unavailable)
-        )
 
         // Defensive check: ensure activity is not null
         when {
