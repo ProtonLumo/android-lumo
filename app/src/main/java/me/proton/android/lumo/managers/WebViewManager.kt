@@ -75,13 +75,6 @@ class WebViewManager() {
     }
 
     /**
-     * Get the current URL from WebView
-     */
-    fun getCurrentUrl(): String? {
-        return _webView?.url
-    }
-
-    /**
      * Check if WebView can go back
      */
     fun canGoBack(): Boolean {
@@ -94,22 +87,6 @@ class WebViewManager() {
     fun goBack() {
         _webView?.goBack()
         Log.d(TAG, "WebView navigated back")
-    }
-
-    /**
-     * Reload the current page
-     */
-    fun reload() {
-        _webView?.reload()
-        Log.d(TAG, "WebView reloaded")
-    }
-
-    /**
-     * Clear WebView cache
-     */
-    fun clearCache(includeDiskFiles: Boolean = false) {
-        _webView?.clearCache(includeDiskFiles)
-        Log.d(TAG, "WebView cache cleared")
     }
 
     fun clearHistory() {

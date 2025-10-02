@@ -27,7 +27,7 @@ data class SubscriptionItemResponse(
     val CustomerID: String?,
     val Title: String? = null,
     val Description: String? = null,
-    val Name: String,
+    val Name: String? = null,
     val CycleDescription: String? = null,
     val Offer: String? = null,
     val Entitlements: List<SubscriptionEntitlement>? = null,

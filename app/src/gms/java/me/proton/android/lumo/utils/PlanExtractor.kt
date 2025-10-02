@@ -1,10 +1,10 @@
 package me.proton.android.lumo.utils
 
-import android.content.Context
 import android.util.Log
 import com.google.gson.JsonObject
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
+import me.proton.android.lumo.ui.components.UiText
 
 private const val TAG = "PlanExtractor"
 
@@ -20,7 +20,7 @@ object PlanExtractor {
      * @param context Context for accessing string resources (optional)
      * @return List of extracted JsPlanInfo objects
      */
-    fun extractPlans(dataObject: JsonObject, context: Context? = null): List<JsPlanInfo> {
+    fun extractPlans(dataObject: JsonObject): List<JsPlanInfo> {
         val extractedPlans = mutableListOf<JsPlanInfo>()
 
         if (dataObject.has("Plans") && dataObject.get("Plans").isJsonArray) {
@@ -50,16 +50,13 @@ object PlanExtractor {
                             // Only create plans for instances with valid Google productId
                             if (productId != null) {
                                 val durationText = when (cycle) {
-                                    1 -> context?.getString(R.string.plan_duration_1_month)
-                                        ?: "1 month"
-
-                                    12 -> context?.getString(R.string.plan_duration_12_months)
-                                        ?: "12 months"
-
-                                    else -> context?.getString(
-                                        R.string.plan_duration_n_months,
-                                        cycle
-                                    ) ?: "$cycle Months"
+                                    1 -> UiText.ResText(R.string.plan_duration_1_month)
+                                    12 -> UiText.ResText(R.string.plan_duration_12_months)
+                                    else ->
+                                        UiText.ResText(
+                                            R.string.plan_duration_n_months,
+                                            cycle
+                                        )
                                 }
 
                                 val jsPlan = JsPlanInfo(

@@ -12,20 +12,6 @@ import me.proton.android.lumo.models.SubscriptionItemResponse
  */
 interface SubscriptionRepository {
     /**
-     * Get the current user's subscriptions
-     *
-     * @return Result containing the subscription response
-     */
-    suspend fun getSubscriptions(): Result<PaymentJsResponse>
-
-    /**
-     * Get available subscription plans
-     *
-     * @return Result containing the plans response
-     */
-    suspend fun getPlans(): Result<PaymentJsResponse>
-
-    /**
      * Extract plan features from API response
      *
      * @param response The API response containing plan data

@@ -1,6 +1,5 @@
 package me.proton.android.lumo.di
 
-import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.billing.BillingManagerWrapper
 
 /**
@@ -14,8 +13,8 @@ object DependencyProvider {
     /**
      * Get or create the BillingManagerWrapper instance
      */
-    fun getBillingManagerWrapper(activity: MainActivity): BillingManagerWrapper {
-        return billingManagerWrapper ?: BillingManagerWrapper(activity).also {
+    fun getBillingManagerWrapper(): BillingManagerWrapper {
+        return billingManagerWrapper ?: BillingManagerWrapper().also {
             billingManagerWrapper = it
         }
     }

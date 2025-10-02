@@ -48,20 +48,10 @@ inline fun <T> Result<T>.handleError(
             val errorInfo = ErrorClassifier.classify(throwable)
             Log.w(
                 tag,
-                "$operation error: ${errorInfo.getUserMessage(context)} (${errorInfo.technicalDetails})"
+                "$operation error: ${errorInfo.getUserMessage()} (${errorInfo.technicalDetails})"
             )
             onError(errorInfo)
         }
-    )
-}
-
-/**
- * Extension to get user-friendly error message from Result
- */
-fun <T> Result<T>.getUserErrorMessage(context: Context): String {
-    return fold(
-        onSuccess = { "Success" },
-        onFailure = { ErrorClassifier.getUserMessage(it, context) }
     )
 }
 

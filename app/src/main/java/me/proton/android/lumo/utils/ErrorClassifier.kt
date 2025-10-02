@@ -1,7 +1,7 @@
 package me.proton.android.lumo.utils
 
-import android.content.Context
 import me.proton.android.lumo.R
+import me.proton.android.lumo.ui.components.UiText
 import java.io.IOException
 import java.net.ConnectException
 import java.net.NoRouteToHostException
@@ -48,8 +48,8 @@ object ErrorClassifier {
         /**
          * Get the localized user message
          */
-        fun getUserMessage(context: Context): String {
-            return context.getString(userMessageResId)
+        fun getUserMessage(): UiText {
+            return UiText.ResText(userMessageResId)
         }
     }
 
@@ -248,7 +248,7 @@ object ErrorClassifier {
     /**
      * Get user-friendly error message
      */
-    fun getUserMessage(throwable: Throwable, context: Context): String {
-        return classify(throwable).getUserMessage(context)
+    fun getUserMessage(throwable: Throwable): UiText {
+        return classify(throwable).getUserMessage()
     }
 }

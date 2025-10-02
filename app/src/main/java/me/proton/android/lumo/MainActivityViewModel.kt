@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.data.repository.ThemeRepository
-import me.proton.android.lumo.domain.WebEvent
 import me.proton.android.lumo.speech.SpeechRecognitionManager
+import me.proton.android.lumo.ui.components.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.utils.isHostReachable
 import me.proton.android.lumo.webview.keyboardHeightChange
@@ -29,7 +29,7 @@ data class MainUiState(
     val isListening: Boolean = false,
     val partialSpokenText: String = "",
     val rmsDbValue: Float = 0f,
-    val speechStatusText: String = "",
+    val speechStatusText: UiText = UiText.StringText(""),
     val hasRecordAudioPermission: Boolean = false,
     val isLoading: Boolean = true,
     val initialLoadError: String? = null,
@@ -39,18 +39,35 @@ data class MainUiState(
     val theme: LumoTheme? = null
 )
 
-// Define Events for communication (e.g., JS evaluation)
-sealed class UiEvent {
-    data class EvaluateJavascript(val script: String) : UiEvent()
-    data class ShowToast(val message: String) : UiEvent()
-    object RequestAudioPermission : UiEvent()
-    data class ForwardBillingResult(val transactionId: String, val resultJson: String) : UiEvent()
-}
-
 class MainActivityViewModel(
-    application: Application,
+    private val application: Application,
     private val themeRepository: ThemeRepository
 ) : AndroidViewModel(application) {
+
+    sealed class UiEvent {
+        data class EvaluateJavascript(val script: String) : UiEvent()
+        data class ShowToast(val message: UiText) : UiEvent()
+        object RequestAudioPermission : UiEvent()
+    }
+
+    sealed interface WebEvent {
+        data object ShowPaymentRequested : WebEvent
+        data object StartVoiceEntryRequested : WebEvent
+        data object RetryLoadRequested : WebEvent
+        data class PageTypeChanged(val isLumo: Boolean, val url: String) : WebEvent
+        data class Navigated(val url: String, val type: String) : WebEvent
+        data object LumoContainerVisible : WebEvent
+        data class KeyboardVisibilityChanged(val isVisible: Boolean, val keyboardHeightPx: Int) :
+            WebEvent
+
+        data class ThemeResult(val mode: String) : WebEvent {
+            val theme = when (mode) {
+                "Dark" -> 1
+                "Light" -> 2
+                else -> 0
+            }
+        }
+    }
 
     internal val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
@@ -119,8 +136,12 @@ class MainActivityViewModel(
                     }
 
                     WebEvent.LumoContainerVisible -> {
-                        setHasSeenLumoContainer(true)
-                        _uiState.update { it.copy(isLoading = false) }
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                hasSeenLumoContainer = true
+                            )
+                        }
                     }
 
                     is WebEvent.KeyboardVisibilityChanged -> {
@@ -131,14 +152,6 @@ class MainActivityViewModel(
                                     event.keyboardHeightPx
                                 )
                             )
-                        )
-                    }
-
-                    is WebEvent.PostResult -> {
-                        // We’ll properly forward this to billing via a UiEvent in Step 4.
-                        // For now, just confirm we received it.
-                        _eventChannel.trySend(
-                            UiEvent.ForwardBillingResult(event.transactionId, event.resultJson)
                         )
                     }
 
@@ -239,7 +252,7 @@ class MainActivityViewModel(
                 _uiState.update { it.copy(isListening = false) }
             }
 
-            override fun onError(errorMessage: String) {
+            override fun onError(errorMessage: UiText) {
                 _uiState.update { it.copy(isListening = false, showSpeechSheet = false) }
                 viewModelScope.launch {
                     _eventChannel.send(UiEvent.ShowToast(errorMessage))
@@ -263,13 +276,12 @@ class MainActivityViewModel(
     }
 
     private fun determineSpeechStatusText() {
-        val context = getApplication<Application>()
         val statusText = if (speechRecognitionManager.isOnDeviceRecognitionAvailable()) {
             Log.d(TAG, "On-device recognition IS available.")
-            context.getString(R.string.speech_status_on_device)
+            UiText.ResText(R.string.speech_status_on_device)
         } else {
             Log.d(TAG, "On-device recognition NOT available.")
-            context.getString(R.string.speech_status_network)
+            UiText.ResText(R.string.speech_status_network)
         }
         _uiState.value = _uiState.value.copy(speechStatusText = statusText)
     }
@@ -281,7 +293,11 @@ class MainActivityViewModel(
         if (speechRecognitionManager.isPermissionGranted()) {
             if (!speechRecognitionManager.isSpeechRecognitionAvailable()) {
                 viewModelScope.launch {
-                    _eventChannel.send(UiEvent.ShowToast(getApplication<Application>().getString(R.string.speech_not_available)))
+                    _eventChannel.send(
+                        UiEvent.ShowToast(
+                            UiText.ResText(R.string.speech_not_available)
+                        )
+                    )
                 }
                 return
             }
@@ -347,19 +363,15 @@ class MainActivityViewModel(
         if (result == null || result == "null" || result.contains("Error")) {
             Log.e(TAG, "JavaScript execution failed or function not found. Result: $result")
             viewModelScope.launch {
-                _eventChannel.send(UiEvent.ShowToast(getApplication<Application>().getString(R.string.submit_prompt_failed)))
+                _eventChannel.send(
+                    UiEvent.ShowToast(
+                        UiText.ResText(R.string.submit_prompt_failed)
+                    )
+                )
             }
         } else {
             Log.d(TAG, "JavaScript insertPromptAndSubmit executed successfully.")
         }
-    }
-
-    fun setIsLumoPage(isLumo: Boolean) {
-        _uiState.update { it.copy(isLumoPage = isLumo) }
-    }
-
-    fun setHasSeenLumoContainer(seen: Boolean) {
-        _uiState.update { it.copy(hasSeenLumoContainer = seen) }
     }
 
     override fun onCleared() {

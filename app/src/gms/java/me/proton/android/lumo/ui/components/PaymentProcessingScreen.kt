@@ -49,8 +49,8 @@ import me.proton.android.lumo.ui.theme.WarningYellow
 sealed class PaymentProcessingState {
     data object Loading : PaymentProcessingState()
     data object Verifying : PaymentProcessingState()
-    data class Error(val message: String) : PaymentProcessingState()
-    data class NetworkError(val message: String) : PaymentProcessingState()
+    data class Error(val message: UiText) : PaymentProcessingState()
+    data class NetworkError(val message: UiText) : PaymentProcessingState()
     data object Success : PaymentProcessingState()
     data class SubscriptionRecovery(val message: String) : PaymentProcessingState()
 }
@@ -95,13 +95,17 @@ fun PaymentProcessingScreen(
 
                 is PaymentProcessingState.Error -> {
                     PaymentErrorContent(
-                        message = state.message, onRetry = onRetry, onClose = onClose
+                        message = state.message.asString(),
+                        onRetry = onRetry,
+                        onClose = onClose
                     )
                 }
 
                 is PaymentProcessingState.NetworkError -> {
                     PaymentNetworkErrorContent(
-                        message = state.message, onRetry = onRetry, onClose = onClose
+                        message = state.message.asString(),
+                        onRetry = onRetry,
+                        onClose = onClose
                     )
                 }
 

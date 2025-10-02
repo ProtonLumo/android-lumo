@@ -33,6 +33,7 @@ import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.models.Subscription
 import me.proton.android.lumo.models.SubscriptionPlan
 import me.proton.android.lumo.ui.components.PaymentProcessingState
+import me.proton.android.lumo.ui.components.UiText
 import me.proton.android.lumo.utils.ErrorClassifier
 import java.util.Date
 
@@ -96,7 +97,6 @@ class BillingManager(
     private var periodicRefreshJob: Job? = null
     private var cachedPurchases: List<Purchase> = emptyList()
 
-    val purchaseState = _purchaseState.asStateFlow()
     val productDetailsList = _productDetailsList.asStateFlow()
 
     private val _selectedPlanIndex = MutableStateFlow(0)
@@ -113,7 +113,9 @@ class BillingManager(
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
             _purchaseState.value = PurchaseState.Cancelled
         } else {
-            _purchaseState.value = PurchaseState.Error(billingResult.debugMessage)
+            _purchaseState.value = PurchaseState.Error(
+                UiText.StringText(billingResult.debugMessage)
+            )
         }
     }
 
@@ -155,14 +157,16 @@ class BillingManager(
             TAG,
             "Initializing BillingManager in ${if (isTestMode) "TEST" else "PRODUCTION"} mode"
         )
+        _purchaseState.value = PurchaseState.Error(
+            UiText.ResText(R.string.billing_application_context_unavailable)
+        )
 
         // Defensive check: ensure activity is not null
         when {
             activity == null -> {
                 Log.e(TAG, "Activity is null - cannot initialize billing")
                 _purchaseState.value = PurchaseState.Error(
-                    activity?.getString(R.string.billing_application_context_unavailable)
-                        ?: "Application context unavailable"
+                    UiText.ResText(R.string.billing_application_context_unavailable)
                 )
             }
 
@@ -178,22 +182,20 @@ class BillingManager(
                 } catch (e: PackageManager.NameNotFoundException) {
                     Log.e(TAG, "Google Play Store is not installed", e)
                     _purchaseState.value = PurchaseState.Error(
-                        activity?.getString(R.string.billing_google_play_required)
-                            ?: "Google Play Store is required for purchases"
+                        UiText.ResText(R.string.billing_google_play_required)
                     )
                 } catch (e: SecurityException) {
                     Log.e(TAG, "Permission denied accessing Google Play Store", e)
                     _purchaseState.value = PurchaseState.Error(
-                        activity?.getString(R.string.billing_cannot_access_google_play)
-                            ?: "Cannot access Google Play Store"
+                        UiText.ResText(R.string.billing_cannot_access_google_play)
                     )
                 } catch (e: Exception) {
                     Log.e(TAG, "Critical error during billing initialization", e)
                     _purchaseState.value = PurchaseState.Error(
-                        activity?.getString(
+                        UiText.ResText(
                             R.string.billing_services_unavailable,
                             e.message ?: "Unknown error"
-                        ) ?: "Billing services unavailable: ${e.message}"
+                        )
                     )
                     // Don't let billing errors crash the app - just disable billing
                     Log.w(
@@ -216,8 +218,7 @@ class BillingManager(
                         "Billing client is null - billing unavailable (likely old Google Play API)"
                     )
                     _purchaseState.value = PurchaseState.Error(
-                        activity?.getString(R.string.billing_api_not_available)
-                            ?: "Google Play Billing API not available"
+                        UiText.ResText(R.string.billing_api_not_available)
                     )
                     // Don't proceed with connection - app should continue without billing
                     return
@@ -230,16 +231,16 @@ class BillingManager(
         } catch (e: Exception) {
             Log.e(TAG, "Exception during billing client initialization", e)
             _purchaseState.value = PurchaseState.Error(
-                activity?.getString(
+                UiText.ResText(
                     R.string.billing_initialization_failed,
                     e.message ?: "Unknown error"
-                ) ?: "Billing initialization failed: ${e.message}"
+                )
             )
             // Don't let this crash the app
         }
     }
 
-    protected fun establishConnection() {
+    private fun establishConnection() {
         Log.d(TAG, "Starting billing client connection (Test mode: $isTestMode)")
         if (billingClient == null) {
             Log.e(TAG, "Billing client is null")
@@ -257,7 +258,11 @@ class BillingManager(
                         billingClient?.isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS)
                     Log.d(
                         TAG,
-                        "Subscriptions supported: ${subscriptionsSupported?.responseCode == BillingClient.BillingResponseCode.OK}"
+                        "Subscriptions supported: " +
+                                "${
+                                    subscriptionsSupported?.responseCode ==
+                                            BillingClient.BillingResponseCode.OK
+                                }"
                     )
 
                     val productDetailsSupported =
@@ -275,29 +280,25 @@ class BillingManager(
                     startPeriodicRefresh()
                 } else if (billingResult.responseCode == BillingClient.BillingResponseCode.BILLING_UNAVAILABLE) {
                     // Specific handling for BILLING_UNAVAILABLE (error code 3)
-                    val debugMessage = billingResult.debugMessage ?: "Unknown billing error"
+                    val debugMessage = billingResult.debugMessage
                     Log.e(TAG, "Billing unavailable: $debugMessage")
 
                     _isConnected.value = false
 
                     // Provide specific error messages based on the debug message
-                    val userMessage = when {
+                    val userMessage: UiText = when {
                         debugMessage.contains("API version is less than 3", ignoreCase = true) -> {
-                            activity?.getString(R.string.billing_unavailable_old_api)
-                                ?: "This device's Google Play Billing version is too old. Please update Google Play Store or use the web version of Lumo."
+                            UiText.ResText(R.string.billing_unavailable_old_api)
                         }
 
                         debugMessage.contains("not supported", ignoreCase = true) -> {
-                            activity?.getString(R.string.billing_unavailable_not_supported)
-                                ?: "In-app purchases are not supported on this device. Please use the web version of Lumo for subscriptions."
+                            UiText.ResText(R.string.billing_unavailable_not_supported)
                         }
 
                         else -> {
-                            activity?.getString(R.string.billing_unavailable_generic)
-                                ?: "Billing unavailable: Please ensure Google Play Store is installed, updated and you are logged in"
+                            UiText.ResText(R.string.billing_unavailable_generic)
                         }
                     }
-
                     _purchaseState.value = PurchaseState.Error(userMessage)
 
                     // Check if Google Play Store is installed and updated
@@ -317,11 +318,10 @@ class BillingManager(
                     _isConnected.value = false
                     _purchaseState.value =
                         PurchaseState.Error(
-                            activity?.getString(
+                            UiText.ResText(
                                 R.string.billing_connection_failed,
-                                billingResult.debugMessage ?: "Unknown error"
+                                billingResult.debugMessage
                             )
-                                ?: "Failed to connect to billing service: ${billingResult.debugMessage}"
                         )
                 }
             }
@@ -347,8 +347,7 @@ class BillingManager(
             // If we're in a payment processing state, show error
             if (_paymentProcessingState.value != null) {
                 _paymentProcessingState.value = PaymentProcessingState.Error(
-                    activity?.getString(R.string.billing_service_not_connected)
-                        ?: "Billing service not connected. Please try again."
+                    UiText.ResText(R.string.billing_service_not_connected)
                 )
             }
             onComplete?.invoke(emptyList())
@@ -465,7 +464,9 @@ class BillingManager(
                         // If we're in a payment processing state during retry, show error
                         if (_paymentProcessingState.value is PaymentProcessingState.Loading) {
                             _paymentProcessingState.value = PaymentProcessingState.Error(
-                                "Failed to query purchases: ${billingResult.debugMessage ?: "Unknown error"}"
+                                UiText.StringText(
+                                    "Failed to query purchases: ${billingResult.debugMessage}"
+                                )
                             )
                         }
 
@@ -482,7 +483,9 @@ class BillingManager(
                 // If we're in a payment processing state during retry, show error
                 if (_paymentProcessingState.value is PaymentProcessingState.Loading) {
                     _paymentProcessingState.value = PaymentProcessingState.Error(
-                        "Error querying purchases: ${e.message}"
+                        UiText.StringText(
+                            "Error querying purchases: ${e.message}"
+                        )
                     )
                 }
                 onComplete?.invoke(emptyList())
@@ -564,7 +567,7 @@ class BillingManager(
 
             when (billingResult.responseCode) {
                 BillingClient.BillingResponseCode.OK -> {
-                    Log.d(TAG, retrievedProductDetails.toString());
+                    Log.d(TAG, retrievedProductDetails.toString())
                     if (productDetailsList.isNotEmpty()) {
                         // Store all retrieved product details
                         _productDetailsList.value = productDetailsList
@@ -601,6 +604,7 @@ class BillingManager(
                                 it.javaClass.getDeclaredMethod("zza").invoke(it) as? String
                                     ?: "unknown"
                             } catch (e: Exception) {
+                                e.printStackTrace()
                                 "unknown"
                             }
                         }
@@ -616,12 +620,16 @@ class BillingManager(
                             // Instead of showing an error, we'll mark a special state for UI testing
                             // This allows the UI to continue showing the payment dialog with dummy data
                             _purchaseState.value =
-                                PurchaseState.NoProductsAvailable("Test mode active, showing UI demo")
+                                PurchaseState.NoProductsAvailable(
+                                    UiText.StringText("Test mode active, showing UI demo")
+                                )
                             return@queryProductDetailsAsync
                         } else {
                             Log.e(TAG, "Make sure the products are set up in Google Play Console")
                         }
-                        _purchaseState.value = PurchaseState.Error("No products found")
+                        _purchaseState.value = PurchaseState.Error(
+                            UiText.StringText("No products found")
+                        )
                     }
                 }
 
@@ -634,13 +642,17 @@ class BillingManager(
                 BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE -> {
                     Log.e(TAG, "Service unavailable - check internet connection")
                     _purchaseState.value =
-                        PurchaseState.Error("Service unavailable - check internet connection")
+                        PurchaseState.Error(
+                            UiText.StringText("Service unavailable - check internet connection")
+                        )
                 }
 
                 BillingClient.BillingResponseCode.BILLING_UNAVAILABLE -> {
                     Log.e(TAG, "Billing unavailable - check Play Store app")
                     _purchaseState.value =
-                        PurchaseState.Error("Billing unavailable - check Play Store app")
+                        PurchaseState.Error(
+                            UiText.StringText("Billing unavailable - check Play Store app")
+                        )
                 }
 
                 else -> {
@@ -649,7 +661,9 @@ class BillingManager(
                         "Failed to retrieve product details: ${billingResult.responseCode} ${billingResult.debugMessage}"
                     )
                     _purchaseState.value =
-                        PurchaseState.Error("Failed to retrieve product details: ${billingResult.debugMessage}")
+                        PurchaseState.Error(
+                            UiText.StringText("Failed to retrieve product details: ${billingResult.debugMessage}")
+                        )
                 }
             }
         }
@@ -757,122 +771,124 @@ class BillingManager(
                         Currency = currencyCode,
                         Payment = payment
                     )
-                    Log.d(TAG, "Sending to createPaymentToken: ${paymentTokenPayload ?: "not set"}")
+                    Log.d(TAG, "Sending to createPaymentToken: $paymentTokenPayload")
 
-                    activity.webView?.let { webView ->
-                        // Update state to show we're processing with server
-                        _paymentProcessingState.value = PaymentProcessingState.Verifying
+                    // Update state to show we're processing with server
+                    _paymentProcessingState.value = PaymentProcessingState.Verifying
 
-                        billingCallbacks.sendPaymentTokenToWebView(
-                            paymentTokenPayload
-                        ) { result: Result<PaymentJsResponse> ->
-                            // Now within the call back we can do whatever else we need to do...
-                            result.onSuccess { paymentJsResponse ->
-                                // Now we can access the data from the successful PaymentJsResponse
-                                Log.d(TAG, "JavaScript result success: ${paymentJsResponse}")
+                    billingCallbacks.sendPaymentTokenToWebView(
+                        paymentTokenPayload
+                    ) { result: Result<PaymentJsResponse> ->
+                        // Now within the call back we can do whatever else we need to do...
+                        result.onSuccess { paymentJsResponse ->
+                            // Now we can access the data from the successful PaymentJsResponse
+                            Log.d(TAG, "JavaScript result success: $paymentJsResponse")
 
-                                // Check for error status in response
-                                if (paymentJsResponse.status == "error") {
-                                    Log.e(
-                                        TAG,
-                                        "Error in payment token response: ${paymentJsResponse.message}"
-                                    )
-                                    _paymentProcessingState.value = PaymentProcessingState.Error(
+                            // Check for error status in response
+                            if (paymentJsResponse.status == "error") {
+                                Log.e(
+                                    TAG,
+                                    "Error in payment token response: ${paymentJsResponse.message}"
+                                )
+                                _paymentProcessingState.value = PaymentProcessingState.Error(
+                                    UiText.StringText(
                                         paymentJsResponse.message
                                             ?: "Unknown error creating payment token"
                                     )
-                                    return@sendPaymentTokenToWebView
-                                }
+                                )
+                                return@sendPaymentTokenToWebView
+                            }
 
-                                val token = try {
-                                    // If data is a JsonObject
-                                    if (paymentJsResponse.data?.isJsonObject == true) {
-                                        paymentJsResponse.data.asJsonObject?.get("Token")?.asString
-                                    }
-                                    // If data is directly a primitive (like a string)
-                                    else if (paymentJsResponse.data?.isJsonPrimitive == true) {
-                                        paymentJsResponse.data.asString
-                                    } else {
-                                        null
-                                    }
-                                } catch (e: Exception) {
-                                    Log.e(TAG, "Error parsing token from response", e)
-                                    _paymentProcessingState.value = PaymentProcessingState.Error(
+                            val token = try {
+                                // If data is a JsonObject
+                                if (paymentJsResponse.data?.isJsonObject == true) {
+                                    paymentJsResponse.data.asJsonObject?.get("Token")?.asString
+                                }
+                                // If data is directly a primitive (like a string)
+                                else if (paymentJsResponse.data?.isJsonPrimitive == true) {
+                                    paymentJsResponse.data.asString
+                                } else {
+                                    null
+                                }
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Error parsing token from response", e)
+                                _paymentProcessingState.value = PaymentProcessingState.Error(
+                                    UiText.StringText(
                                         "Error processing payment response: ${e.message}"
                                     )
-                                    return@sendPaymentTokenToWebView
-                                }
+                                )
+                                return@sendPaymentTokenToWebView
+                            }
 
-                                if (token != null) {
-                                    val subscriptionPayload = Subscription(
-                                        PaymentToken = token,
-                                        Currency = currencyCode,
-                                        Cycle = 1,
-                                        Plans = mapOf("lumo2024" to 1),
-                                        CouponCode = null,
-                                        BillingAddress = null
-                                    )
+                            if (token != null) {
+                                val subscriptionPayload = Subscription(
+                                    PaymentToken = token,
+                                    Currency = currencyCode,
+                                    Cycle = 1,
+                                    Plans = mapOf("lumo2024" to 1),
+                                    CouponCode = null,
+                                    BillingAddress = null
+                                )
 
-                                    // Final step - send subscription to activate
-                                    billingCallbacks.sendSubscriptionEventToWebView(
-                                        subscriptionPayload
-                                    ) { subscriptionResult ->
-                                        subscriptionResult.onSuccess { response ->
-                                            // Success! Payment is fully processed
-                                            Log.d(
-                                                TAG,
-                                                "Subscription activated successfully: ${response}"
-                                            )
-                                            _paymentProcessingState.value =
-                                                PaymentProcessingState.Success
-                                        }.onFailure { error ->
-                                            Log.e(TAG, "Subscription request failed", error)
-                                            _paymentProcessingState.value =
-                                                PaymentProcessingState.Error(
+                                // Final step - send subscription to activate
+                                billingCallbacks.sendSubscriptionEventToWebView(
+                                    subscriptionPayload
+                                ) { subscriptionResult ->
+                                    subscriptionResult.onSuccess { response ->
+                                        // Success! Payment is fully processed
+                                        Log.d(
+                                            TAG,
+                                            "Subscription activated successfully: $response"
+                                        )
+                                        _paymentProcessingState.value =
+                                            PaymentProcessingState.Success
+                                    }.onFailure { error ->
+                                        Log.e(TAG, "Subscription request failed", error)
+                                        _paymentProcessingState.value =
+                                            PaymentProcessingState.Error(
+                                                UiText.StringText(
                                                     "Could not activate subscription: ${error.message}"
                                                 )
-                                        }
+                                            )
                                     }
-                                } else {
-                                    Log.e(TAG, "Token was null in payment response")
-                                    _paymentProcessingState.value = PaymentProcessingState.Error(
+                                }
+                            } else {
+                                Log.e(TAG, "Token was null in payment response")
+                                _paymentProcessingState.value = PaymentProcessingState.Error(
+                                    UiText.StringText(
                                         "Payment token was not found in the server response"
                                     )
-                                }
-                            }.onFailure { error ->
-                                Log.e(TAG, "Payment token request failed", error)
-                                // Use professional error classification
-                                val errorInfo = ErrorClassifier.classify(error)
-                                val context = activity ?: return@onFailure
-                                _paymentProcessingState.value = when (errorInfo.type) {
-                                    ErrorClassifier.ErrorType.Network,
-                                    ErrorClassifier.ErrorType.Timeout,
-                                    ErrorClassifier.ErrorType.SSL -> PaymentProcessingState.NetworkError(
-                                        errorInfo.getUserMessage(context)
-                                    )
+                                )
+                            }
+                        }.onFailure { error ->
+                            Log.e(TAG, "Payment token request failed", error)
+                            // Use professional error classification
+                            val errorInfo = ErrorClassifier.classify(error)
+                            _paymentProcessingState.value = when (errorInfo.type) {
+                                ErrorClassifier.ErrorType.Network,
+                                ErrorClassifier.ErrorType.Timeout,
+                                ErrorClassifier.ErrorType.SSL -> PaymentProcessingState.NetworkError(
+                                    errorInfo.getUserMessage()
+                                )
 
-                                    else -> PaymentProcessingState.Error(
-                                        errorInfo.getUserMessage(context)
-                                    )
-                                }
+                                else -> PaymentProcessingState.Error(
+                                    errorInfo.getUserMessage()
+                                )
                             }
                         }
-                    } ?: run {
-                        Log.e(TAG, "WebView not available for payment processing")
-                        _paymentProcessingState.value = PaymentProcessingState.Error(
-                            "Could not communicate with subscription servers"
-                        )
                     }
                 } else {
                     Log.e(TAG, "Activity or product details not available")
                     _paymentProcessingState.value = PaymentProcessingState.Error(
-                        "Application error: could not process payment"
+                        UiText.StringText(
+                            "Application error: could not process payment"
+                        )
                     )
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error sending payment token to WebView", e)
                 _paymentProcessingState.value = PaymentProcessingState.Error(
-                    "Error processing payment: ${e.message}"
+                    UiText.StringText("Error processing payment: ${e.message}")
                 )
             }
             // --- End send payment token ---
@@ -1025,7 +1041,7 @@ class BillingManager(
      * This method will return true even for cancelled subscriptions that are still within their valid period
      */
     fun hasActiveSubscription(): Boolean {
-        return purchaseState.value is PurchaseState.Purchased
+        return _purchaseState.value is PurchaseState.Purchased
     }
 
     /**
@@ -1117,12 +1133,16 @@ class BillingManager(
     ) {
         if (!_isConnected.value) {
             Log.e(TAG, "Cannot launch billing flow - billing client not connected.")
-            _purchaseState.value = PurchaseState.Error("Billing service not connected.")
+            _purchaseState.value = PurchaseState.Error(
+                UiText.StringText("Billing service not connected.")
+            )
             return
         }
         if (activity == null) {
             Log.e(TAG, "Cannot launch billing flow - activity is null.")
-            _purchaseState.value = PurchaseState.Error("Application context error.")
+            _purchaseState.value = PurchaseState.Error(
+                UiText.StringText("Application context error.")
+            )
             return
         }
 
@@ -1138,7 +1158,9 @@ class BillingManager(
 
         if (productDetails == null) {
             Log.e(TAG, "Product details not found for $productId. Cannot launch flow.")
-            _purchaseState.value = PurchaseState.Error("Selected plan details not found.")
+            _purchaseState.value = PurchaseState.Error(
+                UiText.StringText("Selected plan details not found.")
+            )
             return
         }
 
@@ -1165,7 +1187,12 @@ class BillingManager(
                 // Optionally, default to the base plan if no offer token is needed/found
                 // If *only* specific offers should be purchasable, then this should be an error:
                 _purchaseState.value =
-                    PurchaseState.Error("Selected plan offer is not available. Please try again or select a different plan.")
+                    PurchaseState.Error(
+                        UiText.StringText(
+                            "Selected plan offer is not available. " +
+                                    "Please try again or select a different plan."
+                        )
+                    )
                 // return // Uncomment this line if purchase should fail when offer token is invalid
             }
         } else if (offerToken != null && productDetails.subscriptionOfferDetails == null) {
@@ -1173,7 +1200,9 @@ class BillingManager(
                 TAG,
                 "Offer token '$offerToken' provided, but product $productId has no subscription offer details."
             )
-            _purchaseState.value = PurchaseState.Error("Plan configuration error.")
+            _purchaseState.value = PurchaseState.Error(
+                UiText.StringText("Plan configuration error.")
+            )
             return
         } else {
             Log.d(TAG, "No specific offer token provided or needed for product $productId.")
@@ -1195,7 +1224,9 @@ class BillingManager(
                 "Failed to launch billing flow: ${billingResult?.responseCode} ${billingResult?.debugMessage}"
             )
             _purchaseState.value =
-                PurchaseState.Error("Failed to initiate purchase: ${billingResult?.debugMessage}")
+                PurchaseState.Error(
+                    UiText.StringText("Failed to initiate purchase: ${billingResult?.debugMessage}")
+                )
         } else {
             Log.d(TAG, "Billing flow launched successfully.")
             // Purchase process continues in PurchasesUpdatedListener
@@ -1242,7 +1273,9 @@ class BillingManager(
                         } else {
                             Log.e(TAG, "No purchases found during retry")
                             _paymentProcessingState.value = PaymentProcessingState.Error(
-                                "No active purchase found to retry. Please try purchasing again."
+                                UiText.StringText(
+                                    "No active purchase found to retry. Please try purchasing again."
+                                )
                             )
                         }
                     },
@@ -1252,7 +1285,9 @@ class BillingManager(
         } catch (e: Exception) {
             Log.e(TAG, "Error retrying payment verification", e)
             _paymentProcessingState.value = PaymentProcessingState.Error(
-                "Error retrying payment: ${e.message}"
+                UiText.StringText(
+                    "Error retrying payment: ${e.message}"
+                )
             )
         }
     }
@@ -1272,7 +1307,9 @@ class BillingManager(
         if (!_isConnected.value) {
             Log.e(TAG, "Cannot process recovery - billing client not connected")
             _paymentProcessingState.value =
-                PaymentProcessingState.Error("Billing service not connected")
+                PaymentProcessingState.Error(
+                    UiText.StringText("Billing service not connected")
+                )
             return
         }
 
@@ -1299,7 +1336,9 @@ class BillingManager(
                     handlePurchase(purchase)
                 } else {
                     _paymentProcessingState.value = PaymentProcessingState.Error(
-                        "No active Google Play subscription found to recover"
+                        UiText.StringText(
+                            "No active Google Play subscription found to recover"
+                        )
                     )
                 }
             },
@@ -1311,7 +1350,7 @@ class BillingManager(
         data object NotPurchased : PurchaseState()
         data object Purchased : PurchaseState()
         object Cancelled : PurchaseState()
-        data class Error(val message: String) : PurchaseState()
-        data class NoProductsAvailable(val message: String) : PurchaseState()
+        data class Error(val message: UiText) : PurchaseState()
+        data class NoProductsAvailable(val message: UiText) : PurchaseState()
     }
 }
