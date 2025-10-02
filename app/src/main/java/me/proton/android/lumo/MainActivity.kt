@@ -313,6 +313,7 @@ class MainActivity : ComponentActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         uiManager.onConfigurationChanged(newConfig)
+        webView?.invalidate()
     }
 
     /**
