@@ -16,6 +16,6 @@ class MainActivityViewModelFactory(
             Context.MODE_PRIVATE
         )
         val repo = ThemeRepositoryImpl(prefs)
-        return MainActivityViewModel(application, repo) as T
+        return MainActivityViewModel(application,repo) as T
     }
 }

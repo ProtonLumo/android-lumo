@@ -6,13 +6,19 @@ import androidx.compose.ui.res.stringResource
 
 sealed interface UiText {
 
-    data class StringText(val text: String) : UiText
+    fun getText(context: Context): String
+
+    data class StringText(val text: String) : UiText {
+        override fun getText(context: Context): String = text
+    }
 
     data class ResText(
         val res: Int,
         val values: List<Any>
     ) : UiText {
         constructor(res: Int, vararg values: Any) : this(res, values.toList())
+
+        override fun getText(context: Context): String = context.getString(res, values)
     }
 }
 

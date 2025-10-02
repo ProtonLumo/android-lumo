@@ -255,7 +255,9 @@ fun PaymentProcessingErrorPreview() {
     LumoTheme {
         PaymentProcessingScreen(
             state = PaymentProcessingState.Error(
-                "Payment failed. Please check your payment method and try again."
+                UiText.StringText(
+                    "Payment failed. Please check your payment method and try again."
+                )
             ),
             onRetry = { /* Preview - no action */ },
             onClose = { /* Preview - no action */ }
@@ -270,7 +272,9 @@ fun PaymentProcessingNetworkErrorPreview() {
     LumoTheme {
         PaymentProcessingScreen(
             state = PaymentProcessingState.NetworkError(
+                UiText.StringText(
                 "Network connection failed. Please check your internet connection."
+                )
             ),
             onRetry = { /* Preview - no action */ },
             onClose = { /* Preview - no action */ }

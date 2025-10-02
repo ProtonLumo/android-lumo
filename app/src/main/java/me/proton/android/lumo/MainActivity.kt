@@ -45,6 +45,7 @@ import me.proton.android.lumo.managers.WebViewManager
 import me.proton.android.lumo.speech.SpeechRecognitionManager
 import me.proton.android.lumo.ui.components.MainScreen
 import me.proton.android.lumo.ui.components.MainScreenListeners
+import me.proton.android.lumo.ui.components.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.webview.addJavaScriptInterfaceSafely
 import me.proton.android.lumo.webview.injectTheme
@@ -147,7 +148,11 @@ class MainActivity : ComponentActivity() {
 
                         is MainUiEvent.ShowToast -> {
                             Log.d(TAG, "Received ShowToast event: ${event.message}")
-                            Toast.makeText(this@MainActivity, event.message, Toast.LENGTH_LONG)
+                            Toast.makeText(
+                                this@MainActivity,
+                                event.message.getText(this@MainActivity),
+                                Toast.LENGTH_LONG
+                            )
                                 .show()
                         }
 
@@ -356,7 +361,9 @@ class MainActivity : ComponentActivity() {
                     Log.w(TAG, "RECORD_AUDIO permission denied by user")
                     mainActivityViewModel.viewModelScope.launch {
                         mainActivityViewModel._eventChannel.send(
-                            MainUiEvent.ShowToast(getString(R.string.permission_mic_rationale))
+                            MainUiEvent.ShowToast(
+                                UiText.ResText(R.string.permission_mic_rationale)
+                            )
                         )
                     }
                 }

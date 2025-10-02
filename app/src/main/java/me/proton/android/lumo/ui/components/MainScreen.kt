@@ -110,7 +110,7 @@ fun MainScreen(
                 isListening = uiState.isListening,
                 partialSpokenText = uiState.partialSpokenText,
                 rmsDbValue = uiState.rmsDbValue,
-                speechStatusText = uiState.speechStatusText,
+                speechStatusText = uiState.speechStatusText.asString(),
                 onCancel = { mainScreenListeners.cancelSpeech?.invoke() },
                 onSubmit = { mainScreenListeners.submitSpeechTranscript?.invoke() }
             )

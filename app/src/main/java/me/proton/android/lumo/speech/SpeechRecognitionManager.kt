@@ -12,6 +12,7 @@ import android.speech.SpeechRecognizer
 import android.util.Log
 import androidx.core.content.ContextCompat
 import me.proton.android.lumo.R
+import me.proton.android.lumo.ui.components.UiText
 
 private const val TAG = "SpeechRecognitionManager"
 
@@ -28,7 +29,7 @@ class SpeechRecognitionManager(private val context: Context) {
         fun onBeginningOfSpeech()
         fun onRmsChanged(rmsdB: Float)
         fun onEndOfSpeech()
-        fun onError(errorMessage: String)
+        fun onError(errorMessage: UiText)
         fun onPartialResults(text: String)
         fun onResults(text: String)
     }
@@ -116,7 +117,7 @@ class SpeechRecognitionManager(private val context: Context) {
             override fun onError(error: Int) {
                 val errorMessage = getErrorMessage(error)
                 Log.e(TAG, "SpeechRecognizer: onError: $errorMessage (code: $error)")
-                listener?.onError(errorMessage)
+                listener?.onError(UiText.StringText(errorMessage))
             }
 
             override fun onResults(results: Bundle?) {
@@ -126,7 +127,7 @@ class SpeechRecognitionManager(private val context: Context) {
                 if (text != null) {
                     listener?.onResults(text)
                 } else {
-                    listener?.onError(context.getString(R.string.speech_error_no_match))
+                    listener?.onError(UiText.ResText(R.string.speech_error_no_match))
                 }
             }
 
@@ -152,7 +153,9 @@ class SpeechRecognitionManager(private val context: Context) {
     fun startListening() {
         if (speechRecognizer == null) {
             Log.e(TAG, "SpeechRecognizer not initialized.")
-            listener?.onError(context.getString(R.string.speech_not_available))
+            listener?.onError(
+                UiText.ResText(R.string.speech_not_available)
+            )
             return
         }
 
@@ -179,7 +182,11 @@ class SpeechRecognitionManager(private val context: Context) {
             Log.d(TAG, "speechRecognizer.startListening call finished.")
         } catch (e: Exception) {
             Log.e(TAG, "Exception calling speechRecognizer.startListening", e)
-            listener?.onError(e.message ?: context.getString(R.string.speech_error_client))
+            listener?.onError(
+                e.message?.let {
+                    UiText.StringText(it)
+                } ?: UiText.ResText(R.string.speech_error_client)
+            )
         }
     }
 
