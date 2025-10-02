@@ -1,0 +1,14 @@
+{
+  "name": "Lumo Android Dev Environment",
+  "image": "mcr.microsoft.com/devcontainers/python:3.13",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    },
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "1.12.2"
+    }
+  },
+  "postCreateCommand": "npm install -g @anthropic-ai/claude-code && pip install --upgrade pip ansible ansible-lint ruff",
+  "remoteUser": "vscode"
+}
