@@ -42,7 +42,6 @@ import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.managers.PermissionManager
 import me.proton.android.lumo.managers.UIManager
 import me.proton.android.lumo.managers.WebViewManager
-import me.proton.android.lumo.speech.SpeechRecognitionManager
 import me.proton.android.lumo.ui.components.MainScreen
 import me.proton.android.lumo.ui.components.MainScreenListeners
 import me.proton.android.lumo.ui.components.UiText
@@ -63,10 +62,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var webViewManager: WebViewManager
     private lateinit var permissionManager: PermissionManager
     private lateinit var uiManager: UIManager
-
-    // Speech Recognition
-    private lateinit var speechRecognitionManager: SpeechRecognitionManager
-
     private val _lottieComposition = MutableStateFlow<LottieComposition?>(null)
     private val lottieComposition: StateFlow<LottieComposition?> = _lottieComposition.asStateFlow()
 
@@ -124,9 +119,6 @@ class MainActivity : ComponentActivity() {
             .addListener { composition ->
                 _lottieComposition.value = composition
             }
-
-        // Initialize speech recognition manager
-        speechRecognitionManager = SpeechRecognitionManager(this)
 
         ServiceWorkerController.getInstance()
             .setServiceWorkerClient(object : ServiceWorkerClient() {
@@ -311,7 +303,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        speechRecognitionManager.destroy() // Release the recognizer
         webViewManager.destroy()
     }
 
