@@ -23,7 +23,7 @@ class ThemeRepositoryImpl(private val prefs: SharedPreferences) : ThemeRepositor
     override suspend fun getTheme(): LumoTheme =
         withContext(Dispatchers.IO) {
             LumoTheme.fromInt(
-                prefs.getInt(KEY_THEME, LumoTheme.System.mode)
+                prefs.getInt(KEY_THEME, LumoTheme.Light.mode)
             )
         }
 
