@@ -636,7 +636,6 @@ fun injectKeyboardHandling(webView: WebView) {
                 composer.style.zIndex = '99999';
                 composer.style.transform = 'translateY(0)';
                 composer.style.transition = 'bottom 0.2s cubic-bezier(0.4, 0.0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
-                composer.style.backgroundColor = 'white';
                 composer.style.boxShadow = '0 -2px 10px rgba(0,0,0,0.2)';
                 composer.classList.add('keyboard-forced-visible');
                 
@@ -1120,59 +1119,69 @@ fun injectTheme(webView: WebView, theme: Int, mode: Int) {
 fun themeChangeListener(webView: WebView) {
     val js = """
         (function() {
-            let currentObserver = null;
-        
-            function attachAriaObserver(button) {
-                if (!button) return;
-        
-                // Disconnect old observer if any
-                if (currentObserver) {
-                    currentObserver.disconnect();
-                    currentObserver = null;
+            let observedButtons = new WeakSet();
+
+            function extractThemeFromAriaLabel(ariaLabel) {
+                // "Use Light theme" -> "Light"
+                // "Use Dark theme" -> "Dark"
+                // "Use System theme" -> "System"
+                const match = ariaLabel?.match(/Use (\w+) theme/i);
+                return match ? match[1] : null;
+            }
+
+            function attachClickObserver(button) {
+                if (!button || observedButtons.has(button)) return;
+
+                observedButtons.add(button);
+                const ariaLabel = button.getAttribute("aria-label");
+                const theme = extractThemeFromAriaLabel(ariaLabel);
+
+                window.Android?.log("✅ Observing theme button: " + ariaLabel);
+
+                button.addEventListener('click', function() {
+                    const clickedTheme = extractThemeFromAriaLabel(this.getAttribute("aria-label"));
+                    window.Android?.log("🎯 Theme button clicked: " + clickedTheme);
+                    window.Android?.onThemeChanged(clickedTheme);
+                });
+            }
+
+            function findAndObserveThemeButtons() {
+                // Find all theme card buttons
+                const buttons = document.querySelectorAll('button.lumo-theme-card-button');
+
+                if (buttons.length > 0) {
+                    window.Android?.log("Found " + buttons.length + " theme buttons");
+                    buttons.forEach(attachClickObserver);
                 }
-            
-                window.Android?.log("✅ Observing button, aria-label=" + button.getAttribute("aria-label"));
-            
-                currentObserver = new MutationObserver(mutations => {
-                    for (const mutation of mutations) {
-                        if (mutation.type === "attributes" && mutation.attributeName === "aria-label") {
-                            const mode = button.getAttribute("aria-label");
-                            window.Android?.log("🎯 aria-label changed to: " + mode);
-                            window.Android?.onThemeChanged(mode);
+            }
+
+            // Body observer to detect when theme buttons appear
+            const bodyObserver = new MutationObserver(mutations => {
+                for (const mutation of mutations) {
+                    for (const node of mutation.addedNodes) {
+                        if (!(node instanceof HTMLElement)) continue;
+
+                        // Case 1: the node itself is a theme button
+                        if (node.matches("button.lumo-theme-card-button")) {
+                            attachClickObserver(node);
                         }
-                    }
-                });
-            
-                currentObserver.observe(button, {
-                    attributes: true,
-                    attributeFilter: ["aria-label"]
-                });
-            }
-        
-          // Body observer to detect when .theme-dropdown buttons appear
-          const bodyObserver = new MutationObserver(mutations => {
-            for (const mutation of mutations) {
-                for (const node of mutation.addedNodes) {
-                    if (!(node instanceof HTMLElement)) continue;
-        
-                    // Case 1: the node itself is the button
-                    if (node.matches(".theme-dropdown")) {
-                        attachAriaObserver(node);
-                    }
-        
-                    // Case 2: the button is inside the added node
-                    const btn = node.querySelector(".theme-dropdown");
-                    if (btn) {
-                        attachAriaObserver(btn);
+
+                        // Case 2: theme buttons are inside the added node
+                        const buttons = node.querySelectorAll("button.lumo-theme-card-button");
+                        buttons.forEach(attachClickObserver);
                     }
                 }
-            }
-          });
-        
-          bodyObserver.observe(document.body, {
-            childList: true,
-            subtree: true
-          });
+            });
+
+            // Initial scan for existing buttons
+            findAndObserveThemeButtons();
+
+            bodyObserver.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+
+            window.Android?.log("Theme change listener initialized");
         })();
     """.trimIndent()
     webView.evaluateJavascript(js, null)
