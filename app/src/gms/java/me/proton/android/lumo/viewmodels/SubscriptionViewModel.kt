@@ -4,6 +4,9 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,6 +22,7 @@ import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.models.SubscriptionItemResponse
+import me.proton.android.lumo.ui.components.PaymentProcessingState
 
 private const val TAG = "SubscriptionViewModel"
 
@@ -26,7 +30,8 @@ private const val TAG = "SubscriptionViewModel"
  * ViewModel that manages subscription data
  */
 class SubscriptionViewModel(
-    private val application: Application, private val repository: SubscriptionRepository
+    private val application: Application,
+    private val repository: SubscriptionRepository
 ) : ViewModel() {
 
     sealed interface UiEvent {
@@ -43,6 +48,9 @@ class SubscriptionViewModel(
         val selectedPlan: JsPlanInfo? = null,
         val planFeatures: List<PlanFeature> = emptyList(),
         val errorMessage: String? = null,
+        val paymentProcessingState: PaymentProcessingState? = null,
+        val isRefreshingPurchases: Boolean = false,
+        val googleProductDetails: List<ProductDetails> = emptyList()
     )
 
     private val _uiStateFlow = MutableStateFlow(UiState())
@@ -51,19 +59,28 @@ class SubscriptionViewModel(
     private val _events = MutableSharedFlow<UiEvent>()
     val events: Flow<UiEvent> = _events
 
-    // Google Play product details
-    private val _googleProductDetails = MutableStateFlow<List<ProductDetails>>(emptyList())
-
     init {
         // Collect Google Play product details
         viewModelScope.launch {
             repository.getGooglePlayProducts().collectLatest { products ->
-                _googleProductDetails.value = products
+                _uiStateFlow.update {
+                    it.copy(googleProductDetails = products)
+                }
                 Log.d(TAG, "Received ${products.size} Google Play products")
 
                 // Update plan pricing if we have plans
                 if (_uiStateFlow.value.planOptions.isNotEmpty()) {
                     updatePlanPricing()
+                }
+            }
+            repository.getPaymentProcessingState().collectLatest { state ->
+                _uiStateFlow.update {
+                    it.copy(paymentProcessingState = state)
+                }
+            }
+            repository.isRefreshingPurchases().collectLatest { isRefreshing ->
+                _uiStateFlow.update {
+                    it.copy(isRefreshing)
                 }
             }
         }
@@ -182,7 +199,7 @@ class SubscriptionViewModel(
                 if (extractedPlans.isNotEmpty()) {
                     // Update plan pricing
                     val updatedPlans = repository.updatePlanPricing(
-                        extractedPlans, _googleProductDetails.value
+                        extractedPlans, _uiStateFlow.value.googleProductDetails
                     )
 
                     // Only update if we have pricing info
@@ -243,14 +260,14 @@ class SubscriptionViewModel(
      */
     private fun updatePlanPricing() {
         val planOptions = _uiStateFlow.value.planOptions
-        if (planOptions.isEmpty() || _googleProductDetails.value.isEmpty()) {
+        if (planOptions.isEmpty() || _uiStateFlow.value.googleProductDetails.isEmpty()) {
             return
         }
 
         Log.d(TAG, "Updating plan pricing from Google Play")
 
         val updatedPlans = repository.updatePlanPricing(
-            planOptions, _googleProductDetails.value
+            planOptions, _uiStateFlow.value.googleProductDetails
         )
 
         // Only update if we have pricing info
@@ -314,7 +331,7 @@ class SubscriptionViewModel(
     fun checkSubscriptionSyncMismatch(): Boolean {
         val hasValidSubscriptions = _uiStateFlow.value.hasValidSubscription
         // Get Google Play subscription status
-        val (hasGooglePlaySubscription, isAutoRenewing) = repository.getGooglePlaySubscriptionStatus()
+        val (hasGooglePlaySubscription, isAutoRenewing) = getGooglePlaySubscriptionStatus()
 
         Log.d(
             TAG,
@@ -331,5 +348,34 @@ class SubscriptionViewModel(
         }
 
         return hasMismatch
+    }
+
+    fun getGooglePlaySubscriptionStatus(): Triple<Boolean, Boolean, Long> =
+        repository.getGooglePlaySubscriptionStatus()
+
+    fun launchBillingFlowForProduct(
+        productId: String,
+        offerToken: String?,
+        customerID: String? = null,
+        getBillingResult: (BillingClient?, BillingFlowParams) -> BillingResult?
+    ) {
+        repository.launchBillingFlowForProduct(
+            productId = productId,
+            offerToken = offerToken,
+            customerID = customerID,
+            getBillingResult = getBillingResult,
+        )
+    }
+
+    fun triggerSubscriptionRecovery() {
+        repository.triggerSubscriptionRecovery()
+    }
+
+    fun retryPaymentVerification() {
+        repository.retryPaymentVerification()
+    }
+
+    fun resetPaymentState() {
+        repository.resetPaymentState()
     }
 }

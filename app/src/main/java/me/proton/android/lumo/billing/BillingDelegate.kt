@@ -12,11 +12,4 @@ interface BillingDelegate {
         transactionId: String,
         resultJson: String
     ): Boolean
-    @Composable
-    fun ShowPaymentOrError(
-        uiState: MainUiState,
-        isDarkMode: Boolean,
-        webView: WebView,
-        onDismiss: () -> Unit,
-    )
 }

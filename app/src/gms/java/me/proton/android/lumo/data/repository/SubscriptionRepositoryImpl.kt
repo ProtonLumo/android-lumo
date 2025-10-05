@@ -1,6 +1,9 @@
 package me.proton.android.lumo.data.repository
 
 import android.util.Log
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -11,6 +14,7 @@ import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.models.SubscriptionItemResponse
 import me.proton.android.lumo.models.SubscriptionsResponse
+import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.utils.FeatureExtractor
 import me.proton.android.lumo.utils.PlanExtractor
 import me.proton.android.lumo.utils.PlanPricingHelper
@@ -131,5 +135,32 @@ class SubscriptionRepositoryImpl(
 
     override fun invalidateSubscriptionCache() {
         billingManager?.invalidateCache()
+    }
+
+    override fun getPaymentProcessingState(): Flow<PaymentProcessingState?> =
+        billingManager?.paymentProcessingState ?: flowOf(null)
+
+    override fun isRefreshingPurchases(): Flow<Boolean> =
+        billingManager?.isRefreshingPurchases ?: flowOf(false)
+
+    override fun triggerSubscriptionRecovery() {
+        billingManager?.triggerSubscriptionRecovery()
+    }
+
+    override fun retryPaymentVerification() {
+        billingManager?.retryPaymentVerification()
+    }
+
+    override fun resetPaymentState() {
+        billingManager?.retryPaymentVerification()
+    }
+
+    override fun launchBillingFlowForProduct(
+        productId: String,
+        offerToken: String?,
+        customerID: String?,
+        getBillingResult: (BillingClient?, BillingFlowParams) -> BillingResult?
+    ) {
+        TODO("Not yet implemented")
     }
 }

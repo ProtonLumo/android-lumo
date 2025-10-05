@@ -1,5 +1,6 @@
 package me.proton.android.lumo.billing
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
@@ -591,7 +592,7 @@ class BillingManager(
                         }
 
                         // Update subscription plans with pricing information
-                        updateSubscriptionPlansWithPricing(productDetailsList)
+                        updateSubscriptionPlansWithPricing(productDetailsList) // TODO: can i remove this?
 
                         // Select the default plan (first one)
                         selectPlan(0)
@@ -993,47 +994,6 @@ class BillingManager(
     }
 
     /**
-     * Opens the Google Play subscription management screen
-     * Call this when the user already has an active subscription
-     * @return true if the screen was launched successfully
-     */
-    fun openSubscriptionManagementScreen(): Boolean {
-        return try {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = "https://play.google.com/store/account/subscriptions".toUri()
-
-            activity?.let {
-                if (intent.resolveActivity(it.packageManager) != null) {
-                    it.startActivity(intent)
-                    Log.d(TAG, "Opened Google Play subscription management screen")
-                    true
-                } else {
-                    // Fallback if the URI method doesn't work
-                    val playStoreIntent = Intent(Intent.ACTION_VIEW)
-                    playStoreIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    playStoreIntent.data =
-                        "https://play.google.com/store/apps/details?id=com.android.vending".toUri()
-
-                    if (playStoreIntent.resolveActivity(it.packageManager) != null) {
-                        it.startActivity(playStoreIntent)
-                        Log.d(TAG, "Opened Google Play Store")
-                        true
-                    } else {
-                        Log.e(TAG, "Could not open Google Play Store")
-                        false
-                    }
-                }
-            } ?: run {
-                Log.e(TAG, "Activity not available")
-                false
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error opening subscription management", e)
-            false
-        }
-    }
-
-    /**
      * Check if the user has an active subscription
      * This method will return true even for cancelled subscriptions that are still within their valid period
      */
@@ -1126,7 +1086,8 @@ class BillingManager(
     fun launchBillingFlowForProduct(
         productId: String,
         offerToken: String?,
-        customerID: String? = null
+        customerID: String? = null,
+        getBillingResult: (BillingClient?, BillingFlowParams) -> BillingResult
     ) {
         if (!_isConnected.value) {
             Log.e(TAG, "Cannot launch billing flow - billing client not connected.")
@@ -1213,7 +1174,7 @@ class BillingManager(
             .setObfuscatedAccountId(customerID!!)
             .build()
 
-        val billingResult = billingClient?.launchBillingFlow(activity, billingFlowParams)
+        val billingResult = getBillingResult(billingClient, billingFlowParams)
 
         if (billingResult?.responseCode != BillingClient.BillingResponseCode.OK) {
             Log.e(

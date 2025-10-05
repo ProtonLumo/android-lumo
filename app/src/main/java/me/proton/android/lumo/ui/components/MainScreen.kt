@@ -33,7 +33,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airbnb.lottie.LottieComposition
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.MainActivity
@@ -48,7 +47,7 @@ fun MainScreen(
     uiState: MainUiState,
     initialUrl: String?,
     lottieComposition: LottieComposition?,
-    mainScreenListeners: MainScreenListeners
+    mainScreenListeners: MainScreenListeners,
 ) {
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -197,10 +196,6 @@ fun MainScreen(
                 )
                 LoadingScreen(preloadedComposition = lottieComposition)
             }
-            if (initialUrl != null) {
-                Log.d(MainActivity.TAG, "Showing, or trying to show PaymentDialog. ")
-                mainScreenListeners.handlePaymentDialog?.invoke()
-            }
             if (initialUrl == null) {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -214,10 +209,9 @@ fun MainScreen(
 }
 
 class MainScreenListeners(
-    val handlePaymentDialog: (@Composable () -> Unit)? = null,
     val onWebViewCreated: ((WebView) -> Unit)? = null,
-    val handleWebViewNavigation: (()-> Unit)? = null,
-    val onWebViewCleared: (()-> Unit)? = null,
+    val handleWebViewNavigation: (() -> Unit)? = null,
+    val onWebViewCleared: (() -> Unit)? = null,
     val cancelSpeech: (() -> Unit)? = null,
     val submitSpeechTranscript: (() -> Unit)? = null,
 )

@@ -1,7 +1,6 @@
 package me.proton.android.lumo.billing
 
 import android.webkit.WebView
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import me.proton.android.lumo.MainActivity
@@ -20,21 +19,4 @@ class BillingDelegateImpl() : BillingDelegate {
 
     override fun handleJavaScriptResult(transactionId: String, resultJson: String): Boolean =
         billingManagerWrapper.handleJavaScriptResult(transactionId, resultJson)
-
-    @Composable
-    override fun ShowPaymentOrError(
-        uiState: MainUiState,
-        isDarkMode: Boolean,
-        webView: WebView,
-        onDismiss: () -> Unit,
-    ) {
-        PaymentDialog(
-            webView = remember { webView },
-            visible = uiState.showPaymentDialog,
-            isReady = !uiState.isLoading && uiState.hasSeenLumoContainer,
-            isDarkTheme = isDarkMode,
-            billingManagerWrapper = billingManagerWrapper,
-            onDismiss = onDismiss,
-        )
-    }
 }

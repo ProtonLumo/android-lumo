@@ -22,8 +22,12 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -42,8 +46,10 @@ import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.managers.PermissionManager
 import me.proton.android.lumo.managers.UIManager
 import me.proton.android.lumo.managers.WebViewManager
+import me.proton.android.lumo.navigation.NavRoutes
 import me.proton.android.lumo.ui.components.MainScreen
 import me.proton.android.lumo.ui.components.MainScreenListeners
+import me.proton.android.lumo.ui.components.PaymentDialog
 import me.proton.android.lumo.ui.components.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.webview.addJavaScriptInterfaceSafely
@@ -126,37 +132,6 @@ class MainActivity : ComponentActivity() {
                     return null
                 }
             })
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainActivityViewModel.events.collectLatest { event ->
-                    when (event) {
-                        is MainUiEvent.EvaluateJavascript -> {
-                            Log.d(TAG, "Received EvaluateJavascript event")
-                            webViewManager.evaluateJavaScript(event.script) { result ->
-                                mainActivityViewModel.handleJavascriptResult(result)
-                            }
-                        }
-
-                        is MainUiEvent.ShowToast -> {
-                            Log.d(TAG, "Received ShowToast event: ${event.message}")
-                            Toast.makeText(
-                                this@MainActivity,
-                                event.message.getText(this@MainActivity),
-                                Toast.LENGTH_LONG
-                            )
-                                .show()
-                        }
-
-                        is MainUiEvent.RequestAudioPermission -> {
-                            Log.d(TAG, "Received RequestAudioPermission event")
-                            permissionManager.requestRecordAudioPermission()
-                        }
-                    }
-                }
-            }
-        }
-
         // Trigger the initial network connectivity check (independent of billing)
         mainActivityViewModel.performInitialNetworkCheck()
 
@@ -241,57 +216,99 @@ class MainActivity : ComponentActivity() {
             }
 
             LumoTheme(darkTheme = isDarkTheme) {
-                MainScreen(
-                    uiState = uiState,
-                    initialUrl = initialUrl,
-                    lottieComposition = lottieComposition.collectAsStateWithLifecycle().value,
-                    mainScreenListeners = MainScreenListeners(
-                        handlePaymentDialog = {
-                            webView?.let {
-                                billingDelegate.ShowPaymentOrError(
-                                    uiState = uiState,
-                                    isDarkMode = isDarkTheme,
-                                    webView = it
-                                ) {
-                                    mainActivityViewModel.dismissPaymentDialog()
+                val navController = rememberNavController()
+
+                LaunchedEffect(Unit) {
+                    repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        mainActivityViewModel.events.collectLatest { event ->
+                            when (event) {
+                                is MainUiEvent.EvaluateJavascript -> {
+                                    Log.d(TAG, "Received EvaluateJavascript event")
+                                    webViewManager.evaluateJavaScript(event.script) { result ->
+                                        mainActivityViewModel.handleJavascriptResult(result)
+                                    }
+                                }
+
+                                is MainUiEvent.ShowToast -> {
+                                    Log.d(TAG, "Received ShowToast event: ${event.message}")
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        event.message.getText(this@MainActivity),
+                                        Toast.LENGTH_LONG
+                                    )
+                                        .show()
+                                }
+
+                                is MainUiEvent.RequestAudioPermission -> {
+                                    Log.d(TAG, "Received RequestAudioPermission event")
+                                    permissionManager.requestRecordAudioPermission()
+                                }
+
+                                is MainUiEvent.ShowPaymentDialog -> {
+                                    navController.navigate(NavRoutes.Subscription)
                                 }
                             }
-                        },
-                        onWebViewCreated = {
-                            webViewManager.setWebView(it)
-                            try {
-                                addJavaScriptInterfaceSafely(
-                                    webView = it,
-                                    mainViewModel = mainActivityViewModel,
-                                    billingDelegate = billingDelegate
-                                )
-                            } catch (e: Exception) {
-                                Log.e(
-                                    TAG,
-                                    "WebView factory: Error adding JavascriptInterface",
-                                    e
-                                )
-                            }
-                        },
-                        handleWebViewNavigation = {
-                            if (webViewManager.canGoBack()) {
-                                webViewManager.goBack()
-                            } else {
-                                webViewManager.loadUrl(LumoConfig.LUMO_URL)
-                                webViewManager.clearHistory()
-                            }
-                        },
-                        onWebViewCleared = {
-                            webViewManager.clearHistory()
-                        },
-                        cancelSpeech = {
-                            mainActivityViewModel.onCancelListening()
-                        },
-                        submitSpeechTranscript = {
-                            mainActivityViewModel.onSubmitTranscription()
-                        },
-                    )
-                )
+                        }
+                    }
+                }
+
+                NavHost(
+                    navController = navController,
+                    startDestination = NavRoutes.Main
+                ) {
+                    composable<NavRoutes.Main> {
+                        MainScreen(
+                            uiState = uiState,
+                            initialUrl = initialUrl,
+                            lottieComposition = lottieComposition.collectAsStateWithLifecycle().value,
+                            mainScreenListeners = MainScreenListeners(
+                                onWebViewCreated = {
+                                    webViewManager.setWebView(it)
+                                    try {
+                                        addJavaScriptInterfaceSafely(
+                                            webView = it,
+                                            mainViewModel = mainActivityViewModel,
+                                            billingDelegate = billingDelegate
+                                        )
+                                    } catch (e: Exception) {
+                                        Log.e(
+                                            TAG,
+                                            "WebView factory: Error adding JavascriptInterface",
+                                            e
+                                        )
+                                    }
+                                },
+                                handleWebViewNavigation = {
+                                    if (webViewManager.canGoBack()) {
+                                        webViewManager.goBack()
+                                    } else {
+                                        webViewManager.loadUrl(LumoConfig.LUMO_URL)
+                                        webViewManager.clearHistory()
+                                    }
+                                },
+                                onWebViewCleared = {
+                                    webViewManager.clearHistory()
+                                },
+                                cancelSpeech = {
+                                    mainActivityViewModel.onCancelListening()
+                                },
+                                submitSpeechTranscript = {
+                                    mainActivityViewModel.onSubmitTranscription()
+                                },
+                            )
+                        )
+                    }
+
+                    composable<NavRoutes.Subscription> {
+                        PaymentDialog(
+                            webView = remember { webView!! },
+                            isReady = !uiState.isLoading && uiState.hasSeenLumoContainer,
+                            onDismiss = {
+                                navController.popBackStack()
+                            },
+                        )
+                    }
+                }
             }
         }
     }

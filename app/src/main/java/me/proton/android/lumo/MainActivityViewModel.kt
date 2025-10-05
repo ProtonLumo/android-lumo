@@ -24,7 +24,6 @@ private const val TAG = "MainActivityViewModel"
 
 // Define UI State (can be expanded later)
 data class MainUiState(
-    val showPaymentDialog: Boolean = false,
     val showSpeechSheet: Boolean = false,
     val isListening: Boolean = false,
     val partialSpokenText: String = "",
@@ -48,6 +47,8 @@ class MainActivityViewModel(
         data class EvaluateJavascript(val script: String) : UiEvent()
         data class ShowToast(val message: UiText) : UiEvent()
         object RequestAudioPermission : UiEvent()
+
+        object ShowPaymentDialog : UiEvent()
     }
 
     sealed interface WebEvent {
@@ -103,7 +104,7 @@ class MainActivityViewModel(
                 when (event) {
                     // UI state toggle; Activity will render from state in a later step
                     WebEvent.ShowPaymentRequested -> {
-                        _uiState.update { it.copy(showPaymentDialog = true) }
+                        _eventChannel.trySend(UiEvent.ShowPaymentDialog)
                     }
 
                     WebEvent.StartVoiceEntryRequested -> {
@@ -177,10 +178,6 @@ class MainActivityViewModel(
 
     fun onWebEvent(event: WebEvent) {
         _webEvents.tryEmit(event)
-    }
-
-    fun dismissPaymentDialog() {
-        _uiState.update { it.copy(showPaymentDialog = false) }
     }
 
     // --- Initial Network Check ---
