@@ -197,11 +197,9 @@ fun WebViewScreen(
                             Log.d(TAG, ">>> KEYBOARD STATE CHANGED - Notifying JavaScript <<<")
 
                             try {
-                                activity.mainActivityViewModel.onWebEvent(
-                                    event = WebEvent.KeyboardVisibilityChanged(
-                                        isVisible = isKeyboardVisible,
-                                        keyboardHeightPx = keyboardHeightCss
-                                    )
+                                activity.mainActivityViewModel.onKeyboardVisibilityChanged(
+                                    isVisible = isKeyboardVisible,
+                                    keyboardHeightPx = keyboardHeightCss
                                 )
                             } catch (e: Exception) {
                                 Log.e(TAG, "Error notifying keyboard visibility change", e)

@@ -8,8 +8,4 @@ import me.proton.android.lumo.MainUiState
 interface BillingDelegate {
 
     fun initialise(activity: MainActivity)
-    fun handleJavaScriptResult(
-        transactionId: String,
-        resultJson: String
-    ): Boolean
 }

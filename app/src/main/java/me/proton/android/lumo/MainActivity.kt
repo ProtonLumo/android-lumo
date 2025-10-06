@@ -22,17 +22,15 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewModelScope
 import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.LottieCompositionFactory
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,7 +50,7 @@ import me.proton.android.lumo.ui.components.MainScreenListeners
 import me.proton.android.lumo.ui.components.PaymentDialog
 import me.proton.android.lumo.ui.components.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
-import me.proton.android.lumo.webview.addJavaScriptInterfaceSafely
+import me.proton.android.lumo.webview.WebAppInterface
 import me.proton.android.lumo.webview.injectTheme
 import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 
@@ -140,10 +138,9 @@ class MainActivity : ComponentActivity() {
             Log.d(TAG, "Global safety timeout reached for loading screen")
             val currentState = mainActivityViewModel.uiState.value
             if (currentState.isLoading) {
+
                 Log.d(TAG, "Forcing loading screen to hide from global timer")
-                mainActivityViewModel._uiState.update {
-                    it.copy(isLoading = false, hasSeenLumoContainer = true)
-                }
+                mainActivityViewModel.hideLoading()
             }
         }, 5000) // Reduced to 5 seconds for faster fallback
 
@@ -235,8 +232,7 @@ class MainActivity : ComponentActivity() {
                                         this@MainActivity,
                                         event.message.getText(this@MainActivity),
                                         Toast.LENGTH_LONG
-                                    )
-                                        .show()
+                                    ).show()
                                 }
 
                                 is MainUiEvent.RequestAudioPermission -> {
@@ -265,11 +261,7 @@ class MainActivity : ComponentActivity() {
                                 onWebViewCreated = {
                                     webViewManager.setWebView(it)
                                     try {
-                                        addJavaScriptInterfaceSafely(
-                                            webView = it,
-                                            mainViewModel = mainActivityViewModel,
-                                            billingDelegate = billingDelegate
-                                        )
+                                        WebAppInterface.attachWebView(it)
                                     } catch (e: Exception) {
                                         Log.e(
                                             TAG,
@@ -301,12 +293,10 @@ class MainActivity : ComponentActivity() {
 
                     composable<NavRoutes.Subscription> {
                         PaymentDialog(
-                            webView = remember { webView!! },
                             isReady = !uiState.isLoading && uiState.hasSeenLumoContainer,
-                            onDismiss = {
-                                navController.popBackStack()
-                            },
-                        )
+                        ) {
+                            navController.popBackStack()
+                        }
                     }
                 }
             }
@@ -321,6 +311,7 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         webViewManager.destroy()
+        WebAppInterface.detachWebView()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -367,13 +358,11 @@ class MainActivity : ComponentActivity() {
                     mainActivityViewModel.onStartVoiceEntryRequested()
                 } else {
                     Log.w(TAG, "RECORD_AUDIO permission denied by user")
-                    mainActivityViewModel.viewModelScope.launch {
-                        mainActivityViewModel._eventChannel.send(
-                            MainUiEvent.ShowToast(
-                                UiText.ResText(R.string.permission_mic_rationale)
-                            )
-                        )
-                    }
+                    Toast.makeText(
+                        this@MainActivity,
+                        R.string.permission_mic_rationale,
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }

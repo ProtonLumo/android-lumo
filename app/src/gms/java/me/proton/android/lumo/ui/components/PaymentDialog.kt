@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.content.res.Configuration.UI_MODE_TYPE_NORMAL
 import android.util.Log
-import android.webkit.WebView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -41,20 +40,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.flow.collectLatest
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
-import me.proton.android.lumo.billing.BillingManagerWrapper
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.viewmodels.SubscriptionViewModel
-import me.proton.android.lumo.viewmodels.SubscriptionViewModel.UiEvent
 import me.proton.android.lumo.viewmodels.SubscriptionViewModelFactory
 
 private const val TAG = "PaymentDialog"
@@ -62,36 +55,15 @@ private const val TAG = "PaymentDialog"
 @SuppressLint("DefaultLocale")
 @Composable
 fun PaymentDialog(
-    webView: WebView,
     isReady: Boolean,
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
-    val mainActivity = context as? MainActivity
+    val mainActivity = context as MainActivity
     val subscriptionViewModel: SubscriptionViewModel = viewModel(
-        factory = SubscriptionViewModelFactory(mainActivity ?: return)
+        factory = SubscriptionViewModelFactory()
     )
     val uiState by subscriptionViewModel.uiStateFlow.collectAsStateWithLifecycle()
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    LaunchedEffect(Unit) {
-        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            subscriptionViewModel.events.collectLatest { event ->
-                when (event) {
-                    UiEvent.LoadPlans ->
-                        billingManagerWrapper.getPlansFromWebView(webView) {
-                            subscriptionViewModel.plansLoaded(it)
-                        }
-
-                    UiEvent.LoadSubscriptions -> {
-                        billingManagerWrapper.getSubscriptionsFromWebView(webView) {
-                            subscriptionViewModel.subscriptionsLoaded(it)
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     LaunchedEffect(isReady) {
         if (isReady) {

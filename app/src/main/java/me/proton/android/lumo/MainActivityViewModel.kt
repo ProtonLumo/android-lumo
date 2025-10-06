@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,6 +13,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.data.repository.ThemeRepository
+import me.proton.android.lumo.data.repository.WebAppRepository
 import me.proton.android.lumo.speech.SpeechRecognitionManager
 import me.proton.android.lumo.ui.components.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
@@ -39,8 +39,9 @@ data class MainUiState(
 )
 
 class MainActivityViewModel(
-    private val application: Application,
-    private val themeRepository: ThemeRepository
+    application: Application,
+    private val themeRepository: ThemeRepository,
+    private val webAppRepository: WebAppRepository,
 ) : AndroidViewModel(application) {
 
     sealed class UiEvent {
@@ -58,8 +59,6 @@ class MainActivityViewModel(
         data class PageTypeChanged(val isLumo: Boolean, val url: String) : WebEvent
         data class Navigated(val url: String, val type: String) : WebEvent
         data object LumoContainerVisible : WebEvent
-        data class KeyboardVisibilityChanged(val isVisible: Boolean, val keyboardHeightPx: Int) :
-            WebEvent
 
         data class ThemeResult(val mode: String) : WebEvent {
             val theme = when (mode) {
@@ -70,10 +69,10 @@ class MainActivityViewModel(
         }
     }
 
-    internal val _uiState = MutableStateFlow(MainUiState())
+    private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
-    internal val _eventChannel = Channel<UiEvent>()
+    private val _eventChannel = Channel<UiEvent>()
     val events = _eventChannel.receiveAsFlow()
 
     private val speechRecognitionManager = SpeechRecognitionManager(application)
@@ -83,8 +82,6 @@ class MainActivityViewModel(
         MutableStateFlow<String?>(LumoConfig.LUMO_URL) // Start with default URL
     val initialUrl: StateFlow<String?> = _initialUrl.asStateFlow()
     private var checkCompleted = false // Prevent re-checking on config change
-
-    private val _webEvents = MutableSharedFlow<WebEvent>(extraBufferCapacity = 64)
 
     init {
         setupSpeechRecognition()
@@ -100,7 +97,7 @@ class MainActivityViewModel(
 
         // Don't call performInitialNetworkCheck here, call from Activity onCreate
         viewModelScope.launch {
-            _webEvents.collect { event ->
+            webAppRepository.listenToWebEvent().collect { event ->
                 when (event) {
                     // UI state toggle; Activity will render from state in a later step
                     WebEvent.ShowPaymentRequested -> {
@@ -145,17 +142,6 @@ class MainActivityViewModel(
                         }
                     }
 
-                    is WebEvent.KeyboardVisibilityChanged -> {
-                        _eventChannel.trySend(
-                            UiEvent.EvaluateJavascript(
-                                keyboardHeightChange(
-                                    event.isVisible,
-                                    event.keyboardHeightPx
-                                )
-                            )
-                        )
-                    }
-
                     is WebEvent.ThemeResult -> {
                         _uiState.update { state ->
                             if (event.theme != state.theme?.mode) {
@@ -174,10 +160,6 @@ class MainActivityViewModel(
                 }
             }
         }
-    }
-
-    fun onWebEvent(event: WebEvent) {
-        _webEvents.tryEmit(event)
     }
 
     // --- Initial Network Check ---
@@ -368,6 +350,25 @@ class MainActivityViewModel(
             }
         } else {
             Log.d(TAG, "JavaScript insertPromptAndSubmit executed successfully.")
+        }
+    }
+
+    fun onKeyboardVisibilityChanged(
+        isVisible: Boolean,
+        keyboardHeightPx: Int,
+    ) {
+        _eventChannel.trySend(
+            UiEvent.EvaluateJavascript(
+                keyboardHeightChange(
+                    isVisible, keyboardHeightPx
+                )
+            )
+        )
+    }
+
+    fun hideLoading() {
+        _uiState.update {
+            it.copy(isLoading = false, hasSeenLumoContainer = true)
         }
     }
 

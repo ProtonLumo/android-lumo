@@ -124,8 +124,7 @@ fun PlanSelectionDialog(
 
                     uiState.errorMessage != null -> {
                         Text(
-                            text = uiState.errorMessage
-                                ?: stringResource(id = R.string.error_generic),
+                            text = uiState.errorMessage.asString(),
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center
                         )
@@ -159,7 +158,7 @@ fun PlanSelectionDialog(
                         uiState.errorMessage?.let { errorMsg ->
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                errorMsg,
+                                errorMsg.asString(),
                                 color = MaterialTheme.colorScheme.error,
                                 fontSize = 14.sp,
                                 textAlign = TextAlign.Center
