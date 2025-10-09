@@ -174,12 +174,6 @@ class MainActivityViewModel(
         viewModelScope.launch {
             kotlinx.coroutines.delay(3000) // 5 second timeout
             if (_uiState.value.isLoading) {
-                Log.d(TAG, "Network check taking too long, forcing loading state off")
-                // Ensure we have a valid URL (should already be set to default)
-                if (_initialUrl.value == null) {
-                    _initialUrl.value = LumoConfig.LUMO_URL
-                    Log.d(TAG, "Setting fallback URL: ${_initialUrl.value}")
-                }
                 _uiState.update { it.copy(isLoading = false) }
             }
         }

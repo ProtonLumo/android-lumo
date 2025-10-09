@@ -48,7 +48,6 @@ import me.proton.android.lumo.ui.theme.Primary
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
-    initialUrl: String,
     webView: WebView,
     hasSeenLumoContainer: Boolean,
     showSpeechSheet: Boolean,

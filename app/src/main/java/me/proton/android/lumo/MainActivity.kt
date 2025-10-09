@@ -305,7 +305,6 @@ class MainActivity : ComponentActivity() {
             composable<NavRoutes.Chat> {
                 ChatScreen(
                     webView = webView,
-                    initialUrl = initialUrl,
                     hasSeenLumoContainer = uiState.hasSeenLumoContainer,
                     showSpeechSheet = uiState.showSpeechSheet,
                     shouldShowBackButton = uiState.shouldShowBackButton,

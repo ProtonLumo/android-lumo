@@ -197,7 +197,7 @@ fun PlanSelectionDialog(
                                 contentColor = MaterialTheme.colorScheme.onPrimary
                             ),
                             shape = RoundedCornerShape(24.dp),
-                            enabled = uiState.selectedPlan != null && uiState.selectedPlan?.totalPrice?.isNotEmpty() == true
+                            enabled = uiState.selectedPlan != null && uiState.selectedPlan.totalPrice.isNotEmpty() == true
                         ) {
                             Text(
                                 stringResource(id = R.string.subscription_buy_lumo),
