@@ -6,7 +6,7 @@ import me.proton.android.lumo.data.PlanResult
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.PlanFeature
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.utils.FeatureExtractor
 import me.proton.android.lumo.utils.PlanExtractor
 

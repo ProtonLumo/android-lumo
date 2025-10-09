@@ -1,4 +1,4 @@
-package me.proton.android.lumo.ui.components
+package me.proton.android.lumo.ui.text
 
 import android.content.Context
 import androidx.compose.runtime.Composable

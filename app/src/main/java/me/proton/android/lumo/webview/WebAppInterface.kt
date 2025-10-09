@@ -9,7 +9,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import me.proton.android.lumo.MainActivity
-import me.proton.android.lumo.billing.BillingManagerWrapper.PAYMENT_REQUEST_TYPE
+import me.proton.android.lumo.billing.BillingManagerWrapper.PaymentRequestType
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.models.Subscription
@@ -117,7 +117,7 @@ object WebAppInterface {
         return sendPaymentDataToWebView(
             webView = webView,
             payload = payload,
-            jsFunction = PAYMENT_REQUEST_TYPE.PAYMENT_TOKEN
+            jsFunction = PaymentRequestType.PAYMENT_TOKEN
         ) { transactionId, deferred ->
             pendingResults[transactionId] = deferred
         }
@@ -129,7 +129,7 @@ object WebAppInterface {
         return sendPaymentDataToWebView(
             webView = webView,
             payload = payload,
-            jsFunction = PAYMENT_REQUEST_TYPE.SUBSCRIPTION
+            jsFunction = PaymentRequestType.SUBSCRIPTION
         ) { transactionId, deferred ->
             pendingResults[transactionId] = deferred
         }
@@ -141,7 +141,7 @@ object WebAppInterface {
         return sendPaymentDataToWebView(
             webView = webView,
             payload = null,
-            jsFunction = PAYMENT_REQUEST_TYPE.GET_SUBSCRIPTIONS
+            jsFunction = PaymentRequestType.GET_SUBSCRIPTIONS
         ) { transactionId, deferred ->
             pendingResults[transactionId] = deferred
         }
@@ -153,7 +153,7 @@ object WebAppInterface {
         return sendPaymentDataToWebView(
             webView = webView,
             payload = null,
-            jsFunction = PAYMENT_REQUEST_TYPE.GET_PLANS
+            jsFunction = PaymentRequestType.GET_PLANS
         ) { transactionId, deferred ->
             pendingResults[transactionId] = deferred
         }

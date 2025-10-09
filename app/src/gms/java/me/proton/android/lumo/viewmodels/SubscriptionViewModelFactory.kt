@@ -16,8 +16,7 @@ class SubscriptionViewModelFactory() : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(SubscriptionViewModel::class.java) -> {
-                val billingManagerWrapper =
-                    DependencyProvider.getBillingManagerWrapper()
+                val billingManagerWrapper = DependencyProvider.getBillingManagerWrapper()
                 val repository = SubscriptionRepositoryImpl(
                     billingManager = billingManagerWrapper.getBillingManager(),
                     webBridge = WebAppInterface

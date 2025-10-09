@@ -93,6 +93,13 @@ class WebViewManager() {
         _webView?.clearHistory()
     }
 
+    fun currentUrl(): String? =
+        _webView?.url
+
+    fun invalidate() {
+        _webView?.invalidate()
+    }
+
     /**
      * Destroy the WebView
      */

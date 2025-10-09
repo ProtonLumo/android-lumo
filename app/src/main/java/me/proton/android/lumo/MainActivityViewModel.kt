@@ -15,7 +15,7 @@ import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.data.repository.WebAppRepository
 import me.proton.android.lumo.speech.SpeechRecognitionManager
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.utils.isHostReachable
 import me.proton.android.lumo.webview.keyboardHeightChange
@@ -79,8 +79,8 @@ class MainActivityViewModel(
 
     // State for initial URL after network check
     private val _initialUrl =
-        MutableStateFlow<String?>(LumoConfig.LUMO_URL) // Start with default URL
-    val initialUrl: StateFlow<String?> = _initialUrl.asStateFlow()
+        MutableStateFlow(LumoConfig.LUMO_URL) // Start with default URL
+    val initialUrl: StateFlow<String> = _initialUrl.asStateFlow()
     private var checkCompleted = false // Prevent re-checking on config change
 
     init {
@@ -366,9 +366,21 @@ class MainActivityViewModel(
         )
     }
 
-    fun hideLoading() {
+    fun showLoading() {
         _uiState.update {
-            it.copy(isLoading = false, hasSeenLumoContainer = true)
+            it.copy(isLoading = true, hasSeenLumoContainer = false)
+        }
+    }
+
+    fun hideLoading(hasSeenLumoContainer: Boolean = true) {
+        if (hasSeenLumoContainer) {
+            _uiState.update {
+                it.copy(isLoading = false, hasSeenLumoContainer = true)
+            }
+        } else {
+            _uiState.update {
+                it.copy(isLoading = false)
+            }
         }
     }
 

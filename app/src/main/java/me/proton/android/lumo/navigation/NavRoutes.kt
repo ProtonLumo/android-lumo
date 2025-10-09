@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 sealed interface NavRoutes {
     @Serializable
-    data object Main : NavRoutes
+    data object Chat : NavRoutes
 
     @Serializable
     data object Subscription : NavRoutes

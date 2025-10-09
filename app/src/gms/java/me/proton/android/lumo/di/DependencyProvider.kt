@@ -1,5 +1,6 @@
 package me.proton.android.lumo.di
 
+import android.app.Application
 import me.proton.android.lumo.billing.BillingManagerWrapper
 
 /**
@@ -8,13 +9,19 @@ import me.proton.android.lumo.billing.BillingManagerWrapper
  */
 object DependencyProvider {
 
+    lateinit var application: Application
+
     private var billingManagerWrapper: BillingManagerWrapper? = null
+
+    fun initialise(application: Application) {
+        this.application = application
+    }
 
     /**
      * Get or create the BillingManagerWrapper instance
      */
     fun getBillingManagerWrapper(): BillingManagerWrapper {
-        return billingManagerWrapper ?: BillingManagerWrapper().also {
+        return billingManagerWrapper ?: BillingManagerWrapper(application).also {
             billingManagerWrapper = it
         }
     }

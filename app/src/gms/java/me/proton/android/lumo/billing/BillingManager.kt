@@ -31,19 +31,13 @@ import me.proton.android.lumo.models.Payment
 import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.models.SubscriptionPlan
 import me.proton.android.lumo.ui.components.PaymentProcessingState
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 import java.util.Date
 
 class BillingManager(private val application: Application) {
 
     companion object {
         private const val TAG = "BillingManager"
-
-        // Test product IDs from Google Play Billing documentation
-        // Static test SKUs from: https://developer.android.com/google/play/billing/test
-        private const val TEST_PRODUCT_ID =
-            "android.test.purchased" // One-time purchase that succeeds
-
         // Production subscription product IDs (must match Google Play Console exactly)
         internal val SUBSCRIPTION_PLANS = listOf(
             SubscriptionPlan(

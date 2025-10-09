@@ -1,7 +1,7 @@
 package me.proton.android.lumo.utils
 
 import me.proton.android.lumo.R
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 import java.io.IOException
 import java.net.ConnectException
 import java.net.NoRouteToHostException
@@ -243,12 +243,5 @@ object ErrorClassifier {
      */
     fun isRetryable(throwable: Throwable): Boolean {
         return classify(throwable).isRetryable
-    }
-
-    /**
-     * Get user-friendly error message
-     */
-    fun getUserMessage(throwable: Throwable): UiText {
-        return classify(throwable).getUserMessage()
     }
 }

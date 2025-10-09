@@ -2,13 +2,12 @@ package me.proton.android.lumo.data.mapper
 
 import android.util.Log
 import com.google.gson.Gson
-import kotlinx.coroutines.flow.update
 import me.proton.android.lumo.R
 import me.proton.android.lumo.data.SubscriptionResult
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.SubscriptionItemResponse
 import me.proton.android.lumo.models.SubscriptionsResponse
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 
 object SubscriptionMapper {
 

@@ -1,7 +1,7 @@
 package me.proton.android.lumo.data
 
 import me.proton.android.lumo.models.SubscriptionItemResponse
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 
 data class SubscriptionResult(
     val subscriptions: List<SubscriptionItemResponse> = emptyList(),

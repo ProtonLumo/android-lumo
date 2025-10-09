@@ -18,7 +18,7 @@ import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.models.SubscriptionItemResponse
 import me.proton.android.lumo.ui.components.PaymentProcessingState
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 
 private const val TAG = "SubscriptionViewModel"
 

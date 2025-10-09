@@ -2,6 +2,7 @@ package me.proton.android.lumo
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
@@ -20,14 +21,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -37,20 +40,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import me.proton.android.lumo.billing.BillingDelegateImpl
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.managers.PermissionManager
 import me.proton.android.lumo.managers.UIManager
 import me.proton.android.lumo.managers.WebViewManager
 import me.proton.android.lumo.navigation.NavRoutes
-import me.proton.android.lumo.ui.components.MainScreen
+import me.proton.android.lumo.ui.components.ChatScreen
 import me.proton.android.lumo.ui.components.MainScreenListeners
 import me.proton.android.lumo.ui.components.PaymentDialog
-import me.proton.android.lumo.ui.components.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
+import me.proton.android.lumo.webview.LumoChromeClient
+import me.proton.android.lumo.webview.LumoWebClient
 import me.proton.android.lumo.webview.WebAppInterface
+import me.proton.android.lumo.webview.createWebView
 import me.proton.android.lumo.webview.injectTheme
 import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 
@@ -62,19 +64,11 @@ class MainActivity : ComponentActivity() {
         MainActivityViewModelFactory(application)
     }
 
-    private lateinit var billingDelegate: BillingDelegateImpl
     private lateinit var webViewManager: WebViewManager
     private lateinit var permissionManager: PermissionManager
     private lateinit var uiManager: UIManager
     private val _lottieComposition = MutableStateFlow<LottieComposition?>(null)
     private val lottieComposition: StateFlow<LottieComposition?> = _lottieComposition.asStateFlow()
-
-    // Expose WebView for backward compatibility with existing code
-    var webView: android.webkit.WebView?
-        get() = webViewManager.webView
-        set(value) {
-            if (value != null) webViewManager.setWebView(value)
-        }
 
     // Expose file path callback for backward compatibility
     var filePathCallback: android.webkit.ValueCallback<Array<android.net.Uri>>?
@@ -98,7 +92,7 @@ class MainActivity : ComponentActivity() {
             override fun handleOnBackPressed() {
                 if (webViewManager.canGoBack()) {
                     webViewManager.goBack()
-                } else if (LumoConfig.isAccountDomain(webView?.url ?: "")) {
+                } else if (LumoConfig.isAccountDomain(webViewManager.currentUrl() ?: "")) {
                     // Handles the case after the user logged out. In this case the log in page
                     // is displayed but the history was cleared, meaning that pressing back will
                     // close the app. However we do have the up navigation that will take the user
@@ -247,60 +241,101 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+                MainScreen(navController, uiState, initialUrl)
+            }
+        }
+    }
 
-                NavHost(
-                    navController = navController,
-                    startDestination = NavRoutes.Main
+    @Composable
+    private fun MainScreen(
+        navController: NavHostController,
+        uiState: MainUiState,
+        initialUrl: String
+    ) {
+        val mainScreenListeners = remember {
+            MainScreenListeners(
+                handleWebViewNavigation = {
+                    if (webViewManager.canGoBack()) {
+                        webViewManager.goBack()
+                    } else {
+                        webViewManager.loadUrl(LumoConfig.LUMO_URL)
+                        webViewManager.clearHistory()
+                    }
+                },
+                onWebViewCleared = {
+                    webViewManager.clearHistory()
+                },
+                cancelSpeech = {
+                    mainActivityViewModel.onCancelListening()
+                },
+                submitSpeechTranscript = {
+                    mainActivityViewModel.onSubmitTranscription()
+                },
+            )
+        }
+
+        val lumoWebClient = LumoWebClient(
+            isLoading = { uiState.isLoading },
+            showLoading = { mainActivityViewModel.showLoading() },
+            hideLoading = { mainActivityViewModel.hideLoading(it) }
+        )
+
+        val lumoChromeClient = LumoChromeClient(showFileChooser = ::showFileChooser)
+
+        val webView = remember {
+            createWebView(
+                context = this,
+                initialUrl = initialUrl,
+                lumoWebClient = lumoWebClient,
+                lumoChromeClient = lumoChromeClient,
+                keyboardVisibilityChanged = { isVisible, keyboardHeight ->
+                    mainActivityViewModel.onKeyboardVisibilityChanged(
+                        isVisible = isVisible,
+                        keyboardHeightPx = keyboardHeight
+                    )
+                }
+            )
+        }
+        webViewManager.setWebView(webView)
+
+        NavHost(
+            navController = navController,
+            startDestination = NavRoutes.Chat
+        ) {
+            composable<NavRoutes.Chat> {
+                ChatScreen(
+                    webView = webView,
+                    initialUrl = initialUrl,
+                    hasSeenLumoContainer = uiState.hasSeenLumoContainer,
+                    showSpeechSheet = uiState.showSpeechSheet,
+                    shouldShowBackButton = uiState.shouldShowBackButton,
+                    isLoading = uiState.isLoading,
+                    isLumoPage = uiState.isLumoPage,
+                    isListening = uiState.isListening,
+                    partialSpokenText = uiState.partialSpokenText,
+                    rmsDbValue = uiState.rmsDbValue,
+                    speechStatusText = uiState.speechStatusText,
+                    lottieComposition = lottieComposition.collectAsStateWithLifecycle().value,
+                    mainScreenListeners = mainScreenListeners
+                )
+            }
+            composable<NavRoutes.Subscription> {
+                PaymentDialog(
+                    isReady = !uiState.isLoading && uiState.hasSeenLumoContainer
                 ) {
-                    composable<NavRoutes.Main> {
-                        MainScreen(
-                            uiState = uiState,
-                            initialUrl = initialUrl,
-                            lottieComposition = lottieComposition.collectAsStateWithLifecycle().value,
-                            mainScreenListeners = MainScreenListeners(
-                                onWebViewCreated = {
-                                    webViewManager.setWebView(it)
-                                    try {
-                                        WebAppInterface.attachWebView(it)
-                                    } catch (e: Exception) {
-                                        Log.e(
-                                            TAG,
-                                            "WebView factory: Error adding JavascriptInterface",
-                                            e
-                                        )
-                                    }
-                                },
-                                handleWebViewNavigation = {
-                                    if (webViewManager.canGoBack()) {
-                                        webViewManager.goBack()
-                                    } else {
-                                        webViewManager.loadUrl(LumoConfig.LUMO_URL)
-                                        webViewManager.clearHistory()
-                                    }
-                                },
-                                onWebViewCleared = {
-                                    webViewManager.clearHistory()
-                                },
-                                cancelSpeech = {
-                                    mainActivityViewModel.onCancelListening()
-                                },
-                                submitSpeechTranscript = {
-                                    mainActivityViewModel.onSubmitTranscription()
-                                },
-                            )
-                        )
-                    }
-
-                    composable<NavRoutes.Subscription> {
-                        PaymentDialog(
-                            isReady = !uiState.isLoading && uiState.hasSeenLumoContainer,
-                        ) {
-                            navController.popBackStack()
-                        }
-                    }
+                    navController.popBackStack()
                 }
             }
         }
+    }
+
+    private fun showFileChooser() {
+        filePathCallback = filePathCallback
+        val intent =
+            Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "*/*"
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        fileChooserLauncher.launch(intent)
     }
 
     override fun onResume() {
@@ -317,7 +352,7 @@ class MainActivity : ComponentActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         uiManager.onConfigurationChanged(newConfig)
-        webView?.invalidate()
+        webViewManager.invalidate()
     }
 
     /**
@@ -335,10 +370,6 @@ class MainActivity : ComponentActivity() {
         permissionManager = PermissionManager(this, { permission, isGranted ->
             handlePermissionResult(permission, isGranted)
         }, webViewManager)
-
-        // Get BillingManagerWrapper from dependency provider
-        billingDelegate = BillingDelegateImpl()
-        billingDelegate.initialise(activity = this)
 
         Log.d(TAG, "All managers initialized successfully")
     }

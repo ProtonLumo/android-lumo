@@ -6,7 +6,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import me.proton.android.lumo.billing.BillingManagerWrapper.PAYMENT_REQUEST_TYPE
+import me.proton.android.lumo.billing.BillingManagerWrapper.PaymentRequestType
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.models.PaymentJsResponse
 import java.util.UUID
@@ -1213,7 +1213,7 @@ fun keyboardHeightChange(isVisible: Boolean, keyboardHeight: Int): String =
 suspend fun <T> sendPaymentDataToWebView(
     webView: WebView,
     payload: T?, // Payload is nullable
-    jsFunction: PAYMENT_REQUEST_TYPE,
+    jsFunction: PaymentRequestType,
     deferredCreated: (String, CompletableDeferred<Result<PaymentJsResponse>>) -> Unit,
 ): Result<PaymentJsResponse> {
     val gson = Gson()
@@ -1229,7 +1229,7 @@ suspend fun <T> sendPaymentDataToWebView(
     Log.d(TAG, "Payload: $payloadLog")
 
     val jsFunctionCall =
-        if (jsFunction == PAYMENT_REQUEST_TYPE.GET_PLANS || jsFunction == PAYMENT_REQUEST_TYPE.GET_SUBSCRIPTIONS) {
+        if (jsFunction == PaymentRequestType.GET_PLANS || jsFunction == PaymentRequestType.GET_SUBSCRIPTIONS) {
             "window.paymentApiInstance.${jsFunction.functionName}('android')"
         } else {
             "window.paymentApiInstance.${jsFunction.functionName}($payloadJson)"

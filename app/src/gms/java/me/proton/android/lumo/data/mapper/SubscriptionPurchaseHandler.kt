@@ -4,7 +4,7 @@ import android.util.Log
 import me.proton.android.lumo.billing.BillingManager
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.ui.components.PaymentProcessingState
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 
 class SubscriptionPurchaseHandler(private val billingManager: BillingManager) {
 

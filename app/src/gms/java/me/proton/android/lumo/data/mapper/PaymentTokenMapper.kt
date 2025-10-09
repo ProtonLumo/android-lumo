@@ -5,7 +5,7 @@ import me.proton.android.lumo.billing.BillingManager
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.Subscription
 import me.proton.android.lumo.ui.components.PaymentProcessingState
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.utils.ErrorClassifier
 
 class PaymentTokenMapper(private val billingManager: BillingManager) {
