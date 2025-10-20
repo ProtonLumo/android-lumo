@@ -44,7 +44,7 @@ import me.proton.android.lumo.managers.UIManager
 import me.proton.android.lumo.managers.WebViewManager
 import me.proton.android.lumo.ui.components.MainScreen
 import me.proton.android.lumo.ui.components.MainScreenListeners
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.webview.addJavaScriptInterfaceSafely
 import me.proton.android.lumo.webview.injectTheme

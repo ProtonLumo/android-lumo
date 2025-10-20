@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.speech.SpeechRecognitionManager
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.utils.isHostReachable
 import me.proton.android.lumo.webview.keyboardHeightChange

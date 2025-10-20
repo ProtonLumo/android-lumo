@@ -67,7 +67,7 @@ android {
         create("noble") {
             dimension = "env"
             applicationId = "me.proton.lumo"
-            buildConfigField("String", "BASE_DOMAIN", "\"gold.proton.black\"")
+            buildConfigField("String", "BASE_DOMAIN", "\"proton.black\"")
         }
         create("production") {
             dimension = "env"

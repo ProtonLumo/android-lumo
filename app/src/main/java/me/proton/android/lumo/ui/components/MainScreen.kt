@@ -33,12 +33,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airbnb.lottie.LottieComposition
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.MainUiState
 import me.proton.android.lumo.R
+import me.proton.android.lumo.ui.text.asString
 import me.proton.android.lumo.ui.theme.Primary
 import me.proton.android.lumo.webview.WebViewScreen
 

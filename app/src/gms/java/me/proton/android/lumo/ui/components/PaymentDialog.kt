@@ -57,6 +57,7 @@ import me.proton.android.lumo.R
 import me.proton.android.lumo.billing.BillingManagerWrapper
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
+import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.viewmodels.SubscriptionViewModel
 import me.proton.android.lumo.viewmodels.SubscriptionViewModel.UiEvent

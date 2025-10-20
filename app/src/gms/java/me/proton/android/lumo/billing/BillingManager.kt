@@ -33,7 +33,7 @@ import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.models.Subscription
 import me.proton.android.lumo.models.SubscriptionPlan
 import me.proton.android.lumo.ui.components.PaymentProcessingState
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.utils.ErrorClassifier
 import java.util.Date
 
