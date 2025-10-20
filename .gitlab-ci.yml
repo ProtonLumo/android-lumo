@@ -20,17 +20,28 @@ include:
   
   - local: /ci/github-sync.yml
 
-#release-publish-github:
-#  stage: publish
-#  extends: .release-publish-github-shared
-#  variables:
-#    OAUTH_URL: "https://oauth2:${GITHUB_PAT}@github.com/ProtonLumo/android-lumo.git"
-#    RELEASE_SYNC_TO_BRANCH: "main"
-#    RELEASE_SYNC_FROM_BRANCH: "main"
-#  rules:
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#    # OR
-#    - when: manual
+release-publish-github:
+  stage: publish
+  extends: .release-publish-github-shared
+  variables:
+    OAUTH_URL: "https://oauth2:${GITHUB_PAT}@github.com/ProtonLumo/android-lumo.git"
+    RELEASE_SYNC_TO_BRANCH: "main"
+    RELEASE_SYNC_FROM_BRANCH: "main"
+  before_script:
+    - git config user.email "ci@proton.me"
+    - git config user.name "Proton CI"
+    - git fetch origin main
+    - git worktree add ../public main
+    - cd ../public
+    - mv buildSrc/src/main/kotlin/PrivateFlavors.kt buildSrc/src/main/kotlin/PrivateFlavors.kt.private
+    - mv buildSrc/src/main/kotlin/PrivateFlavors.kt.public buildSrc/src/main/kotlin/PrivateFlavors.kt
+    - git add buildSrc/src/main/kotlin/PrivateFlavors.kt
+    - git commit -m "Prepare public release"
+    - git push "$OAUTH_URL" main
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    # OR
+    - when: manual
 
 ##
 ## ---- Translations
