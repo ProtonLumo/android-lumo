@@ -12,7 +12,7 @@ import android.speech.SpeechRecognizer
 import android.util.Log
 import androidx.core.content.ContextCompat
 import me.proton.android.lumo.R
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 
 private const val TAG = "SpeechRecognitionManager"
 

@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.gson.JsonObject
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 
 private const val TAG = "PlanExtractor"
 

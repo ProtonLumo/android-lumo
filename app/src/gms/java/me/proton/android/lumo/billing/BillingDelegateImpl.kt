@@ -27,6 +27,7 @@ class BillingDelegateImpl() : BillingDelegate {
         isDarkMode: Boolean,
         webView: WebView,
         onDismiss: () -> Unit,
+        onOpenUrl: (String) -> Unit,
     ) {
         PaymentDialog(
             webView = remember { webView },

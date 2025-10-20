@@ -1,6 +1,6 @@
 package me.proton.android.lumo.models
 
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 
 /**
  * Represents a plan object parsed from the API response Instances

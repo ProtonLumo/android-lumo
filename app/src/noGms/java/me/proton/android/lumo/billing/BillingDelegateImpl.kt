@@ -4,12 +4,12 @@ import android.webkit.WebView
 import androidx.compose.runtime.Composable
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.MainUiState
-import me.proton.android.lumo.models.PaymentJsResponse
-import me.proton.android.lumo.ui.components.SimpleAlertDialog
+import me.proton.android.lumo.ui.components.PurchaseLinkDialog
 
 class BillingDelegateImpl() : BillingDelegate {
     override fun initialise(activity: MainActivity) {
     }
+
     override fun handleJavaScriptResult(
         transactionId: String,
         resultJson: String
@@ -18,8 +18,16 @@ class BillingDelegateImpl() : BillingDelegate {
     @Composable
     override fun ShowPaymentOrError(
         uiState: MainUiState,
-        onDismiss: () -> Unit
+        isDarkMode: Boolean,
+        webView: WebView,
+        onDismiss: () -> Unit,
+        onOpenUrl: (String) -> Unit,
     ) {
-        SimpleAlertDialog(uiState.showPaymentDialog, onDismiss)
+        if (uiState.showPaymentDialog) {
+            PurchaseLinkDialog(
+                onDismissRequest = onDismiss,
+                onOpenUrl = onOpenUrl
+            )
+        }
     }
 }

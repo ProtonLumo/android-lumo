@@ -64,15 +64,17 @@ android {
             dimension = "services"
             versionNameSuffix = "-nogms"
         }
-        create("noble") {
-            dimension = "env"
-            applicationId = "me.proton.lumo"
-            buildConfigField("String", "BASE_DOMAIN", "\"gold.proton.black\"")
-        }
+
         create("production") {
             dimension = "env"
             applicationId = "me.proton.android.lumo"
             buildConfigField("String", "BASE_DOMAIN", "\"proton.me\"")
+        }
+
+        try {
+            configurePrivateFlavors()
+        } catch (e: Throwable) {
+            // Private flavors not available (public repo)
         }
     }
 

@@ -2,6 +2,7 @@ package me.proton.android.lumo
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
@@ -24,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -44,7 +46,7 @@ import me.proton.android.lumo.managers.UIManager
 import me.proton.android.lumo.managers.WebViewManager
 import me.proton.android.lumo.ui.components.MainScreen
 import me.proton.android.lumo.ui.components.MainScreenListeners
-import me.proton.android.lumo.ui.components.UiText
+import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.webview.addJavaScriptInterfaceSafely
 import me.proton.android.lumo.webview.injectTheme
@@ -251,10 +253,22 @@ class MainActivity : ComponentActivity() {
                                 billingDelegate.ShowPaymentOrError(
                                     uiState = uiState,
                                     isDarkMode = isDarkTheme,
-                                    webView = it
-                                ) {
-                                    mainActivityViewModel.dismissPaymentDialog()
-                                }
+                                    webView = it,
+                                    onDismiss = {
+                                        mainActivityViewModel.dismissPaymentDialog()
+                                    },
+                                    onOpenUrl = { url ->
+                                        startActivity(
+                                            Intent(
+                                                Intent.ACTION_VIEW,
+                                                url.toUri()
+                                            ).apply {
+                                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            }
+                                        )
+                                        mainActivityViewModel.dismissPaymentDialog()
+                                    }
+                                )
                             }
                         },
                         onWebViewCreated = {
