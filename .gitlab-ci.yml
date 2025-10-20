@@ -30,7 +30,10 @@ release-publish-github:
   before_script:
     - mv buildSrc/src/main/kotlin/PrivateFlavors.kt buildSrc/src/main/kotlin/PrivateFlavors.kt.private
     - mv buildSrc/src/main/kotlin/PrivateFlavors.kt.public buildSrc/src/main/kotlin/PrivateFlavors.kt
-    - rm buildSrc/src/main/kotlin/PrivateFlavors.kt.private
+    - git config user.email "ci@lumo.me"
+    - git config user.name "Proton CI"
+    - git add buildSrc/src/main/kotlin/PrivateFlavors.kt
+    - git commit -m "Replace private flavors with public"
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
     # OR
