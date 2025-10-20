@@ -28,12 +28,16 @@ release-publish-github:
     RELEASE_SYNC_TO_BRANCH: "main"
     RELEASE_SYNC_FROM_BRANCH: "main"
   before_script:
+    - git config user.email "ci@proton.me"
+    - git config user.name "Proton CI"
+    - git fetch origin main
+    - git worktree add ../public main
+    - cd ../public
     - mv buildSrc/src/main/kotlin/PrivateFlavors.kt buildSrc/src/main/kotlin/PrivateFlavors.kt.private
     - mv buildSrc/src/main/kotlin/PrivateFlavors.kt.public buildSrc/src/main/kotlin/PrivateFlavors.kt
-    - git config user.email "ci@lumo.me"
-    - git config user.name "Proton CI"
     - git add buildSrc/src/main/kotlin/PrivateFlavors.kt
-    - git commit -m "Replace private flavors with public"
+    - git commit -m "Prepare public release"
+    - git push "$OAUTH_URL" main
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
     # OR
