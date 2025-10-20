@@ -18,5 +18,6 @@ interface BillingDelegate {
         isDarkMode: Boolean,
         webView: WebView,
         onDismiss: () -> Unit,
+        onOpenUrl: (String) -> Unit,
     )
 }

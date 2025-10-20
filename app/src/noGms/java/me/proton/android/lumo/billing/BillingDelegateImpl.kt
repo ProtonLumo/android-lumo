@@ -4,7 +4,7 @@ import android.webkit.WebView
 import androidx.compose.runtime.Composable
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.MainUiState
-import me.proton.android.lumo.ui.components.SimpleAlertDialog
+import me.proton.android.lumo.ui.components.PurchaseLinkDialog
 
 class BillingDelegateImpl() : BillingDelegate {
     override fun initialise(activity: MainActivity) {
@@ -20,8 +20,14 @@ class BillingDelegateImpl() : BillingDelegate {
         uiState: MainUiState,
         isDarkMode: Boolean,
         webView: WebView,
-        onDismiss: () -> Unit
+        onDismiss: () -> Unit,
+        onOpenUrl: (String) -> Unit,
     ) {
-        SimpleAlertDialog(uiState.showPaymentDialog, onDismiss)
+        if (uiState.showPaymentDialog) {
+            PurchaseLinkDialog(
+                onDismissRequest = onDismiss,
+                onOpenUrl = onOpenUrl
+            )
+        }
     }
 }
