@@ -163,7 +163,7 @@ object WebAppInterface {
     /**
      * Handle JavaScript result callback from MainActivity
      */
-    fun handleJavaScriptResult(
+    private fun handleJavaScriptResult(
         transactionId: String,
         resultJson: String
     ) {

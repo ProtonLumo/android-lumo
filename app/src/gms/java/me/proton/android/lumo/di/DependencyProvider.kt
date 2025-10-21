@@ -15,6 +15,7 @@ object DependencyProvider {
 
     fun initialise(application: Application) {
         this.application = application
+        billingManagerWrapper = getBillingManagerWrapper()
     }
 
     /**

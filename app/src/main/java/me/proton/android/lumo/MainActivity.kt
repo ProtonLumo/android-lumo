@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -320,10 +321,19 @@ class MainActivity : ComponentActivity() {
             }
             composable<NavRoutes.Subscription> {
                 PaymentDialog(
-                    isReady = !uiState.isLoading && uiState.hasSeenLumoContainer
-                ) {
-                    navController.popBackStack()
-                }
+                    isReady = !uiState.isLoading && uiState.hasSeenLumoContainer,
+                    onDismiss = { navController.popBackStack() },
+                    onOpenUrl = {
+                        startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                it.toUri()
+                            ).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                        )
+                    }
+                )
             }
         }
     }

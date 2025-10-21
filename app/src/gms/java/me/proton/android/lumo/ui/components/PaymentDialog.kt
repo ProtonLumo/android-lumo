@@ -44,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
+import me.proton.android.lumo.di.DependencyProvider
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.ui.text.UiText
@@ -58,7 +59,25 @@ private const val TAG = "PaymentDialog"
 fun PaymentDialog(
     isReady: Boolean,
     onDismiss: () -> Unit,
+    onOpenUrl: (String) -> Unit,
 ) {
+    val billingManagerWrapper = DependencyProvider.getBillingManagerWrapper()
+    val billingManager = billingManagerWrapper.getBillingManager()
+    if (billingManager != null) {
+        PaymentScreen(
+            isReady = isReady,
+            onDismiss = onDismiss
+        )
+    } else {
+        PurchaseLinkDialog(
+            onDismissRequest = onDismiss,
+            onOpenUrl = onOpenUrl
+        )
+    }
+}
+
+@Composable
+private fun PaymentScreen(isReady: Boolean, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val mainActivity = context as MainActivity
     val subscriptionViewModel: SubscriptionViewModel = viewModel(

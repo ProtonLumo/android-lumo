@@ -1,8 +1,10 @@
-package me.proton.android.lumo.billing
+package me.proton.android.lumo.di
 
 import android.app.Application
 
-object BillingDelegate {
+object DependencyProvider {
+
     fun initialise(application: Application) {
+
     }
 }
