@@ -61,7 +61,9 @@ sealed class PaymentProcessingState {
  */
 @Composable
 fun PaymentProcessingScreen(
-    state: PaymentProcessingState, onRetry: () -> Unit, onClose: () -> Unit
+    state: PaymentProcessingState,
+    onRetry: () -> Unit,
+    onClose: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.background

@@ -5,6 +5,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import me.proton.android.lumo.data.repository.ThemeRepositoryImpl
+import me.proton.android.lumo.data.repository.WebAppRepositoryImpl
+import me.proton.android.lumo.di.DependencyProvider
 
 class MainActivityViewModelFactory(
     private val application: Application
@@ -15,7 +17,12 @@ class MainActivityViewModelFactory(
             "lumo_prefs",
             Context.MODE_PRIVATE
         )
-        val repo = ThemeRepositoryImpl(prefs)
-        return MainActivityViewModel(application,repo) as T
+        val themeRepository = ThemeRepositoryImpl(prefs)
+        val webAppRepository = WebAppRepositoryImpl(webBridge = DependencyProvider.getWebBridge())
+        return MainActivityViewModel(
+            application = application,
+            themeRepository = themeRepository,
+            webAppRepository = webAppRepository
+        ) as T
     }
 }

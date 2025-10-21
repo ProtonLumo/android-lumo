@@ -1,22 +1,31 @@
 package me.proton.android.lumo.ui.components
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import com.android.billingclient.api.ProductDetails
 import me.proton.android.lumo.R
-import me.proton.android.lumo.billing.BillingManager
 import me.proton.android.lumo.models.SubscriptionItemResponse
 import java.util.Date
 
@@ -25,16 +34,13 @@ import java.util.Date
  */
 @Composable
 fun SubscriptionOverviewSection(
-    billingManager: BillingManager,
     subscriptions: List<SubscriptionItemResponse>,
+    googleProductDetails: List<ProductDetails>,
+    getSubscriptionPaymentStatus: () -> Triple<Boolean, Boolean, Long>,
     onClose: () -> Unit
 ) {
     // Get Google Play subscription information
-    val (isActive, isAutoRenewing, expiryTimeMillis) = billingManager.getSubscriptionStatus()
-
-    // Get Google Play product details for pricing
-    val googlePlayProductDetails =
-        billingManager.productDetailsList.collectAsStateWithLifecycle().value
+    val (isActive, isAutoRenewing, expiryTimeMillis) = getSubscriptionPaymentStatus()
 
     // Log Google Play status
     Log.d(
@@ -45,7 +51,7 @@ fun SubscriptionOverviewSection(
     )
     Log.d(
         "SubscriptionOverview",
-        "Google Play Products: ${googlePlayProductDetails.size} available"
+        "Google Play Products: ${googleProductDetails.size} available"
     )
 
     Column(
@@ -115,9 +121,9 @@ fun SubscriptionOverviewSection(
                     expiryTimeMillis
                 ) else null,
                 // Pass Google Play product details for mobile plans to get accurate pricing
-                googlePlayProductDetails = if (isGooglePlayPlan) googlePlayProductDetails else null,
+                googlePlayProductDetails = if (isGooglePlayPlan) googleProductDetails else null,
                 onManageSubscription = {
-                    billingManager.openSubscriptionManagementScreen()
+                    openSubscriptionManagementScreen(it)
                     onClose()
                 }
             )
@@ -125,4 +131,38 @@ fun SubscriptionOverviewSection(
 
         Spacer(modifier = Modifier.height(16.dp))
     }
-} 
+}
+
+private fun openSubscriptionManagementScreen(context: Context): Boolean {
+    return try {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = "https://play.google.com/store/account/subscriptions".toUri()
+
+        if (intent.resolveActivity(context.packageManager) != null) {
+            context.startActivity(intent)
+            Log.d(TAG, "Opened Google Play subscription management screen")
+            true
+        } else {
+            // Fallback if the URI method doesn't work
+            val playStoreIntent = Intent(Intent.ACTION_VIEW)
+            playStoreIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            playStoreIntent.data =
+                "https://play.google.com/store/apps/details?id=com.android.vending".toUri()
+
+            if (playStoreIntent.resolveActivity(context.packageManager) != null) {
+                context.startActivity(playStoreIntent)
+                Log.d(TAG, "Opened Google Play Store")
+                true
+            } else {
+                Log.e(TAG, "Could not open Google Play Store")
+                false
+            }
+        }
+
+    } catch (e: Exception) {
+        Log.e(TAG, "Error opening subscription management", e)
+        false
+    }
+}
+
+private const val TAG = "SubscriptionOverview"

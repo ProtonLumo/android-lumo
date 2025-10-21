@@ -18,132 +18,191 @@ The Lumo Android app follows a clean, modular architecture with clear separation
 graph TB
     subgraph "📱 Lumo Android App"
         MA["MainActivity
-        📋 Main Entry Point"]
-        
+        📋 Single Activity + Compose Navigation"]
+        LA["LumoApplication
+        🚀 App Initialization"]
+
         subgraph "🎛️ Manager Layer"
-            BMWrapper["BillingManagerWrapper
-            💳 Payment Processing"]
-            WVM["WebViewManager
-            🌐 WebView Control"]
-            PM["PermissionManager
-            🔐 Permissions & File Access"]
             UIM["UIManager
-            🎨 UI Configuration"]
+            🎨 Edge-to-Edge + Insets"]
+            WVM["WebViewManager
+            🌐 WebView Lifecycle"]
+            PM["PermissionManager
+            🔐 Runtime Permissions"]
         end
-        
+
         subgraph "🧠 ViewModels & State"
             MAVM["MainActivityViewModel
-            📊 App State Management"]
+            📊 UI State + Events
+            🔄 Network Checks"]
             SVM["SubscriptionViewModel
-            💰 Subscription Logic"]
-            VMF["ViewModelFactory
-            🏭 ViewModel Creation"]
+            💰 Payment State (GMS Only)"]
         end
-        
+
         subgraph "📦 Data Layer"
+            BDP["BaseDependencyProvider
+            🏗️ Abstract DI"]
+            DP_GMS["DependencyProvider (GMS)
+            💳 With Billing"]
+            DP_NoGMS["DependencyProvider (NoGMS)
+            🚫 No Billing"]
+            TR["ThemeRepository
+            🎨 Theme Persistence"]
+            WAR["WebAppRepository
+            🌊 Event Flow"]
             SR["SubscriptionRepository
-            📄 Interface"]
-            SRI["SubscriptionRepositoryImpl
-            🔧 Implementation"]
-            DP["DependencyProvider
-            ⚡ Lightweight DI"]
+            💎 Subscription Data (GMS)"]
         end
-        
+
         subgraph "🌐 WebView Integration"
-            WVS["WebViewScreen
-            📺 WebView UI Component"]
+            CWV["createWebView()
+            📺 WebView Factory"]
+            LWC["LumoWebClient
+            🔍 Page Lifecycle + JS Injection"]
+            LCC["LumoChromeClient
+            📁 File Chooser"]
             WAI["WebAppInterface
-            🔗 JS ↔ Android Bridge"]
+            🔗 Base JS Bridge"]
+            WAPI["WebAppWithPaymentsInterface
+            💳 Payment Bridge (GMS)"]
             JSI["JsInjector
-            💉 JavaScript Injection"]
+            💉 10+ Injection Functions
+            ⌨️ Keyboard + Payments"]
         end
-        
-        subgraph "💳 Billing System"
+
+        subgraph "💳 Billing System (GMS Only)"
+            BMW["BillingManagerWrapper
+            🛡️ Graceful Degradation"]
             BM["BillingManager
-            🏪 Google Play Billing"]
-            PD["PaymentDialog
-            💸 Payment UI"]
+            🏪 Google Play Billing
+            🔄 Cache + Auto-Refresh"]
         end
-        
+
         subgraph "🎤 Speech Recognition"
             SRM["SpeechRecognitionManager
-            🗣️ Voice Input"]
+            🗣️ Native Speech API
+            📊 RMS Tracking"]
             SIS["SpeechInputSheet
-            🎙️ Voice UI"]
+            🎙️ Voice UI + Waveform"]
         end
-        
+
+        subgraph "🧭 Navigation"
+            NR["NavRoutes
+            🗺️ Type-Safe Routes"]
+            CS["ChatScreen
+            💬 Main WebView Screen"]
+            PS["PaymentScreen
+            💳 Payment Dialog (GMS)"]
+            PLD["PurchaseLinkDialog
+            🔗 Web Payment (NoGMS)"]
+        end
+
         subgraph "📱 UI Components"
-            SC["SubscriptionComponent
-            💎 Premium Features UI"]
             LS["LoadingScreen
-            ⏳ Loading States"]
-            Theme["Theme System
-            🎨 Material Design 3"]
+            ⏳ Lottie Animation"]
+            Theme["LumoTheme
+            🎨 Material 3 + Sync"]
+            PPS["PaymentProcessingScreen
+            ⚙️ Payment States (GMS)"]
+            SC["SubscriptionComponent
+            💎 Subscription Info (GMS)"]
+            FCI["FeatureComparisonItem
+            📋 Plan Features"]
         end
-        
-        subgraph "🛠️ Utilities"
-            Utils["Utils Package
-            🔧 Helper Functions"]
-            Models["Models
-            📋 Data Classes"]
+
+        subgraph "🛠️ Configuration"
             Config["LumoConfig
-            ⚙️ App Configuration"]
+            ⚙️ Domain Management
+            🌐 Multi-Env Support"]
+            Models["Models & Data Classes
+            📋 UiText, LumoTheme, etc."]
         end
-        
+
         subgraph "🏗️ Build Variants"
-            Standard["Standard Variant
-            🔧 WebView Debugging ON"]
-            NoDebug["NoWebViewDebug Variant
-            🛡️ GrapheneOS Compatible"]
+            V_Env["Environment: production"]
+            V_Debug["Debugging: standard | noWebViewDebug"]
+            V_Services["Services: gms | noGms"]
         end
     end
-    
+
     subgraph "🌍 External Services"
         Web["Lumo Web App
         🌐 lumo.proton.me"]
         GP["Google Play Billing
         💳 Payment Processing"]
         Android["Android System
-        📱 Platform Services"]
+        📱 Speech + Permissions"]
     end
-    
-    %% Main connections
-    MA --> BMWrapper
+
+    %% Main initialization
+    LA --> BDP
+    MA --> UIM
     MA --> WVM
     MA --> PM
-    MA --> UIM
     MA --> MAVM
     MA --> SRM
-    
+    MA --> NR
+
+    %% DI Provider variants
+    BDP --> DP_GMS
+    BDP --> DP_NoGMS
+    DP_GMS --> BMW
+    DP_GMS --> WAPI
+    DP_NoGMS --> WAI
+
     %% Manager connections
-    BMWrapper --> BM
-    WVM --> WVS
-    WVM --> WAI
-    
-    %% ViewModel connections
-    VMF --> SVM
-    SVM --> SRI
-    SRI --> DP
-    
-    %% WebView connections
-    WVS --> WAI
-    WAI --> JSI
-    WVS --> Web
-    
-    %% UI connections
-    PD --> SVM
-    SC --> SVM
-    SIS --> SRM
-    
-    %% External connections
+    WVM --> CWV
+
+    %% WebView creation chain
+    CWV --> LWC
+    CWV --> LCC
+    CWV --> WAI
+    LWC --> JSI
+
+    %% JS Bridge variants
+    WAI --> WAPI
+    WAPI --> BM
+
+    %% ViewModel data flow
+    MAVM --> WAR
+    MAVM --> TR
+    SVM --> SR
+
+    %% Navigation routes
+    NR --> CS
+    NR --> PS
+    NR --> PLD
+    CS --> CWV
+    CS --> SIS
+    PS --> SVM
+
+    %% Billing chain (GMS)
+    BMW --> BM
     BM --> GP
+
+    %% Speech chain
+    SIS --> SRM
     SRM --> Android
-    WVS --> Web
-    
-    %% Build variant connections
-    Standard -.-> WVS
-    NoDebug -.-> WVS
-    
+
+    %% WebView to Web
+    CWV --> Web
+    LWC --> Web
+
+    %% UI components
+    CS --> LS
+    PS --> PPS
+    PS --> SC
+    PS --> FCI
+
+    %% Theme system
+    Theme --> TR
+    MAVM --> Theme
+
+    %% Build variant effects
+    V_Services -.-> DP_GMS
+    V_Services -.-> DP_NoGMS
+    V_Debug -.-> CWV
+
     %% Styling
     classDef manager fill:#e1f5fe
     classDef viewmodel fill:#f3e5f5
@@ -151,21 +210,25 @@ graph TB
     classDef webview fill:#fff3e0
     classDef billing fill:#fce4ec
     classDef speech fill:#f1f8e9
+    classDef navigation fill:#e8eaf6
     classDef ui fill:#e3f2fd
-    classDef utils fill:#fafafa
+    classDef config fill:#fafafa
     classDef external fill:#ffebee
     classDef variant fill:#e0f2f1
-    
-    class BMWrapper,WVM,PM,UIM manager
-    class MAVM,SVM,VMF viewmodel
-    class SR,SRI,DP data
-    class WVS,WAI,JSI webview
-    class BM,PD billing
+    classDef app fill:#f3e5f5
+
+    class UIM,WVM,PM manager
+    class MAVM,SVM viewmodel
+    class BDP,DP_GMS,DP_NoGMS,TR,WAR,SR data
+    class CWV,LWC,LCC,WAI,WAPI,JSI webview
+    class BMW,BM billing
     class SRM,SIS speech
-    class SC,LS,Theme ui
-    class Utils,Models,Config utils
+    class NR,CS,PS,PLD navigation
+    class LS,Theme,PPS,SC,FCI ui
+    class Config,Models config
     class Web,GP,Android external
-    class Standard,NoDebug variant
+    class V_Env,V_Debug,V_Services variant
+    class MA,LA app
 ```
 
 ## ✨ Key Features
@@ -193,26 +256,35 @@ graph TB
 
 ## 🏗️ Build Variants
 
-The app supports multiple build variants to accommodate different use cases:
+The app supports multiple build variants across three dimensions to accommodate different use cases:
 
-### 📱 **Environment Variants**
+### 📱 **Environment Variants (env)**
 - **`production`**: Production environment (lumo.proton.me)
 
-### 🛡️ **Debugging Variants**
+### 🛡️ **Debugging Variants (debugging)**
 - **`standard`**: Full debugging capabilities including WebView debugging
 - **`noWebViewDebug`**: GrapheneOS-compatible variant with WebView debugging completely disabled
 
+### 💳 **Services Variants (services)**
+- **`gms`**: With Google Mobile Services (in-app billing enabled)
+- **`noGms`**: Without Google Mobile Services (alternative payment dialog)
+
 ### 🔧 **Build Commands**
 ```bash
-# Standard development build (with WebView debugging)
-./gradlew assembleProductionStandardDebug
+# Standard GMS development build (with WebView debugging)
+./gradlew assembleProductionStandardGmsDebug
 
-# GrapheneOS-compatible build (no WebView debugging)
-./gradlew assembleProductionNoWebViewDebugDebug
+# NoGMS development build (with WebView debugging)
+./gradlew assembleProductionStandardNoGmsDebug
 
-# Production release builds
-./gradlew assembleProductionStandardRelease
-./gradlew assembleProductionNoWebViewDebugRelease
+# GrapheneOS-compatible NoGMS build (no WebView debugging)
+./gradlew assembleProductionNoWebViewDebugNoGmsDebug
+
+# Production GMS release build
+./gradlew assembleProductionStandardGmsRelease
+
+# Production NoGMS release build
+./gradlew assembleProductionStandardNoGmsRelease
 ```
 
 ## 🚀 Setup & Building

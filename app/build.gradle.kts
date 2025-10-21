@@ -2,15 +2,16 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "me.proton.android.lumo"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 29
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 35
         versionName = "1.2.0"
 
@@ -130,9 +131,11 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
-    implementation("com.google.android.material:material:1.11.0")
-    implementation("io.coil-kt:coil-compose:2.4.0")
-    implementation("com.airbnb.android:lottie-compose:6.4.0")
+    implementation("com.google.android.material:material:1.13.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("com.airbnb.android:lottie-compose:6.6.9")
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
 
     "gmsImplementation"(libs.billing.ktx)
 

@@ -10,22 +10,22 @@ data class InAppGooglePayload(
 )
 
 data class Payment(
-    val Type: String,
-    val Details: InAppGooglePayload? = null
+    val type: String,
+    val details: InAppGooglePayload? = null
 )
 
 data class PaymentTokenPayload(
-    val Amount: Int,
-    val Currency: String,
-    val PaymentMethodID: String? = null,
-    val Payment: Payment? = null
+    val amount: Int,
+    val currency: String,
+    val paymentMethodID: String? = null,
+    val payment: Payment? = null
 )
 
 data class Subscription(
-    val PaymentToken: String?,
-    val Cycle: Int,
-    val Currency: String,
-    val Plans: Map<String, Int>,
-    val CouponCode: String?,
-    val BillingAddress: String?
+    val paymentToken: String?,
+    val cycle: Int,
+    val currency: String,
+    val plans: Map<String, Int>,
+    val couponCode: String?,
+    val billingAddress: String?
 )

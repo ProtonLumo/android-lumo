@@ -244,11 +244,4 @@ object ErrorClassifier {
     fun isRetryable(throwable: Throwable): Boolean {
         return classify(throwable).isRetryable
     }
-
-    /**
-     * Get user-friendly error message
-     */
-    fun getUserMessage(throwable: Throwable): UiText {
-        return classify(throwable).getUserMessage()
-    }
 }
