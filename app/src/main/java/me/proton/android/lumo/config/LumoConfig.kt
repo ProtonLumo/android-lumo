@@ -68,11 +68,6 @@ object LumoConfig {
     fun isKnownDomain(url: String?): Boolean = isLumoDomain(url) || isAccountDomain(url)
 
     /**
-     * Get JavaScript domain check string for Lumo
-     */
-    fun getLumoDomainCheckJs(): String = "'$LUMO_DOMAIN'"
-
-    /**
      * Get all configured domains for logging/debugging
      */
     fun getConfigInfo(): String {

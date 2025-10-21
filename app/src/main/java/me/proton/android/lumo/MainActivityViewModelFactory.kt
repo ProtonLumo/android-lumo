@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModelProvider
 import me.proton.android.lumo.data.repository.ThemeRepositoryImpl
 import me.proton.android.lumo.data.repository.WebAppRepositoryImpl
 import me.proton.android.lumo.di.DependencyProvider
-import me.proton.android.lumo.webview.WebAppInterface
 
 class MainActivityViewModelFactory(
     private val application: Application

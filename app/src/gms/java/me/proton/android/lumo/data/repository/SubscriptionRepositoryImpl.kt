@@ -52,7 +52,7 @@ class SubscriptionRepositoryImpl(
                 var result = sendPaymentToken(payload = it)
                 val subscription = paymentTokenMapper.parsePaymentToken(
                     jsResult = result,
-                    currencyCode = it.Currency
+                    currencyCode = it.currency
                 )
                 subscription?.let {
                     result = sendSubscriptionEvent(subscription)

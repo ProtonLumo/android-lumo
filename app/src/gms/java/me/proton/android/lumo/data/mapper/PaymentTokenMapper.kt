@@ -57,12 +57,12 @@ class PaymentTokenMapper(private val billingManager: BillingManager) {
 
             if (token != null) {
                 return Subscription(
-                    PaymentToken = token,
-                    Currency = currencyCode,
-                    Cycle = 1,
-                    Plans = mapOf("lumo2024" to 1),
-                    CouponCode = null,
-                    BillingAddress = null
+                    paymentToken = token,
+                    currency = currencyCode,
+                    cycle = 1,
+                    plans = mapOf("lumo2024" to 1),
+                    couponCode = null,
+                    billingAddress = null
                 )
             } else {
                 Log.e(TAG, "Token was null in payment response")

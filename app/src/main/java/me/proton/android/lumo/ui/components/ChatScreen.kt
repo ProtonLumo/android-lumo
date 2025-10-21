@@ -180,7 +180,7 @@ private fun SpeechSheet(
     LaunchedEffect(showSpeechSheet) {
         Log.d(
             MainActivity.TAG,
-            "LaunchedEffect(showSpeechSheet) triggered. showSpeechSheet = ${showSpeechSheet}"
+            "LaunchedEffect(showSpeechSheet) triggered. showSpeechSheet = $showSpeechSheet"
         )
         scope.launch {
             if (showSpeechSheet) {

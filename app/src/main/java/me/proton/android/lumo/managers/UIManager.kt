@@ -2,12 +2,12 @@ package me.proton.android.lumo.managers
 
 import android.app.Activity
 import android.content.res.Configuration
-import android.graphics.Color
 import android.os.Build
 import android.util.Log
 import android.view.WindowManager
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.graphics.toColorInt
 
 private const val TAG = "UIManager"
 
@@ -63,11 +63,8 @@ class UIManager(private val activity: Activity) {
             // Force dark icons on light background for better visibility
             windowInsetsController.isAppearanceLightStatusBars = true
 
-            // Set a light status bar background to ensure dark icons are visible
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                activity.window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                activity.window.statusBarColor = Color.parseColor("#F5F5F5") // Light gray
-            }
+            activity.window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            activity.window.statusBarColor = "#F5F5F5".toColorInt() // Light gray
 
             Log.d(TAG, "Status bar configured with light background and dark icons")
 

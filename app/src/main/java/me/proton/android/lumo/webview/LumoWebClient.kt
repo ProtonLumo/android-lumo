@@ -112,7 +112,7 @@ class LumoWebClient(
                     val isLoading = isLoading()
                     Log.d(
                         TAG,
-                        "Safety timeout reached, current loading state: ${isLoading}"
+                        "Safety timeout reached, current loading state: $isLoading"
                     )
                     if (isLoading) {
                         Log.d(

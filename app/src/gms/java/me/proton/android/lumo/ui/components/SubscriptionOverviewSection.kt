@@ -24,10 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.billingclient.api.ProductDetails
 import me.proton.android.lumo.R
-import me.proton.android.lumo.billing.BillingManager
 import me.proton.android.lumo.models.SubscriptionItemResponse
 import java.util.Date
 

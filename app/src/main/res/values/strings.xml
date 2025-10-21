@@ -10,17 +10,17 @@
     <string name="retry_connection">Retry Connection</string>
     
     <!-- Loading Messages -->
-    <string name="loading_message_1">Demanding attention... and processing power...</string>
-    <string name="loading_message_2">Batting at loading bars...</string>
+    <string name="loading_message_1">Demanding attention… and processing power…</string>
+    <string name="loading_message_2">Batting at loading bars…</string>
     <string name="loading_message_3">Chasing away data brokers…</string>
-    <string name="loading_message_4">Chasing digital mice...</string>
-    <string name="loading_message_5">Knocking things off invisible shelves...</string>
-    <string name="loading_message_6">Meowloading... please wait...</string>
-    <string name="loading_message_7">Napping in a sunbeam... almost ready...</string>
-    <string name="loading_message_8">Plotting world domination... and your app launch...</string>
-    <string name="loading_message_9">Purring the engines to life...</string>
-    <string name="loading_message_10">Sharpening claws on your keyboard...</string>
-    <string name="loading_message_11">Stretching before the big jump...</string>
+    <string name="loading_message_4">Chasing digital mice…</string>
+    <string name="loading_message_5">Knocking things off invisible shelves…</string>
+    <string name="loading_message_6">Downloading… please wait…</string>
+    <string name="loading_message_7">Napping in a sunbeam… almost ready…</string>
+    <string name="loading_message_8">Plotting world domination… and your app launch…</string>
+    <string name="loading_message_9">Purring the engines to life…</string>
+    <string name="loading_message_10">Sharpening claws on your keyboard…</string>
+    <string name="loading_message_11">Stretching before the big jump…</string>
 
     <!-- MainActivity Status/Errors -->
     <string name="speech_status_network">Recognition processed by Google</string>
@@ -54,8 +54,8 @@
     <!-- SUbscription Strings -->
     <string name="payment_title">Elevate your AI experience</string>
     <string name="payment_subtitle">Enjoy preferred treatment and premium features with Lumo Plus.</string>
-    <string name="payment_checking">Checking subscription status...</string>
-    <string name="payment_loading_plans">Loading subscription plans...</string>
+    <string name="payment_checking">Checking subscription status…</string>
+    <string name="payment_loading_plans">Loading subscription plans…</string>
     <string name="payment_no_plans_available">No subscription plans are currently available</string>
     <string name="subscription_renewal">The selected plan will auto-renew until cancelled</string>
     <string name="subscription_buy_lumo">Buy Lumo Plus</string>

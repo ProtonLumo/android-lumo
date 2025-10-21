@@ -1,6 +1,5 @@
 package me.proton.android.lumo.data.repository
 
-import android.app.Activity
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
@@ -9,10 +8,6 @@ import kotlinx.coroutines.flow.Flow
 import me.proton.android.lumo.data.PlanResult
 import me.proton.android.lumo.data.SubscriptionResult
 import me.proton.android.lumo.models.JsPlanInfo
-import me.proton.android.lumo.models.PaymentJsResponse
-import me.proton.android.lumo.models.PaymentTokenPayload
-import me.proton.android.lumo.models.PlanFeature
-import me.proton.android.lumo.models.SubscriptionItemResponse
 import me.proton.android.lumo.ui.components.PaymentProcessingState
 
 /**

@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Log
 import android.webkit.ValueCallback
 import android.webkit.WebView
+import androidx.core.net.toUri
 
 private const val TAG = "WebViewManager"
 
@@ -34,7 +35,7 @@ class WebViewManager() {
         } else {
             val dataString = data.dataString
             if (dataString != null) {
-                arrayOf(Uri.parse(dataString))
+                arrayOf(dataString.toUri())
             } else {
                 data.clipData?.let { clipData ->
                     Array(clipData.itemCount) { i ->

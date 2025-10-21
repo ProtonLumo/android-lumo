@@ -684,11 +684,11 @@ class BillingManager(private val application: Application) {
                         TAG,
                         "Created InAppGooglePayload with customerID: ${currentCustomerID ?: "not set"}"
                     )
-                    val payment = Payment(Type = "google", Details = inAppGooglePayload)
+                    val payment = Payment(type = "google", details = inAppGooglePayload)
                     val paymentTokenPayload = PaymentTokenPayload(
-                        Amount = amountInCents,
-                        Currency = currencyCode,
-                        Payment = payment
+                        amount = amountInCents,
+                        currency = currencyCode,
+                        payment = payment
                     )
                     Log.d(TAG, "Sending to createPaymentToken: $paymentTokenPayload")
 
