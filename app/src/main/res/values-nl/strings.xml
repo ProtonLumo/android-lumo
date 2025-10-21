@@ -93,7 +93,7 @@
   <string name="error_ssl_general">Fout met beveiligde verbinding.</string>
   <string name="error_certificate">Server certificaat fout.</string>
   <!-- Error Messages - Authentication -->
-  <string name="error_auth_unauthorized">Authenticatie mislukt. Meld u alstublieft opnieuw aan.</string>
+  <string name="error_auth_unauthorized">Authenticatie mislukt. Meld u opnieuw aan.</string>
   <string name="error_auth_forbidden">Toegang geweigerd.</string>
   <!-- Error Messages - Client -->
   <string name="error_client_not_found">Gevraagde bron niet gevonden.</string>
