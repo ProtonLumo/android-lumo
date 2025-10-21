@@ -256,26 +256,35 @@ graph TB
 
 ## 🏗️ Build Variants
 
-The app supports multiple build variants to accommodate different use cases:
+The app supports multiple build variants across three dimensions to accommodate different use cases:
 
-### 📱 **Environment Variants**
+### 📱 **Environment Variants (env)**
 - **`production`**: Production environment (lumo.proton.me)
 
-### 🛡️ **Debugging Variants**
+### 🛡️ **Debugging Variants (debugging)**
 - **`standard`**: Full debugging capabilities including WebView debugging
 - **`noWebViewDebug`**: GrapheneOS-compatible variant with WebView debugging completely disabled
 
+### 💳 **Services Variants (services)**
+- **`gms`**: With Google Mobile Services (in-app billing enabled)
+- **`noGms`**: Without Google Mobile Services (alternative payment dialog)
+
 ### 🔧 **Build Commands**
 ```bash
-# Standard development build (with WebView debugging)
-./gradlew assembleProductionStandardDebug
+# Standard GMS development build (with WebView debugging)
+./gradlew assembleProductionStandardGmsDebug
 
-# GrapheneOS-compatible build (no WebView debugging)
-./gradlew assembleProductionNoWebViewDebugDebug
+# NoGMS development build (with WebView debugging)
+./gradlew assembleProductionStandardNoGmsDebug
 
-# Production release builds
-./gradlew assembleProductionStandardRelease
-./gradlew assembleProductionNoWebViewDebugRelease
+# GrapheneOS-compatible NoGMS build (no WebView debugging)
+./gradlew assembleProductionNoWebViewDebugNoGmsDebug
+
+# Production GMS release build
+./gradlew assembleProductionStandardGmsRelease
+
+# Production NoGMS release build
+./gradlew assembleProductionStandardNoGmsRelease
 ```
 
 ## 🚀 Setup & Building
