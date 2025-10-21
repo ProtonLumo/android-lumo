@@ -23,7 +23,7 @@ import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.models.Subscription
 import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.utils.PlanPricingHelper
-import me.proton.android.lumo.webview.WebAppInterface
+import me.proton.android.lumo.webview.WebAppWithPaymentsInterface
 
 
 private const val TAG = "SubscriptionRepository"
@@ -35,11 +35,13 @@ private const val TAG = "SubscriptionRepository"
  */
 class SubscriptionRepositoryImpl(
     private val billingManager: BillingManager?,
-    private val webBridge: WebAppInterface,
+    private val webBridge: WebAppWithPaymentsInterface,
     private val subscriptionMapper: SubscriptionMapper = SubscriptionMapper,
     private val planMapper: PlanMapper = PlanMapper,
     private val paymentTokenMapper: PaymentTokenMapper = PaymentTokenMapper(billingManager = billingManager!!),
-    private val subscriptionPurchaseHandler: SubscriptionPurchaseHandler = SubscriptionPurchaseHandler(billingManager = billingManager!!)
+    private val subscriptionPurchaseHandler: SubscriptionPurchaseHandler = SubscriptionPurchaseHandler(
+        billingManager = billingManager!!
+    )
 ) : SubscriptionRepository {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)

@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import me.proton.android.lumo.config.LumoConfig
+import me.proton.android.lumo.di.DependencyProvider
 import me.proton.android.lumo.managers.PermissionManager
 import me.proton.android.lumo.managers.UIManager
 import me.proton.android.lumo.managers.WebViewManager
@@ -52,7 +53,6 @@ import me.proton.android.lumo.ui.components.PaymentDialog
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.webview.LumoChromeClient
 import me.proton.android.lumo.webview.LumoWebClient
-import me.proton.android.lumo.webview.WebAppInterface
 import me.proton.android.lumo.webview.createWebView
 import me.proton.android.lumo.webview.injectTheme
 import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
@@ -70,6 +70,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var uiManager: UIManager
     private val _lottieComposition = MutableStateFlow<LottieComposition?>(null)
     private val lottieComposition: StateFlow<LottieComposition?> = _lottieComposition.asStateFlow()
+    private val webBridge = DependencyProvider.getWebBridge()
 
     // Expose file path callback for backward compatibility
     var filePathCallback: android.webkit.ValueCallback<Array<android.net.Uri>>?
@@ -289,6 +290,7 @@ class MainActivity : ComponentActivity() {
                 initialUrl = initialUrl,
                 lumoWebClient = lumoWebClient,
                 lumoChromeClient = lumoChromeClient,
+                onAttach = { webBridge.attachWebView(it) },
                 keyboardVisibilityChanged = { isVisible, keyboardHeight ->
                     mainActivityViewModel.onKeyboardVisibilityChanged(
                         isVisible = isVisible,
@@ -355,7 +357,7 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         webViewManager.destroy()
-        WebAppInterface.detachWebView()
+        webBridge.detachWebView()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

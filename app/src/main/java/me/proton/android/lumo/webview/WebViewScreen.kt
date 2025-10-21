@@ -21,6 +21,7 @@ fun createWebView(
     initialUrl: String,
     lumoWebClient: LumoWebClient,
     lumoChromeClient: LumoChromeClient,
+    onAttach: (WebView) -> Unit,
     keyboardVisibilityChanged: (Boolean, Int) -> Unit
 ): WebView {
     return WebView(context).apply {
@@ -81,7 +82,7 @@ fun createWebView(
         webChromeClient = lumoChromeClient
 
         try {
-            WebAppInterface.attachWebView(this)
+            onAttach(this)
         } catch (e: Exception) {
             Log.e(
                 MainActivity.Companion.TAG,

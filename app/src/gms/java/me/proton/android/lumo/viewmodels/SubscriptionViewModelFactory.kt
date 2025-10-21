@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import me.proton.android.lumo.data.repository.SubscriptionRepositoryImpl
 import me.proton.android.lumo.di.DependencyProvider
-import me.proton.android.lumo.webview.WebAppInterface
 
 /**
  * Modern ViewModel factory that uses dependency injection principles
@@ -19,7 +18,7 @@ class SubscriptionViewModelFactory() : ViewModelProvider.Factory {
                 val billingManagerWrapper = DependencyProvider.getBillingManagerWrapper()
                 val repository = SubscriptionRepositoryImpl(
                     billingManager = billingManagerWrapper.getBillingManager(),
-                    webBridge = WebAppInterface
+                    webBridge = DependencyProvider.getWebBridge()
                 )
 
                 // Create ViewModel with injected dependencies
