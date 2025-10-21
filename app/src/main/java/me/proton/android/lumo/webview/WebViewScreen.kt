@@ -145,11 +145,19 @@ fun WebViewScreen(
                 if (BuildConfig.ENABLE_WEBVIEW_DEBUG) {
                     // Only include the debugging method call in standard variants
                     if (BuildConfig.DEBUG) {
-                        WebView.setWebContentsDebuggingEnabled(true)
-                        Log.d(TAG, "WebView debugging enabled (debug + standard variant)")
+                        try {
+                            WebView.setWebContentsDebuggingEnabled(true)
+                            Log.d(TAG, "WebView debugging enabled (debug + standard variant)")
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Failed to enable WebView debugging it may not be supported on this system", e)
+                        }
                     } else {
-                        WebView.setWebContentsDebuggingEnabled(false)
-                        Log.d(TAG, "WebView debugging disabled (release build)")
+                        try {
+                            WebView.setWebContentsDebuggingEnabled(false)
+                            Log.d(TAG, "WebView debugging disabled (release build)")
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Failed to disable WebView debugging - may not be supported on this system", e)
+                        }
                     }
                 } else {
                     // For noWebViewDebug variant, completely omit the method call
