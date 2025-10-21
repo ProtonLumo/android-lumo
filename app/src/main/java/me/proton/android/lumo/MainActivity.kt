@@ -34,6 +34,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.LottieCompositionFactory
@@ -47,9 +48,10 @@ import me.proton.android.lumo.managers.PermissionManager
 import me.proton.android.lumo.managers.UIManager
 import me.proton.android.lumo.managers.WebViewManager
 import me.proton.android.lumo.navigation.NavRoutes
+import me.proton.android.lumo.navigation.paymentRoutes
 import me.proton.android.lumo.ui.components.ChatScreen
 import me.proton.android.lumo.ui.components.MainScreenListeners
-import me.proton.android.lumo.ui.components.PaymentDialog
+import me.proton.android.lumo.ui.components.PurchaseLinkDialog
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.webview.LumoChromeClient
 import me.proton.android.lumo.webview.LumoWebClient
@@ -237,7 +239,11 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 is MainUiEvent.ShowPaymentDialog -> {
-                                    navController.navigate(NavRoutes.Subscription)
+                                    if (DependencyProvider.isPaymentAvailable()) {
+                                        navController.navigate(NavRoutes.Subscription)
+                                    } else {
+                                        navController.navigate(NavRoutes.NoPayment)
+                                    }
                                 }
                             }
                         }
@@ -321,20 +327,21 @@ class MainActivity : ComponentActivity() {
                     mainScreenListeners = mainScreenListeners
                 )
             }
-            composable<NavRoutes.Subscription> {
-                PaymentDialog(
-                    isReady = !uiState.isLoading && uiState.hasSeenLumoContainer,
-                    onDismiss = { navController.popBackStack() },
+            paymentRoutes(
+                isReady = !uiState.isLoading && uiState.hasSeenLumoContainer,
+                onDismiss = { navController.popBackStack() }
+            )
+            dialog<NavRoutes.NoPayment> {
+                PurchaseLinkDialog(
                     onOpenUrl = {
                         startActivity(
                             Intent(
                                 Intent.ACTION_VIEW,
                                 it.toUri()
-                            ).apply {
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            }
+                            )
                         )
-                    }
+                    },
+                    onDismissRequest = { navController.popBackStack() },
                 )
             }
         }

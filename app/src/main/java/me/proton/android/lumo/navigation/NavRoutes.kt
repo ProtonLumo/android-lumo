@@ -8,4 +8,7 @@ sealed interface NavRoutes {
 
     @Serializable
     data object Subscription : NavRoutes
+
+    @Serializable
+    data object NoPayment: NavRoutes
 }

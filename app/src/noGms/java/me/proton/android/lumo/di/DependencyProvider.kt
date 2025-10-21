@@ -16,4 +16,6 @@ object DependencyProvider : BaseDependencyProvider() {
 
     fun getWebBridge(): WebAppInterface =
         webBridge ?: WebAppInterface().also { webBridge = it }
+
+    override fun isPaymentAvailable(): Boolean  = false
 }

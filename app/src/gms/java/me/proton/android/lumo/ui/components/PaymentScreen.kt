@@ -1,6 +1,5 @@
 package me.proton.android.lumo.ui.components
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.content.res.Configuration.UI_MODE_TYPE_NORMAL
 import android.util.Log
@@ -44,7 +43,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
-import me.proton.android.lumo.di.DependencyProvider
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.ui.text.UiText
@@ -54,30 +52,11 @@ import me.proton.android.lumo.viewmodels.SubscriptionViewModelFactory
 
 private const val TAG = "PaymentDialog"
 
-@SuppressLint("DefaultLocale")
 @Composable
-fun PaymentDialog(
+fun PaymentScreen(
     isReady: Boolean,
-    onDismiss: () -> Unit,
-    onOpenUrl: (String) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val billingManagerWrapper = DependencyProvider.getBillingManagerWrapper()
-    val billingManager = billingManagerWrapper.getBillingManager()
-    if (billingManager != null) {
-        PaymentScreen(
-            isReady = isReady,
-            onDismiss = onDismiss
-        )
-    } else {
-        PurchaseLinkDialog(
-            onDismissRequest = onDismiss,
-            onOpenUrl = onOpenUrl
-        )
-    }
-}
-
-@Composable
-private fun PaymentScreen(isReady: Boolean, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val mainActivity = context as MainActivity
     val subscriptionViewModel: SubscriptionViewModel = viewModel(

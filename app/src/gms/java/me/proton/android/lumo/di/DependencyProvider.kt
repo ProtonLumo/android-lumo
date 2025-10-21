@@ -3,7 +3,6 @@ package me.proton.android.lumo.di
 import android.annotation.SuppressLint
 import android.app.Application
 import me.proton.android.lumo.billing.BillingManagerWrapper
-import me.proton.android.lumo.webview.WebAppInterface
 import me.proton.android.lumo.webview.WebAppWithPaymentsInterface
 
 /**
@@ -32,4 +31,7 @@ object DependencyProvider : BaseDependencyProvider() {
 
     fun getWebBridge(): WebAppWithPaymentsInterface =
         webBridge ?: WebAppWithPaymentsInterface().also { webBridge = it }
+
+    override fun isPaymentAvailable(): Boolean  =
+        billingManagerWrapper?.getBillingManager() != null
 }

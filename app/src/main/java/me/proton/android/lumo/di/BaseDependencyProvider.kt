@@ -9,4 +9,6 @@ abstract class BaseDependencyProvider {
     open fun initialise(application: Application) {
         this.application = application
     }
+
+    abstract fun isPaymentAvailable(): Boolean
 }
