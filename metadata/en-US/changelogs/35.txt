@@ -1,0 +1,7 @@
+* Compose UI now stays snug – no more drifting components; everything stays right where you expect it.
+
+* Speech‑to‑Text finally listens – the voice engine is now crystal‑clear and responsive, so dictating feels as smooth as a cat’s purr.
+
+* Orientation‑change hiccups squashed – rotating your device no longer throws the app into a tail‑spin; layouts adapt gracefully.
+
+* A litter of minor bugs caught and fixed – from tiny glitches to stray UI quirks, we’ve chased them all away.
