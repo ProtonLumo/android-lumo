@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.baselineprofile)
 }
 
 android {
@@ -12,7 +13,7 @@ android {
         minSdk = 29
         targetSdk = 35
         versionCode = 36
-        versionName = "1.2.3"
+        versionName = "1.2.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -140,6 +141,8 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("com.airbnb.android:lottie-compose:6.4.0")
+    implementation(libs.androidx.profileinstaller)
+    "baselineProfile"(project(":baselineprofile"))
 
     "gmsImplementation"(libs.billing.ktx)
 
