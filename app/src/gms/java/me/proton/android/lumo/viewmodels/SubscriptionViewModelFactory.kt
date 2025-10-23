@@ -9,10 +9,13 @@ import me.proton.android.lumo.di.DependencyProvider
  * Modern ViewModel factory that uses dependency injection principles
  * Replaces the old SubscriptionViewModelFactory with a cleaner approach
  */
-class SubscriptionViewModelFactory() : ViewModelProvider.Factory {
+class SubscriptionViewModelFactory : ViewModelProvider.Factory {
+
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(
+        modelClass: Class<T>,
+    ): T {
         return when {
             modelClass.isAssignableFrom(SubscriptionViewModel::class.java) -> {
                 val billingManagerWrapper = DependencyProvider.getBillingManagerWrapper()
@@ -23,7 +26,7 @@ class SubscriptionViewModelFactory() : ViewModelProvider.Factory {
 
                 // Create ViewModel with injected dependencies
                 SubscriptionViewModel(
-                    repository = repository
+                    repository = repository,
                 ) as T
             }
 

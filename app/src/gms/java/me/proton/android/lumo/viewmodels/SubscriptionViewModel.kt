@@ -40,7 +40,7 @@ class SubscriptionViewModel(
         val errorMessage: UiText? = null,
         val paymentProcessingState: PaymentProcessingState? = null,
         val isRefreshingPurchases: Boolean = false,
-        val googleProductDetails: List<ProductDetails> = emptyList()
+        val googleProductDetails: List<ProductDetails> = emptyList(),
     )
 
     private val _uiStateFlow = MutableStateFlow(UiState())

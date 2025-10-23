@@ -48,12 +48,16 @@ class MainActivityViewModel(
         data class EvaluateJavascript(val script: String) : UiEvent()
         data class ShowToast(val message: UiText) : UiEvent()
         object RequestAudioPermission : UiEvent()
+        class ShowPaymentDialog(val paymentEvent: PaymentEvent = PaymentEvent.Default) : UiEvent()
+    }
 
-        object ShowPaymentDialog : UiEvent()
+    enum class PaymentEvent {
+        Default, BlackFriday
     }
 
     sealed interface WebEvent {
         data object ShowPaymentRequested : WebEvent
+        data object ShowBlackFridaySale : WebEvent
         data object StartVoiceEntryRequested : WebEvent
         data object RetryLoadRequested : WebEvent
         data class PageTypeChanged(val isLumo: Boolean, val url: String) : WebEvent
@@ -100,15 +104,15 @@ class MainActivityViewModel(
             webAppRepository.listenToWebEvent().collect { event ->
                 when (event) {
                     // UI state toggle; Activity will render from state in a later step
-                    WebEvent.ShowPaymentRequested -> {
-                        _eventChannel.trySend(UiEvent.ShowPaymentDialog)
+                    is WebEvent.ShowPaymentRequested -> {
+                        _eventChannel.trySend(UiEvent.ShowPaymentDialog())
                     }
 
-                    WebEvent.StartVoiceEntryRequested -> {
+                    is WebEvent.StartVoiceEntryRequested -> {
                         onStartVoiceEntryRequested()
                     }
 
-                    WebEvent.RetryLoadRequested -> {
+                    is WebEvent.RetryLoadRequested -> {
                         resetNetworkCheckFlag()
                         performInitialNetworkCheck()
                     }
@@ -133,7 +137,7 @@ class MainActivityViewModel(
                         }
                     }
 
-                    WebEvent.LumoContainerVisible -> {
+                    is WebEvent.LumoContainerVisible -> {
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
@@ -156,6 +160,14 @@ class MainActivityViewModel(
                                 state
                             }
                         }
+                    }
+
+                    is WebEvent.ShowBlackFridaySale -> {
+                        _eventChannel.trySend(
+                            UiEvent.ShowPaymentDialog(
+                                paymentEvent = PaymentEvent.BlackFriday
+                            )
+                        )
                     }
                 }
             }

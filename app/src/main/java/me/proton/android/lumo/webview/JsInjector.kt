@@ -1199,3 +1199,91 @@ fun keyboardHeightChange(isVisible: Boolean, keyboardHeight: Int): String =
         }
     })();
     """.trimIndent()
+
+/**
+ * Injects JavaScript to handle Black Friday 2025 promotion button clicks
+ */
+fun injectBF2025PromotionHandler(webView: WebView) {
+    val js = """
+        (function() {
+            try {
+                console.log('Setting up BF2025 promotion button click handlers');
+
+                // Function to attach click handlers to BF2025 promotion buttons
+                function attachBF2025ClickHandlers() {
+                    // Select all buttons with the BF2025 promotion classes
+                    const bf2025Buttons = document.querySelectorAll('.lumo-bf2025-promotion, .button-promotion--bf-2025-free');
+
+                    if (bf2025Buttons.length > 0) {
+                        console.log('Found ' + bf2025Buttons.length + ' BF2025 promotion button(s)');
+
+                        // Add click handlers to each button
+                        bf2025Buttons.forEach((button, index) => {
+                            // Ensure we don't add multiple handlers to the same button
+                            if (!button.hasAttribute('data-bf2025-payment-handler')) {
+                                button.addEventListener('click', function(e) {
+                                    console.log('BF2025 promotion button clicked');
+                                    e.preventDefault();
+                                    e.stopPropagation();
+
+                                    if (window.Android && window.Android.showBlackFridaySale) {
+                                        // Fallback to direct call if polyfill not loaded
+                                        window.Android.showBlackFridaySale();
+                                    } else {
+                                        console.error('Android payment interface not available');
+                                        alert('Payment interface not available. Please refresh the page and try again.');
+                                    }
+                                    return false;
+                                });
+                                // Mark the button as having a handler
+                                button.setAttribute('data-bf2025-payment-handler', 'true');
+                                console.log('Added payment handler to BF2025 promotion button ' + (index + 1));
+                            }
+                        });
+                    } else {
+                        console.log('No BF2025 promotion buttons found yet');
+                    }
+                }
+
+                // Run immediately for any buttons that already exist
+                attachBF2025ClickHandlers();
+
+                // Set up a MutationObserver to watch for dynamically added buttons
+                if (!window._bf2025ButtonObserver) {
+                    const observer = new MutationObserver((mutations) => {
+                        let shouldCheckForButtons = false;
+
+                        for (const mutation of mutations) {
+                            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                                shouldCheckForButtons = true;
+                                break;
+                            }
+                        }
+
+                        if (shouldCheckForButtons) {
+                            console.log('DOM changed, checking for new BF2025 promotion buttons');
+                            attachBF2025ClickHandlers();
+                        }
+                    });
+
+                    // Start observing the document body for DOM changes
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+
+                    window._bf2025ButtonObserver = observer;
+                    console.log('BF2025 promotion button observer started');
+                }
+            } catch (e) {
+                console.error('Error setting up BF2025 promotion button handlers:', e);
+                console.error('Error stack:', e.stack);
+            }
+        })();
+    """.trimIndent()
+
+    Log.d(TAG, "Injecting BF2025 promotion button handlers JavaScript")
+    webView.evaluateJavascript(js) { result ->
+        Log.d(TAG, "BF2025 promotion button handler JS evaluation result: $result")
+    }
+}

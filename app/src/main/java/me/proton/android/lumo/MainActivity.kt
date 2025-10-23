@@ -240,7 +240,11 @@ class MainActivity : ComponentActivity() {
 
                                 is MainUiEvent.ShowPaymentDialog -> {
                                     if (DependencyProvider.isPaymentAvailable()) {
-                                        navController.navigate(NavRoutes.Subscription)
+                                        navController.navigate(
+                                            NavRoutes.Subscription(
+                                                event.paymentEvent
+                                            )
+                                        )
                                     } else {
                                         navController.navigate(NavRoutes.NoPayment)
                                     }

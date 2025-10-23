@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.proton.android.lumo.MainActivity
+import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
@@ -55,6 +57,7 @@ private const val TAG = "PaymentDialog"
 @Composable
 fun PaymentScreen(
     isReady: Boolean,
+    paymentEvent: PaymentEvent,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -122,7 +125,34 @@ fun PaymentScreen(
     }
 
 
-    // Dialog UI for plan selection
+    when (paymentEvent) {
+        PaymentEvent.BlackFriday -> BlackFridayPaymentScreen()
+        PaymentEvent.Default -> DefaultPaymentScreen(
+            uiState = uiState,
+            onDismiss = onDismiss,
+            subscriptionViewModel = subscriptionViewModel,
+            mainActivity = mainActivity
+        )
+    }
+}
+
+@Composable
+private fun BlackFridayPaymentScreen() {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Text(text = "Black friday")
+    }
+}
+
+@Composable
+private fun DefaultPaymentScreen(
+    uiState: SubscriptionViewModel.UiState,
+    onDismiss: () -> Unit,
+    subscriptionViewModel: SubscriptionViewModel,
+    mainActivity: MainActivity
+) {
     PlanSelectionDialog(
         uiState = uiState,
         onDismiss = onDismiss,
@@ -144,7 +174,10 @@ fun PaymentScreen(
 
 // Preview Functions for Different Dialog States
 @Preview(name = "Loading Subscriptions", showBackground = true)
-@Preview(name = "Dark - Loading Subscriptions", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
+@Preview(
+    name = "Dark - Loading Subscriptions",
+    uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL
+)
 @Composable
 fun PaymentDialogLoadingSubscriptionsPreview() {
     PaymentDialogContentPreview(
