@@ -9,6 +9,6 @@ fun NamedDomainObjectContainer<out ApplicationProductFlavor>.configurePrivateFla
     create("noble") {
         dimension = "env"
         applicationId = "me.proton.lumo"
-        buildConfigField("String", "BASE_DOMAIN", "\"palladium.proton.black\"")
+        buildConfigField("String", "BASE_DOMAIN", "\"silver.proton.black\"")
     }
 }

@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "lumo"
 include(":app")
+include(":baselineprofile")
