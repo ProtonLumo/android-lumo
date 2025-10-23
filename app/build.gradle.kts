@@ -45,19 +45,8 @@ android {
         }
     }
 
-    flavorDimensions += listOf("env", "debugging", "services")
+    flavorDimensions += listOf("env", "services")
     productFlavors {
-        create("standard") {
-            dimension = "debugging"
-            // Allows WebView debugging in debug builds (for development)
-            buildConfigField("boolean", "ENABLE_WEBVIEW_DEBUG", "true")
-        }
-        create("noWebViewDebug") {
-            dimension = "debugging"
-            // Never enables WebView debugging (for GrapheneOS and privacy-focused users)
-            buildConfigField("boolean", "ENABLE_WEBVIEW_DEBUG", "false")
-        }
-
         create("gms") {
             dimension = "services"
             versionNameSuffix = "-gms"

@@ -145,19 +145,11 @@ private fun WebView.createGlobalLayoutListener(
 // GrapheneOS blocks native code debugging which causes SIGSEGV crashes in production
 // Use 'noWebViewDebug' variant for GrapheneOS and privacy-focused users
 private fun toggleDebug() {
-    if (BuildConfig.ENABLE_WEBVIEW_DEBUG) {
-        // Only include the debugging method call in standard variants
-        if (BuildConfig.DEBUG) {
-            WebView.setWebContentsDebuggingEnabled(true)
-            Log.d(TAG, "WebView debugging enabled (debug + standard variant)")
-        } else {
-            WebView.setWebContentsDebuggingEnabled(false)
-            Log.d(TAG, "WebView debugging disabled (release build)")
-        }
+    if (BuildConfig.DEBUG) {
+        WebView.setWebContentsDebuggingEnabled(true)
+        Log.d(TAG, "WebView debugging enabled (debug)")
     } else {
-        // For noWebViewDebug variant, completely omit the method call
-        // This ensures GrapheneOS scanners don't detect any debugging capabilities
-        Log.d(TAG, "WebView debugging completely disabled (noWebViewDebug variant)")
+        Log.d(TAG, "WebView debugging completely disabled")
     }
 }
 
