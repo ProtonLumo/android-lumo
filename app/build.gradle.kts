@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.baselineprofile)
 }
 
 android {
@@ -12,8 +13,8 @@ android {
     defaultConfig {
         minSdk = 29
         targetSdk = 36
-        versionCode = 35
-        versionName = "1.2.0"
+        versionCode = 36
+        versionName = "1.2.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -114,6 +115,13 @@ android {
             output.outputFileName = "${appName}-v${versionName}-${flavor}-${buildType}.apk"
         }
     }
+
+    dependenciesInfo {
+        // Disables dependency metadata when building APKs.
+        includeInApk = false
+        // Disables dependency metadata when building Android App Bundles.
+        includeInBundle = false
+    }
 }
 
 dependencies {
@@ -136,6 +144,8 @@ dependencies {
     implementation("com.airbnb.android:lottie-compose:6.6.9")
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.profileinstaller)
+    "baselineProfile"(project(":baselineprofile"))
 
     "gmsImplementation"(libs.billing.ktx)
 
