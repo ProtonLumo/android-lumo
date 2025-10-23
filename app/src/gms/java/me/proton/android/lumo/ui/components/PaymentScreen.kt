@@ -125,36 +125,9 @@ fun PaymentScreen(
     }
 
 
-    when (paymentEvent) {
-        PaymentEvent.BlackFriday -> BlackFridayPaymentScreen()
-        PaymentEvent.Default -> DefaultPaymentScreen(
-            uiState = uiState,
-            onDismiss = onDismiss,
-            subscriptionViewModel = subscriptionViewModel,
-            mainActivity = mainActivity
-        )
-    }
-}
-
-@Composable
-private fun BlackFridayPaymentScreen() {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Text(text = "Black friday")
-    }
-}
-
-@Composable
-private fun DefaultPaymentScreen(
-    uiState: SubscriptionViewModel.UiState,
-    onDismiss: () -> Unit,
-    subscriptionViewModel: SubscriptionViewModel,
-    mainActivity: MainActivity
-) {
     PlanSelectionDialog(
         uiState = uiState,
+        paymentEvent = paymentEvent,
         onDismiss = onDismiss,
         onPlanSelected = { subscriptionViewModel.selectPlan(it) },
         onPurchaseClicked = { planToPurchase ->
@@ -169,8 +142,8 @@ private fun DefaultPaymentScreen(
         },
         onClearError = { subscriptionViewModel.clearError() }
     )
-}
 
+}
 
 // Preview Functions for Different Dialog States
 @Preview(name = "Loading Subscriptions", showBackground = true)

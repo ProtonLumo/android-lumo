@@ -125,6 +125,7 @@ class SubscriptionViewModel(
             _uiStateFlow.update {
                 it.copy(
                     isLoadingPlans = false,
+                    planFeatures = planResult.planFeatures,
                     errorMessage = planResult.error
                 )
             }
