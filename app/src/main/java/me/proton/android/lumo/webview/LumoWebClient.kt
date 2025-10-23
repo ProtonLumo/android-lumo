@@ -83,6 +83,7 @@ class LumoWebClient(
                 injectPromotionButtonHandlers(view)
                 injectUpgradeLinkHandlers(view)
                 themeChangeListener(view)
+                injectBF2025PromotionHandler(view)
                 Log.d(
                     TAG,
                     "Calling injectSignupPlanParamFix from onPageFinished for URL: $url"

@@ -53,6 +53,12 @@ open class WebAppInterface {
     }
 
     @JavascriptInterface
+    fun showBlackFridaySale() {
+        Log.d(TAG, "showBlackFridaySale called from JavaScript")
+        _mainEventChannel.trySend(MainWebEvent.ShowBlackFridaySale)
+    }
+
+    @JavascriptInterface
     fun startVoiceEntry() {
         Log.d(TAG, "startVoiceEntry called from JavaScript")
         _mainEventChannel.trySend(MainWebEvent.StartVoiceEntryRequested)
