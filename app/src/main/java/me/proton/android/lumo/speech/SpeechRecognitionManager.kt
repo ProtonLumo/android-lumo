@@ -59,7 +59,7 @@ class SpeechRecognitionManager(private val context: Context) {
      * Checks if speech recognition is available on the device
      */
     fun isSpeechRecognitionAvailable(): Boolean {
-        return SpeechRecognizer.isRecognitionAvailable(context)
+        return speechRecognizer != null
     }
 
     /**
@@ -77,12 +77,13 @@ class SpeechRecognitionManager(private val context: Context) {
      * Initializes the speech recognizer
      */
     private fun initializeSpeechRecognizer() {
-        if (SpeechRecognizer.isRecognitionAvailable(context)) {
+        try {
             speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
             setupSpeechRecognizerListener()
             Log.d(TAG, "SpeechRecognizer initialized.")
-        } else {
+        } catch (e: Exception) {
             Log.e(TAG, "SpeechRecognizer not available on this device.")
+            speechRecognizer = null
         }
     }
 
