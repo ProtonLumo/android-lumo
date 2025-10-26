@@ -25,12 +25,10 @@ import com.android.billingclient.api.ProductDetails
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.SubscriptionEntitlement
 import me.proton.android.lumo.models.SubscriptionItemResponse
-import me.proton.android.lumo.ui.theme.LightPurple
-import me.proton.android.lumo.ui.theme.BorderGray
-import me.proton.android.lumo.ui.theme.ProgressBarColor
+import me.proton.android.lumo.ui.theme.LumoTheme
+import me.proton.android.lumo.utils.PriceFormatter
 import java.text.SimpleDateFormat
 import java.util.*
-import me.proton.android.lumo.utils.PriceFormatter
 
 @Composable
 fun SubscriptionComponent(
@@ -154,7 +152,7 @@ fun SubscriptionComponent(
             .padding(vertical = 8.dp)
             .border(
                 width = 1.dp,
-                color = BorderGray,
+                color = LumoTheme.colors.borderNorm,
                 shape = RoundedCornerShape(16.dp)
             )
             .clip(RoundedCornerShape(16.dp))
@@ -397,14 +395,14 @@ fun StorageUsageIndicator(
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(LightPurple)
+                .background(LumoTheme.colors.interactionNorm)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(usedStorage / totalStorage)
                     .height(8.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(ProgressBarColor)
+                    .background(LumoTheme.colors.signalWarning)
             )
         }
     }
@@ -435,7 +433,7 @@ fun FeatureItem(
         Box(
             modifier = Modifier
                 .size(24.dp)
-                .background(LightPurple, CircleShape),
+                .background(LumoTheme.colors.interactionNorm, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(

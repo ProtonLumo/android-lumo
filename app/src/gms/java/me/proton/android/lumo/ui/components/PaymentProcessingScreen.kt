@@ -41,8 +41,7 @@ import kotlinx.coroutines.delay
 import me.proton.android.lumo.R
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.text.asString
-import me.proton.android.lumo.ui.theme.ErrorRed
-import me.proton.android.lumo.ui.theme.WarningYellow
+import me.proton.android.lumo.ui.theme.LumoTheme
 
 /**
  * Represents the different states of payment processing
@@ -225,7 +224,7 @@ private fun PaymentErrorContent(
     Icon(
         imageVector = Icons.Default.Error,
         contentDescription = "Error",
-        tint = ErrorRed,
+        tint = LumoTheme.colors.signalDanger,
         modifier = Modifier.size(48.dp)
     )
 
@@ -320,7 +319,7 @@ private fun PaymentNetworkErrorContent(
     Icon(
         imageVector = Icons.Default.Warning,
         contentDescription = "Network Error",
-        tint = WarningYellow,
+        tint = LumoTheme.colors.signalWarning,
         modifier = Modifier.size(48.dp)
     )
 
@@ -416,7 +415,7 @@ private fun SubscriptionRecoveryContent(
     Icon(
         imageVector = Icons.Default.Warning,
         contentDescription = "Subscription Recovery",
-        tint = WarningYellow,
+        tint = LumoTheme.colors.signalDanger,
         modifier = Modifier.size(48.dp)
     )
 

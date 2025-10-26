@@ -2,43 +2,22 @@ package me.proton.android.lumo.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 
-private val LightColorScheme = lightColorScheme(
-    primary = Primary,
-    secondary = LightPurple,
-    tertiary = Green,
-    background = White,
-    surface = White,
-    onPrimary = White,
-    onSecondary = DarkText,
-    onTertiary = White,
-    onBackground = DarkText,
-    onSurface = DarkText,
-    surfaceVariant = BorderGray,
-    onSurfaceVariant = GrayText,
-    error = ErrorRed,
-    onError = White
-)
 
-private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryDark,
-    secondary = LightPurple,
-    tertiary = Green,
-    background = DarkBackground,
-    surface = Black,
-    onPrimary = White,
-    onSecondary = DarkText,
-    onTertiary = White,
-    onBackground = LightText,
-    onSurface = LightText,
-    surfaceVariant = BorderGray,
-    onSurfaceVariant = GrayText,
-    error = ErrorRed,
-    onError = White
-)
+val LocalAppColors = staticCompositionLocalOf { LightColors }
+val LocalAppTypography = staticCompositionLocalOf { Typography }
+
+object LumoTheme {
+    val colors: AppColors
+        @Composable
+        get() = LocalAppColors.current
+
+    val typography: androidx.compose.material3.Typography
+        @Composable get() = LocalAppTypography.current
+}
 
 
 @Composable
@@ -46,14 +25,14 @@ fun LumoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colors = if (darkTheme) DarkColors else LightColors
+    val typography = Typography
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalAppColors provides colors) {
+        MaterialTheme(
+            colorScheme = if (darkTheme) androidx.compose.material3.darkColorScheme() else androidx.compose.material3.lightColorScheme(),
+            typography = typography,
+            content = content
+        )
+    }
 }

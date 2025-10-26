@@ -53,6 +53,7 @@ import me.proton.android.lumo.ui.components.ChatScreen
 import me.proton.android.lumo.ui.components.MainScreenListeners
 import me.proton.android.lumo.ui.components.PurchaseLinkDialog
 import me.proton.android.lumo.ui.theme.LumoTheme
+import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.webview.LumoChromeClient
 import me.proton.android.lumo.webview.LumoWebClient
 import me.proton.android.lumo.webview.createWebView
@@ -149,7 +150,7 @@ class MainActivity : ComponentActivity() {
 
             val isDarkTheme = uiState.theme?.let { theme ->
                 when (theme) {
-                    is LumoTheme.System -> {
+                    is AppStyle.System -> {
                         webViewManager.webView?.let {
                             injectTheme(
                                 webView = it,
@@ -160,7 +161,7 @@ class MainActivity : ComponentActivity() {
                         isSystemInDarkTheme()
                     }
 
-                    is LumoTheme.Light -> {
+                    is AppStyle.Light -> {
                         webViewManager.webView?.let {
                             injectTheme(
                                 webView = it,
@@ -171,7 +172,7 @@ class MainActivity : ComponentActivity() {
                         false
                     }
 
-                    is LumoTheme.Dark -> {
+                    is AppStyle.Dark -> {
                         webViewManager.webView?.let {
                             injectTheme(
                                 webView = it,

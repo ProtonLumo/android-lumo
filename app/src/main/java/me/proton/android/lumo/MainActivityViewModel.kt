@@ -16,7 +16,7 @@ import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.data.repository.WebAppRepository
 import me.proton.android.lumo.speech.SpeechRecognitionManager
 import me.proton.android.lumo.ui.text.UiText
-import me.proton.android.lumo.ui.theme.LumoTheme
+import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.utils.isHostReachable
 import me.proton.android.lumo.webview.keyboardHeightChange
 
@@ -35,7 +35,7 @@ data class MainUiState(
     val isLumoPage: Boolean = true,
     val hasSeenLumoContainer: Boolean = false,
     val shouldShowBackButton: Boolean = false,
-    val theme: LumoTheme? = null
+    val theme: AppStyle? = null
 )
 
 class MainActivityViewModel(
@@ -149,12 +149,12 @@ class MainActivityViewModel(
                     is WebEvent.ThemeResult -> {
                         _uiState.update { state ->
                             if (event.theme != state.theme?.mode) {
-                                val lumoTheme = LumoTheme.fromInt(event.theme)
+                                val appStyle = AppStyle.fromInt(event.theme)
                                 viewModelScope.launch {
-                                    themeRepository.saveTheme(lumoTheme)
+                                    themeRepository.saveTheme(appStyle)
                                 }
                                 state.copy(
-                                    theme = lumoTheme
+                                    theme = appStyle
                                 )
                             } else {
                                 state
