@@ -27,9 +27,7 @@ import androidx.compose.ui.unit.dp
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.ui.text.asString
-import me.proton.android.lumo.ui.theme.BorderGray
-import me.proton.android.lumo.ui.theme.Green
-import me.proton.android.lumo.ui.theme.LightPurple
+import me.proton.android.lumo.ui.theme.LumoTheme
 
 /**
  * A selectable item that displays a subscription plan option
@@ -40,8 +38,8 @@ fun PlanSelectItem(
     isSelected: Boolean,
     onSelected: () -> Unit,
 ) {
-    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else BorderGray
-    val backgroundColor = if (isSelected) LightPurple else Color.White
+    val borderColor = if (isSelected) LumoTheme.colors.primary else LumoTheme.colors.borderNorm
+    val backgroundColor = if (isSelected) LumoTheme.colors.interactionNorm else LumoTheme.colors.backgroundNorm
 
     Row(
         modifier = Modifier
@@ -61,7 +59,7 @@ fun PlanSelectItem(
             onClick = onSelected,
             colors = RadioButtonDefaults.colors(
                 selectedColor = MaterialTheme.colorScheme.onSecondary,
-                unselectedColor = BorderGray
+                unselectedColor = LumoTheme.colors.borderNorm
             )
         )
         Spacer(modifier = Modifier.width(12.dp))
@@ -94,7 +92,9 @@ fun PlanSelectItem(
 
             plan.savings?.let {
                 Text(
-                    it, style = MaterialTheme.typography.bodySmall, color = Green
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = LumoTheme.colors.signalSuccess
                 )
             }
         }

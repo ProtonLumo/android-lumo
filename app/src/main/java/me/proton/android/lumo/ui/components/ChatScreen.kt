@@ -43,7 +43,7 @@ import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.text.asString
-import me.proton.android.lumo.ui.theme.Primary
+import me.proton.android.lumo.ui.theme.LumoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -221,7 +221,7 @@ private fun SpeechSheet(
         ModalBottomSheet(
             onDismissRequest = { mainScreenListeners.cancelSpeech() },
             sheetState = sheetState,
-            containerColor = Primary,
+            containerColor = LumoTheme.colors.primary,
         ) {
             SpeechInputSheetContent(
                 isListening = isListening,
