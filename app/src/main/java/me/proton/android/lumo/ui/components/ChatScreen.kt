@@ -107,7 +107,7 @@ fun ChatScreen(
                             Text(
                                 text = stringResource(id = R.string.back_to_lumo),
                                 style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onBackground
+                                color = LumoTheme.colors.textNorm
                             )
                         }
                     }

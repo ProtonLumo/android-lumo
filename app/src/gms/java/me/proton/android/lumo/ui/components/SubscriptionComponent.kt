@@ -181,7 +181,7 @@ fun SubscriptionComponent(
                             Text(
                                 text = it,
                                 style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary
+                                color = LumoTheme.colors.primary
                             )
                         }
 
@@ -243,7 +243,7 @@ fun SubscriptionComponent(
                     Text(
                         text = message,
                         fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = LumoTheme.colors.textNorm,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
 
@@ -252,7 +252,7 @@ fun SubscriptionComponent(
                         Text(
                             text = it,
                             fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = LumoTheme.colors.textWeak
                         )
                     }
                 }
@@ -295,12 +295,12 @@ fun SubscriptionComponent(
                     Text(
                         text = priceText,
                         style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = LumoTheme.colors.textNorm
                     )
                     Text(
                         text = "a $periodText",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = LumoTheme.colors.textWeak
                     )
                 }
             }
@@ -319,14 +319,14 @@ fun SubscriptionComponent(
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
+                                        tint = LumoTheme.colors.primary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = entitlement.text,
                                         fontSize = 14.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = LumoTheme.colors.textWeak
                                     )
                                 }
                             }
@@ -346,7 +346,7 @@ fun SubscriptionComponent(
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
+                        containerColor = LumoTheme.colors.primary
                     ),
                     shape = RoundedCornerShape(24.dp)
                 ) {
@@ -362,7 +362,7 @@ fun SubscriptionComponent(
                 Text(
                     text = stringResource(id = R.string.subscription_manage_info),
                     fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = LumoTheme.colors.textWeak,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
@@ -386,7 +386,7 @@ fun StorageUsageIndicator(
                 )
             }",
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface
+            color = LumoTheme.colors.textNorm
         )
 
         // Progress bar - fixed the height issue
@@ -439,7 +439,7 @@ fun FeatureItem(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = LumoTheme.colors.primary,
                 modifier = Modifier.size(16.dp)
             )
         }
@@ -449,7 +449,7 @@ fun FeatureItem(
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = LumoTheme.colors.textNorm
         )
     }
 }

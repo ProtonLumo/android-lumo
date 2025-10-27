@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -28,6 +26,7 @@ import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.ui.text.asString
 import me.proton.android.lumo.ui.theme.LumoTheme
+import me.proton.android.lumo.ui.theme.planSelectionBackground
 
 /**
  * A selectable item that displays a subscription plan option
@@ -37,60 +36,67 @@ fun PlanSelectItem(
     plan: JsPlanInfo,
     isSelected: Boolean,
     onSelected: () -> Unit,
+    modifier: Modifier = Modifier,
+    isDarkTheme: Boolean,
 ) {
-    val borderColor = if (isSelected) LumoTheme.colors.primary else LumoTheme.colors.borderNorm
-    val backgroundColor = if (isSelected) LumoTheme.colors.interactionNorm else LumoTheme.colors.backgroundNorm
+    val borderColor = if (isSelected) LumoTheme.colors.focus else LumoTheme.colors.borderNorm
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .border(1.dp, borderColor, RoundedCornerShape(12.dp))
-            .background(backgroundColor, RoundedCornerShape(12.dp))
+            .background(
+                color = LumoTheme.colors.planSelectionBackground(isDarkTheme),
+                shape = RoundedCornerShape(12.dp)
+            )
             .clip(RoundedCornerShape(12.dp))
             .selectable(
                 selected = isSelected, onClick = onSelected
             )
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
             selected = isSelected,
             onClick = onSelected,
             colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.onSecondary,
+                selectedColor = LumoTheme.colors.focus,
                 unselectedColor = LumoTheme.colors.borderNorm
             )
         )
-        Spacer(modifier = Modifier.width(12.dp))
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = plan.duration.asString(),
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSecondary,
+                color = LumoTheme.colors.textNorm,
             )
             if (plan.pricePerMonth.isNotEmpty() && plan.cycle > 1) {
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     "${plan.pricePerMonth}/" + stringResource(id = R.string.month),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = LumoTheme.colors.textWeak
                 )
             }
         }
 
         Column(
-            horizontalAlignment = Alignment.End
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier.padding(end = 16.dp)
         ) {
             if (plan.totalPrice.isNotEmpty()) {
                 Text(
                     stringResource(id = R.string.for_price) + " ${plan.totalPrice}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = LumoTheme.colors.linkNorm,
                     fontWeight = FontWeight.Medium
                 )
             }
 
             plan.savings?.let {
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = it,
                     style = MaterialTheme.typography.bodySmall,

@@ -27,6 +27,7 @@ class SubscriptionViewModelFactory : ViewModelProvider.Factory {
                 // Create ViewModel with injected dependencies
                 SubscriptionViewModel(
                     repository = repository,
+                    themeRepository = DependencyProvider.themeRepository()
                 ) as T
             }
 
