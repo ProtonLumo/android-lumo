@@ -209,7 +209,7 @@ private fun Footer(
             enabled = uiState.selectedPlan != null && uiState.selectedPlan.totalPrice.isNotEmpty()
         ) {
             Text(
-                text=stringResource(id = R.string.subscription_buy_lumo),
+                text = stringResource(id = R.string.subscription_buy_lumo),
                 style = MaterialTheme.typography.bodyLarge,
             )
         }
@@ -227,7 +227,7 @@ private fun Footer(
             shape = RoundedCornerShape(8.dp),
         ) {
             Text(
-                "Not now",
+                text = stringResource(R.string.subscription_use_lumo_free),
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
@@ -241,14 +241,22 @@ private fun Header(
 ) {
     HeaderImage(paymentEvent, onDismiss)
     Spacer(modifier = Modifier.height(16.dp))
+    val paymentTitle = when (paymentEvent) {
+        PaymentEvent.Default -> R.string.payment_title
+        PaymentEvent.BlackFriday -> R.string.payment_black_friday_title
+    }
     Text(
-        text = stringResource(id = R.string.payment_title),
+        text = stringResource(id = paymentTitle),
         style = MaterialTheme.typography.titleSmall,
         color = LumoTheme.colors.textNorm,
         textAlign = TextAlign.Center,
         modifier = Modifier.padding(horizontal = 16.dp)
     )
 
+    val paymentSubtitle = when (paymentEvent) {
+        PaymentEvent.Default -> R.string.payment_subtitle
+        PaymentEvent.BlackFriday -> R.string.payment_black_friday_subtitle
+    }
     Text(
         text = stringResource(id = R.string.payment_subtitle),
         style = MaterialTheme.typography.bodySmall,

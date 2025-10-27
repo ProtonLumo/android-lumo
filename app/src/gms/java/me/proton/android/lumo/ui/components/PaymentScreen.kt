@@ -127,7 +127,7 @@ fun PaymentScreen(
 
     PlanSelectionScreen(
         uiState = uiState,
-        paymentEvent = PaymentEvent.Default,
+        paymentEvent = paymentEvent,
         onDismiss = onDismiss,
         onPlanSelected = { subscriptionViewModel.selectPlan(it) },
         onPurchaseClicked = { planToPurchase ->
