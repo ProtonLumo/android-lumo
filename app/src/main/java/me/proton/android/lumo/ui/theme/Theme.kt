@@ -2,21 +2,23 @@ package me.proton.android.lumo.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 
 
-val LocalAppColors = staticCompositionLocalOf { LightColors }
-val LocalAppTypography = staticCompositionLocalOf { Typography }
+val LocalLumoAppColors = staticCompositionLocalOf { LightColors }
+val LocalLumoAppTypography = staticCompositionLocalOf { Typography }
 
 object LumoTheme {
     val colors: AppColors
         @Composable
-        get() = LocalAppColors.current
+        get() = LocalLumoAppColors.current
 
     val typography: androidx.compose.material3.Typography
-        @Composable get() = LocalAppTypography.current
+        @Composable get() = LocalLumoAppTypography.current
 }
 
 
@@ -28,9 +30,25 @@ fun LumoTheme(
     val colors = if (darkTheme) DarkColors else LightColors
     val typography = Typography
 
-    CompositionLocalProvider(LocalAppColors provides colors) {
+    CompositionLocalProvider(
+        LocalLumoAppColors provides colors
+    ) {
         MaterialTheme(
-            colorScheme = if (darkTheme) androidx.compose.material3.darkColorScheme() else androidx.compose.material3.lightColorScheme(),
+            colorScheme = if (darkTheme) darkColorScheme(
+                primary = colors.primary,
+                onPrimary = colors.textNorm,
+                background = colors.backgroundNorm,
+                onBackground = colors.textNorm,
+                surface = colors.backgroundNorm,
+                onSurface = colors.textNorm
+            ) else lightColorScheme(
+                primary = colors.primary,
+                onPrimary = colors.textNorm,
+                background = colors.backgroundNorm,
+                onBackground = colors.textNorm,
+                surface = colors.backgroundNorm,
+                onSurface = colors.textNorm
+            ),
             typography = typography,
             content = content
         )

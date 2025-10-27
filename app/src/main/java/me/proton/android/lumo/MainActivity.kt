@@ -45,15 +45,14 @@ import kotlinx.coroutines.flow.collectLatest
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.di.DependencyProvider
 import me.proton.android.lumo.managers.PermissionManager
-import me.proton.android.lumo.managers.UIManager
 import me.proton.android.lumo.managers.WebViewManager
 import me.proton.android.lumo.navigation.NavRoutes
 import me.proton.android.lumo.navigation.paymentRoutes
 import me.proton.android.lumo.ui.components.ChatScreen
 import me.proton.android.lumo.ui.components.MainScreenListeners
 import me.proton.android.lumo.ui.components.PurchaseLinkDialog
-import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.ui.theme.AppStyle
+import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.webview.LumoChromeClient
 import me.proton.android.lumo.webview.LumoWebClient
 import me.proton.android.lumo.webview.createWebView
@@ -70,7 +69,8 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var webViewManager: WebViewManager
     private lateinit var permissionManager: PermissionManager
-    private lateinit var uiManager: UIManager
+
+    //    private lateinit var uiManager: UIManager
     private val _lottieComposition = MutableStateFlow<LottieComposition?>(null)
     private val lottieComposition: StateFlow<LottieComposition?> = _lottieComposition.asStateFlow()
     private val webBridge = DependencyProvider.getWebBridge()
@@ -143,7 +143,6 @@ class MainActivity : ComponentActivity() {
             }
         }, 5000) // Reduced to 5 seconds for faster fallback
 
-        enableEdgeToEdge()
         setContent {
             val uiState by mainActivityViewModel.uiState.collectAsStateWithLifecycle()
             val initialUrl by mainActivityViewModel.initialUrl.collectAsStateWithLifecycle()
@@ -184,6 +183,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             } ?: isSystemInDarkTheme()
+
 
             LaunchedEffect(isDarkTheme) {
                 enableEdgeToEdge(
@@ -363,7 +363,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        uiManager.onResume()
+//        uiManager.onResume()
     }
 
     override fun onDestroy() {
@@ -374,7 +374,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        uiManager.onConfigurationChanged(newConfig)
+//        uiManager.onConfigurationChanged(newConfig)
         webViewManager.invalidate()
     }
 
@@ -383,8 +383,8 @@ class MainActivity : ComponentActivity() {
      */
     private fun initializeManagers() {
         // Initialize UI manager first to set up edge-to-edge and status bar
-        uiManager = UIManager(this)
-        uiManager.initializeUI()
+//        uiManager = UIManager(this)
+//        uiManager.initializeUI()
 
         // Initialize WebView manager first
         webViewManager = WebViewManager()

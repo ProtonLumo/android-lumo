@@ -14,11 +14,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.R
 import me.proton.android.lumo.data.repository.SubscriptionRepository
+import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.models.SubscriptionItemResponse
 import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.ui.text.UiText
+import me.proton.android.lumo.ui.theme.AppStyle
 
 private const val TAG = "SubscriptionViewModel"
 
@@ -26,7 +28,8 @@ private const val TAG = "SubscriptionViewModel"
  * ViewModel that manages subscription data
  */
 class SubscriptionViewModel(
-    private val repository: SubscriptionRepository
+    private val repository: SubscriptionRepository,
+    private val themeRepository: ThemeRepository,
 ) : ViewModel() {
 
     data class UiState(
@@ -41,12 +44,20 @@ class SubscriptionViewModel(
         val paymentProcessingState: PaymentProcessingState? = null,
         val isRefreshingPurchases: Boolean = false,
         val googleProductDetails: List<ProductDetails> = emptyList(),
+        val theme: AppStyle? = null
     )
 
     private val _uiStateFlow = MutableStateFlow(UiState())
     val uiStateFlow = _uiStateFlow.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            val theme = themeRepository.getTheme()
+            _uiStateFlow.update { state ->
+                state.copy(theme = theme)
+            }
+        }
+
         // Collect Google Play product details
         viewModelScope.launch {
             repository.getGooglePlayProducts().collectLatest { products ->
