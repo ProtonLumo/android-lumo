@@ -2,7 +2,6 @@ package me.proton.android.lumo.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import me.proton.android.lumo.data.repository.SubscriptionRepositoryImpl
 import me.proton.android.lumo.di.DependencyProvider
 
 /**
@@ -18,16 +17,11 @@ class SubscriptionViewModelFactory : ViewModelProvider.Factory {
     ): T {
         return when {
             modelClass.isAssignableFrom(SubscriptionViewModel::class.java) -> {
-                val billingManagerWrapper = DependencyProvider.getBillingManagerWrapper()
-                val repository = SubscriptionRepositoryImpl(
-                    billingManager = billingManagerWrapper.getBillingManager(),
-                    webBridge = DependencyProvider.getWebBridge()
-                )
-
                 // Create ViewModel with injected dependencies
                 SubscriptionViewModel(
-                    repository = repository,
-                    themeRepository = DependencyProvider.themeRepository()
+                    repository = DependencyProvider.getSubscriptionRepository(),
+                    themeRepository = DependencyProvider.themeRepository(),
+                    hasOfferUseCase = DependencyProvider.hasOfferUseCase()
                 ) as T
             }
 

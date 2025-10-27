@@ -59,97 +59,116 @@ fun PlanSelectionScreen(
     onPurchaseClicked: (JsPlanInfo) -> Unit,
     onClearError: () -> Unit
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .background(LumoTheme.colors.backgroundNorm)
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Header(paymentEvent, onDismiss)
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Header(
+                paymentEvent = paymentEvent,
+                isDarkTheme = uiState.theme.isDarkTheme(),
+            )
 
-        // --- Dynamic Content based on loading/error/success ---
-        when {
-            uiState.isLoadingSubscriptions -> {
-                CircularProgressIndicator(color = LumoTheme.colors.primary)
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(id = R.string.payment_checking),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = LumoTheme.colors.textWeak
-                )
-            }
-
-            uiState.isLoadingPlans -> {
-                CircularProgressIndicator(color = LumoTheme.colors.primary)
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(id = R.string.payment_loading_plans),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = LumoTheme.colors.textWeak
-                )
-            }
-
-            uiState.errorMessage != null -> {
-                Text(
-                    text = uiState.errorMessage.asString(),
-                    color = LumoTheme.colors.signalDanger,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            uiState.planOptions.isNotEmpty() -> {
-                // Features comparison table
-                if (uiState.planFeatures.isNotEmpty()) {
-                    uiState.planFeatures.forEach { feature ->
-                        FeatureComparisonItem(
-                            feature = feature,
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(48.dp))
-                }
-
-                // Plan Selection Section
-                uiState.planOptions.forEach { plan ->
-                    if (plan.totalPrice.isNotEmpty()) {
-                        PlanSelectItem(
-                            plan = plan,
-                            isDarkTheme = uiState.theme.isDarkTheme(),
-                            isSelected = uiState.selectedPlan?.id == plan.id,
-                            onSelected = { onPlanSelected(plan) },
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                }
-
-                // Display error message if any
-                uiState.errorMessage?.let { errorMsg ->
-                    Spacer(modifier = Modifier.height(6.dp))
+            // --- Dynamic Content based on loading/error/success ---
+            when {
+                uiState.isLoadingSubscriptions -> {
+                    CircularProgressIndicator(color = LumoTheme.colors.primary)
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        errorMsg.asString(),
+                        text = stringResource(id = R.string.payment_checking),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = LumoTheme.colors.textWeak
+                    )
+                }
+
+                uiState.isLoadingPlans -> {
+                    CircularProgressIndicator(color = LumoTheme.colors.primary)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(id = R.string.payment_loading_plans),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = LumoTheme.colors.textWeak
+                    )
+                }
+
+                uiState.errorMessage != null -> {
+                    Text(
+                        text = uiState.errorMessage.asString(),
                         color = LumoTheme.colors.signalDanger,
-                        fontSize = 14.sp,
                         textAlign = TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.height(6.dp))
                 }
 
-                Footer(
-                    uiState = uiState,
-                    onClearError = onClearError,
-                    onPurchaseClicked = onPurchaseClicked,
-                    onDismiss = onDismiss,
-                )
-            }
+                uiState.planOptions.isNotEmpty() -> {
+                    // Features comparison table
+                    if (uiState.planFeatures.isNotEmpty()) {
+                        uiState.planFeatures.forEach { feature ->
+                            FeatureComparisonItem(
+                                feature = feature,
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(48.dp))
+                    }
 
-            else -> {
-                Text(
-                    text = stringResource(id = R.string.payment_no_plans_available),
-                    color = LumoTheme.colors.textWeak,
-                    textAlign = TextAlign.Center
-                )
+                    // Plan Selection Section
+                    uiState.planOptions.forEach { plan ->
+                        if (plan.totalPrice.isNotEmpty()) {
+                            PlanSelectItem(
+                                plan = plan,
+                                isDarkTheme = uiState.theme.isDarkTheme(),
+                                isSelected = uiState.selectedPlan?.id == plan.id,
+                                onSelected = { onPlanSelected(plan) },
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                    }
+
+                    // Display error message if any
+                    uiState.errorMessage?.let { errorMsg ->
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            errorMsg.asString(),
+                            color = LumoTheme.colors.signalDanger,
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                    }
+
+                    Footer(
+                        uiState = uiState,
+                        onClearError = onClearError,
+                        onPurchaseClicked = onPurchaseClicked,
+                        onDismiss = onDismiss,
+                    )
+                }
+
+                else -> {
+                    Text(
+                        text = stringResource(id = R.string.payment_no_plans_available),
+                        color = LumoTheme.colors.textWeak,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
+        }
+
+        IconButton(
+            onClick = onDismiss,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .windowInsetsPadding(WindowInsets.systemBars)
+        ) {
+            Icon(
+                Icons.Default.Close,
+                contentDescription = "Close",
+                tint = LumoTheme.colors.textNorm
+            )
         }
     }
 }
@@ -233,9 +252,12 @@ private fun Footer(
 @Composable
 private fun Header(
     paymentEvent: PaymentEvent,
-    onDismiss: () -> Unit
+    isDarkTheme: Boolean,
 ) {
-    HeaderImage(paymentEvent, onDismiss)
+    HeaderImage(
+        paymentEvent = paymentEvent,
+        isDarkTheme = isDarkTheme,
+    )
     Spacer(modifier = Modifier.height(16.dp))
     val paymentTitle = when (paymentEvent) {
         PaymentEvent.Default -> R.string.payment_title
@@ -254,7 +276,7 @@ private fun Header(
         PaymentEvent.BlackFriday -> R.string.payment_black_friday_subtitle
     }
     Text(
-        text = stringResource(id = R.string.payment_subtitle),
+        text = stringResource(id = paymentSubtitle),
         style = MaterialTheme.typography.bodySmall,
         color = LumoTheme.colors.textWeak,
         textAlign = TextAlign.Center,
@@ -265,52 +287,37 @@ private fun Header(
 @Composable
 private fun HeaderImage(
     paymentEvent: PaymentEvent,
-    onDismiss: () -> Unit
+    isDarkTheme: Boolean,
 ) {
-    Box {
-        val imageRes = when (paymentEvent) {
-            PaymentEvent.Default -> R.drawable.lumo_cat_on_laptop
-            PaymentEvent.BlackFriday -> R.drawable.lumo_black_friday
-        }
-        Image(
-            painter = painterResource(id = imageRes),
-            contentScale =
-                when (paymentEvent) {
-                    PaymentEvent.Default -> ContentScale.None
-                    PaymentEvent.BlackFriday -> ContentScale.Crop
-                },
-            contentDescription = "Lumo Plus",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp)
-                .then(
-                    when (paymentEvent) {
-                        PaymentEvent.Default ->
-                            Modifier.windowInsetsPadding(WindowInsets.systemBars)
-
-                        PaymentEvent.BlackFriday ->
-                            Modifier
-                    }
-                )
-        )
-
-        IconButton(
-            onClick = onDismiss,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .windowInsetsPadding(WindowInsets.systemBars)
-        ) {
-            Icon(
-                Icons.Default.Close,
-                contentDescription = "Close",
-                tint =
-                    when (paymentEvent) {
-                        PaymentEvent.Default -> LumoTheme.colors.textNorm
-                        PaymentEvent.BlackFriday -> Color.Black
-                    }
-            )
-        }
+    val imageRes = when (paymentEvent) {
+        PaymentEvent.Default -> R.drawable.lumo_cat_on_laptop
+        PaymentEvent.BlackFriday ->
+            if (isDarkTheme) {
+                R.drawable.lumo_black_friday_dark
+            } else {
+                R.drawable.lumo_black_friday
+            }
     }
+    Image(
+        painter = painterResource(id = imageRes),
+        contentScale =
+            when (paymentEvent) {
+                PaymentEvent.Default -> ContentScale.Fit
+                PaymentEvent.BlackFriday -> ContentScale.Crop
+            },
+        contentDescription = "Lumo Plus",
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                when (paymentEvent) {
+                    PaymentEvent.Default ->
+                        Modifier.windowInsetsPadding(WindowInsets.systemBars)
+
+                    PaymentEvent.BlackFriday ->
+                        Modifier
+                }
+            )
+    )
 }
 
 @Preview(name = "Plan Selection - Loading Plans", showBackground = true)

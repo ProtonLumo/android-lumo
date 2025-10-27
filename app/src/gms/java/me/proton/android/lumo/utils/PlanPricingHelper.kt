@@ -24,7 +24,8 @@ object PlanPricingHelper {
     @SuppressLint("DefaultLocale")
     fun updatePlanPricing(
         plans: List<JsPlanInfo>,
-        googleProducts: List<ProductDetails>
+        googleProducts: List<ProductDetails>,
+        offerId: String?,
     ): List<JsPlanInfo> {
         // Create a copy to avoid modifying the original list
         val updatedPlans = plans.toMutableList()
@@ -43,10 +44,11 @@ object PlanPricingHelper {
 
                 // Find the best matching offer
                 val matchingOffer = if (cycleMapping != null) {
-                    matchingProduct.subscriptionOfferDetails!!.find { offer ->
-                        offer.pricingPhases.pricingPhaseList.any { phase ->
-                            phase.billingPeriod == cycleMapping
-                        }
+                    matchingProduct.subscriptionOfferDetails?.find { offer ->
+                        offer.offerId == offerId ||
+                                offer.pricingPhases.pricingPhaseList.any { phase ->
+                                    phase.billingPeriod == cycleMapping
+                                }
                     }
                 } else null
 

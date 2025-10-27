@@ -47,7 +47,7 @@ fun FeatureComparisonItem(
         // Icon - using AsyncImage with fallback
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(0.7f),
+            modifier = Modifier.weight(0.8f),
         ) {
             Box(
                 modifier =
@@ -88,7 +88,7 @@ fun FeatureComparisonItem(
             color = LumoTheme.colors.focus,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
-            modifier = Modifier.weight(0.3f),
+            modifier = Modifier.weight(0.2f),
         )
     }
 } 

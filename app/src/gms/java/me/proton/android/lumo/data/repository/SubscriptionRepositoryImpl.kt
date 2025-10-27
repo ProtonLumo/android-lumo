@@ -68,10 +68,14 @@ class SubscriptionRepositoryImpl(
 
     override fun updatePlanPricing(
         plans: List<JsPlanInfo>,
-        productDetails: List<ProductDetails>
-    ): List<JsPlanInfo> {
-        return PlanPricingHelper.updatePlanPricing(plans, productDetails)
-    }
+        productDetails: List<ProductDetails>,
+        offerId: String?,
+    ): List<JsPlanInfo> =
+        PlanPricingHelper.updatePlanPricing(
+            plans = plans,
+            googleProducts = productDetails,
+            offerId = offerId
+        )
 
     override fun getGooglePlaySubscriptionStatus(): Triple<Boolean, Boolean, Long> {
         return billingManager?.getSubscriptionStatus()

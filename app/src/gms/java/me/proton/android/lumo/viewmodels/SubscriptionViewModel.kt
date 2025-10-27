@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import me.proton.android.lumo.BuildConfig
 import me.proton.android.lumo.R
 import me.proton.android.lumo.data.repository.SubscriptionRepository
 import me.proton.android.lumo.data.repository.ThemeRepository
@@ -21,6 +22,7 @@ import me.proton.android.lumo.models.SubscriptionItemResponse
 import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.AppStyle
+import me.proton.android.lumo.usecase.HasOfferUseCase
 
 private const val TAG = "SubscriptionViewModel"
 
@@ -30,6 +32,7 @@ private const val TAG = "SubscriptionViewModel"
 class SubscriptionViewModel(
     private val repository: SubscriptionRepository,
     private val themeRepository: ThemeRepository,
+    private val hasOfferUseCase: HasOfferUseCase,
 ) : ViewModel() {
 
     data class UiState(
@@ -44,7 +47,8 @@ class SubscriptionViewModel(
         val paymentProcessingState: PaymentProcessingState? = null,
         val isRefreshingPurchases: Boolean = false,
         val googleProductDetails: List<ProductDetails> = emptyList(),
-        val theme: AppStyle? = null
+        val theme: AppStyle? = null,
+        val hasOffer: Boolean = false,
     )
 
     private val _uiStateFlow = MutableStateFlow(UiState())
@@ -60,9 +64,20 @@ class SubscriptionViewModel(
 
         // Collect Google Play product details
         viewModelScope.launch {
+            hasOfferUseCase.hasOffer().collectLatest { hasOffer ->
+                _uiStateFlow.update {
+                    it.copy(
+                        hasOffer = hasOffer
+                    )
+                }
+            }
+        }
+        viewModelScope.launch {
             repository.getGooglePlayProducts().collectLatest { products ->
                 _uiStateFlow.update {
-                    it.copy(googleProductDetails = products)
+                    it.copy(
+                        googleProductDetails = products,
+                    )
                 }
                 Log.d(TAG, "Received ${products.size} Google Play products")
 
@@ -159,7 +174,9 @@ class SubscriptionViewModel(
         Log.d(TAG, "Updating plan pricing from Google Play")
 
         val updatedPlans = repository.updatePlanPricing(
-            planOptions, _uiStateFlow.value.googleProductDetails
+            plans = planOptions,
+            productDetails = _uiStateFlow.value.googleProductDetails,
+            offerId = BuildConfig.OFFER_ID
         )
 
         // Only update if we have pricing info
