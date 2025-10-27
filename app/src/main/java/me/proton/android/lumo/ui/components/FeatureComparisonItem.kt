@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,7 +33,12 @@ fun FeatureComparisonItem(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = 32.dp,
+                vertical = 8.dp
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Load icon from URL
@@ -41,7 +47,7 @@ fun FeatureComparisonItem(
         // Icon - using AsyncImage with fallback
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(0.8f),
+            modifier = Modifier.weight(0.7f),
         ) {
             Box(
                 modifier =
@@ -82,7 +88,7 @@ fun FeatureComparisonItem(
             color = LumoTheme.colors.focus,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
-            modifier = Modifier.weight(0.2f)
+            modifier = Modifier.weight(0.3f),
         )
     }
 } 
