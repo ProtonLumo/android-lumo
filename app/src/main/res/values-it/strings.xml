@@ -10,17 +10,17 @@
   <string name="retry_button">Riprova</string>
   <string name="retry_connection">Riprova la connessione</string>
   <!-- Loading Messages -->
-  <string name="loading_message_1">Voglio i grattini… e capacità di elaborazione…</string>
-  <string name="loading_message_2">Prendo a zampate la barra di caricamento...</string>
+  <string name="loading_message_1">Richiede attenzione… e potenza di elaborazione…</string>
+  <string name="loading_message_2">Colpendo le barre di caricamento…</string>
   <string name="loading_message_3">Scaccio via i broker di dati...</string>
   <string name="loading_message_4">Seguo le traccie digitali…</string>
-  <string name="loading_message_5">Faccio cadere i file dagli scaffali…</string>
-  <string name="loading_message_6">Caricamiao...</string>
-  <string name="loading_message_7">Faccio un pisolino al sole… ancora un attimo...</string>
-  <string name="loading_message_8">Pianifico il dominio del mondo… mentre avvio l\'app…</string>
-  <string name="loading_message_9">Faccio le fusa per alzarmi prima...</string>
-  <string name="loading_message_10">Affilo gli artigli sulla tastiera…</string>
-  <string name="loading_message_11">Mi stiro prima del grande salto...</string>
+  <string name="loading_message_5">Faccio cadere oggetti da scaffali invisibili</string>
+  <string name="loading_message_6">Download in corso...attendere prego...</string>
+  <string name="loading_message_7">Faccio un pisolino al sole… ancora un attimo</string>
+  <string name="loading_message_8">Pianifico il dominio del mondo... e l\'avvio della tua app</string>
+  <string name="loading_message_9">Faccio le fusa per avviare i motori...</string>
+  <string name="loading_message_10">Affilo gli artigli sulla tua tastiera</string>
+  <string name="loading_message_11">Mi stiro prima del grande salto</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Riconoscimento elaborato da Google</string>
   <string name="speech_status_on_device">Nel dispositivo • Privato</string>
@@ -52,8 +52,8 @@
   <!-- SUbscription Strings -->
   <string name="payment_title">Migliora l\'esperienza IA</string>
   <string name="payment_subtitle">Passa a Lumo Plus per funzionalità premium e un servizio prioritario</string>
-  <string name="payment_checking">Verifica dell\'abbonamento in corso</string>
-  <string name="payment_loading_plans">Caricamento dei piani a pagamento in corso</string>
+  <string name="payment_checking">Controllo stato abbonamento</string>
+  <string name="payment_loading_plans">Caricamento piani di abbonamento...</string>
   <string name="payment_no_plans_available">Nessun piano a pagamento disponibile</string>
   <string name="subscription_renewal">Si rinnova automaticamente eccetto annullamento</string>
   <string name="subscription_buy_lumo">Acquista Lumo Plus</string>
@@ -106,8 +106,8 @@
   <!-- Error Messages - Generic -->
   <string name="error_unknown">Si è verificato un errore</string>
   <!-- Billing Error Messages -->
-  <string name="billing_unavailable_old_api">La versione di Google Play Billing di questo dispositivo è troppo vecchia. Aggiorna Google Play Store o utilizza la versione web di Lumo.</string>
-  <string name="billing_unavailable_not_supported">Gli acquisti in-app non sono supportati su questo dispositivo. Per le sottoscrizioni, utilizza la versione web di Lumo.</string>
+  <string name="billing_unavailable_old_api">Versione di Google Play Billing obsoleta. Aggiorna Google Play Store o utilizza la versione web di Lumo.</string>
+  <string name="billing_unavailable_not_supported">Acquisti in-app non supportati da questo dispositivo. Effettua l\'accesso alla versione web di Lumo.</string>
   <string name="billing_unavailable_generic">Fatturazione non disponibile: assicurati che Google Play Store sia installato, aggiornato e che tu abbia effettuato l’accesso.</string>
   <string name="billing_service_not_connected">Servizio di fatturazione non connesso. Riprova.</string>
   <string name="billing_google_play_required">Per gli acquisti è necessario Google Play Store.</string>
