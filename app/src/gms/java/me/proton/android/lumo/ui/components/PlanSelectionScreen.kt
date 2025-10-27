@@ -104,10 +104,6 @@ fun PlanSelectionScreen(
                     uiState.planFeatures.forEach { feature ->
                         FeatureComparisonItem(
                             feature = feature,
-                            modifier = Modifier.padding(
-                                horizontal = 24.dp,
-                                vertical = 8.dp
-                            )
                         )
                     }
                     Spacer(modifier = Modifier.height(48.dp))
