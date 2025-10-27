@@ -260,11 +260,16 @@ private fun PaymentErrorContent(
         onClick = {
             isRetrying = true
             onRetry()
-        }, modifier = Modifier
+        },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = LumoTheme.colors.primary,
+            contentColor = LumoTheme.colors.textInvert,
+        ),
+        shape = RoundedCornerShape(24.dp),
+        enabled = !isRetrying,
+        modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp), colors = ButtonDefaults.buttonColors(
-            containerColor = LumoTheme.colors.primary
-        ), shape = RoundedCornerShape(24.dp), enabled = !isRetrying
+            .height(48.dp),
     ) {
         if (isRetrying) {
             CircularProgressIndicator(
@@ -355,11 +360,16 @@ private fun PaymentNetworkErrorContent(
         onClick = {
             isRetrying = true
             onRetry()
-        }, modifier = Modifier
+        },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = LumoTheme.colors.primary,
+            contentColor = LumoTheme.colors.textInvert,
+        ),
+        shape = RoundedCornerShape(24.dp),
+        enabled = !isRetrying,
+        modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp), colors = ButtonDefaults.buttonColors(
-            containerColor = LumoTheme.colors.primary
-        ), shape = RoundedCornerShape(24.dp), enabled = !isRetrying
+            .height(48.dp),
     ) {
         if (isRetrying) {
             CircularProgressIndicator(
@@ -510,13 +520,14 @@ private fun PaymentSuccessContent(
 
     Button(
         onClick = onClose,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = LumoTheme.colors.primary,
+            contentColor = LumoTheme.colors.textInvert,
+        ),
+        shape = RoundedCornerShape(24.dp),
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = LumoTheme.colors.primary
-        ),
-        shape = RoundedCornerShape(24.dp)
     ) {
         Text(
             text = "Continue", style = MaterialTheme.typography.labelLarge

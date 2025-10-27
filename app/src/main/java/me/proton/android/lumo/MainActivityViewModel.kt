@@ -8,6 +8,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -17,7 +20,9 @@ import me.proton.android.lumo.data.repository.WebAppRepository
 import me.proton.android.lumo.speech.SpeechRecognitionManager
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.AppStyle
+import me.proton.android.lumo.usecase.HasOfferUseCase
 import me.proton.android.lumo.utils.isHostReachable
+import me.proton.android.lumo.webview.hideBfButton
 import me.proton.android.lumo.webview.keyboardHeightChange
 
 private const val TAG = "MainActivityViewModel"
@@ -42,6 +47,7 @@ class MainActivityViewModel(
     application: Application,
     private val themeRepository: ThemeRepository,
     private val webAppRepository: WebAppRepository,
+    private val hasOfferUseCase: HasOfferUseCase,
 ) : AndroidViewModel(application) {
 
     sealed class UiEvent {
@@ -99,6 +105,23 @@ class MainActivityViewModel(
             }
         }
 
+        viewModelScope.launch {
+            combine(
+                hasOfferUseCase.hasOffer(),
+                _uiState.map { it.hasSeenLumoContainer }.distinctUntilChanged()
+            ) { hasOffer, hasSeenLumoContainer ->
+                !hasOffer && hasSeenLumoContainer
+            }.distinctUntilChanged()
+                .collect { shouldHide ->
+                    if (shouldHide) {
+                        _eventChannel.send(
+                            UiEvent.EvaluateJavascript(
+                                hideBfButton()
+                            )
+                        )
+                    }
+                }
+        }
         // Don't call performInitialNetworkCheck here, call from Activity onCreate
         viewModelScope.launch {
             webAppRepository.listenToWebEvent().collect { event ->

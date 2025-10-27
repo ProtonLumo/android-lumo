@@ -3,48 +3,15 @@ package me.proton.android.lumo.ui.components
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.content.res.Configuration.UI_MODE_TYPE_NORMAL
 import android.util.Log
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
-import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.ui.text.UiText
@@ -127,7 +94,7 @@ fun PaymentScreen(
 
     PlanSelectionScreen(
         uiState = uiState,
-        paymentEvent = paymentEvent,
+        paymentEvent = if (uiState.hasOffer) paymentEvent else PaymentEvent.Default,
         onDismiss = onDismiss,
         onPlanSelected = { subscriptionViewModel.selectPlan(it) },
         onPurchaseClicked = { planToPurchase ->
@@ -152,52 +119,120 @@ fun PaymentScreen(
 )
 @Composable
 fun PaymentDialogLoadingSubscriptionsPreview() {
-    PaymentDialogContentPreview(
-        isLoadingSubscriptions = true,
-        isLoadingPlans = false,
-        errorMessage = null,
-        planOptions = emptyList(),
-        planFeatures = emptyList()
-    )
+    LumoTheme {
+        PlanSelectionScreen(
+            uiState = SubscriptionViewModel.UiState(
+                isLoadingSubscriptions = true,
+                subscriptions = emptyList(),
+                hasValidSubscription = false,
+                isLoadingPlans = false,
+                planOptions = emptyList(),
+                selectedPlan = null,
+                planFeatures = emptyList(),
+                errorMessage = null,
+                paymentProcessingState = null,
+                isRefreshingPurchases = false,
+                googleProductDetails = emptyList(),
+                theme = null,
+                hasOffer = false,
+            ),
+            paymentEvent = PaymentEvent.Default,
+            onDismiss = {},
+            onPlanSelected = {},
+            onPurchaseClicked = {},
+            onClearError = {},
+        )
+    }
 }
 
 @Preview(name = "Loading Plans", showBackground = true)
 @Preview(name = "Dark - Loading Plans", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
 fun PaymentDialogLoadingPlansPreview() {
-    PaymentDialogContentPreview(
-        isLoadingSubscriptions = false,
-        isLoadingPlans = true,
-        errorMessage = null,
-        planOptions = emptyList(),
-        planFeatures = emptyList()
-    )
+    LumoTheme {
+        PlanSelectionScreen(
+            uiState = SubscriptionViewModel.UiState(
+                isLoadingSubscriptions = false,
+                subscriptions = emptyList(),
+                hasValidSubscription = false,
+                isLoadingPlans = true,
+                planOptions = emptyList(),
+                selectedPlan = null,
+                planFeatures = emptyList(),
+                errorMessage = null,
+                paymentProcessingState = null,
+                isRefreshingPurchases = false,
+                googleProductDetails = emptyList(),
+                theme = null,
+                hasOffer = false,
+            ),
+            paymentEvent = PaymentEvent.Default,
+            onDismiss = {},
+            onPlanSelected = {},
+            onPurchaseClicked = {},
+            onClearError = {},
+        )
+    }
 }
 
 @Preview(name = "Error State", showBackground = true)
 @Preview(name = "Dark - Error State", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
 fun PaymentDialogErrorPreview() {
-    PaymentDialogContentPreview(
-        isLoadingSubscriptions = false,
-        isLoadingPlans = false,
-        errorMessage = "There was a problem loading subscriptions",
-        planOptions = emptyList(),
-        planFeatures = emptyList()
-    )
+    LumoTheme {
+        PlanSelectionScreen(
+            uiState = SubscriptionViewModel.UiState(
+                isLoadingSubscriptions = false,
+                subscriptions = emptyList(),
+                hasValidSubscription = false,
+                isLoadingPlans = false,
+                planOptions = emptyList(),
+                selectedPlan = null,
+                planFeatures = emptyList(),
+                errorMessage = UiText.StringText("There was a problem loading subscriptions"),
+                paymentProcessingState = null,
+                isRefreshingPurchases = false,
+                googleProductDetails = emptyList(),
+                theme = null,
+                hasOffer = false,
+            ),
+            paymentEvent = PaymentEvent.Default,
+            onDismiss = {},
+            onPlanSelected = {},
+            onPurchaseClicked = {},
+            onClearError = {},
+        )
+    }
 }
 
 @Preview(name = "No Plans Available", showBackground = true)
 @Preview(name = "Dark - No Plans Available", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
 fun PaymentDialogNoPlansPreview() {
-    PaymentDialogContentPreview(
-        isLoadingSubscriptions = false,
-        isLoadingPlans = false,
-        errorMessage = null,
-        planOptions = emptyList(),
-        planFeatures = emptyList()
-    )
+    LumoTheme {
+        PlanSelectionScreen(
+            uiState = SubscriptionViewModel.UiState(
+                isLoadingSubscriptions = false,
+                subscriptions = emptyList(),
+                hasValidSubscription = false,
+                isLoadingPlans = false,
+                planOptions = emptyList(),
+                selectedPlan = null,
+                planFeatures = emptyList(),
+                errorMessage = null,
+                paymentProcessingState = null,
+                isRefreshingPurchases = false,
+                googleProductDetails = emptyList(),
+                theme = null,
+                hasOffer = false,
+            ),
+            paymentEvent = PaymentEvent.Default,
+            onDismiss = {},
+            onPlanSelected = {},
+            onPurchaseClicked = {},
+            onClearError = {},
+        )
+    }
 }
 
 @Preview(name = "Plans Available", showBackground = true)
@@ -254,14 +289,30 @@ fun PaymentDialogPlansAvailablePreview() {
         )
     )
 
-    PaymentDialogContentPreview(
-        isLoadingSubscriptions = false,
-        isLoadingPlans = false,
-        errorMessage = null,
-        planOptions = mockPlans,
-        planFeatures = mockFeatures,
-        selectedPlan = mockPlans.first()
-    )
+    LumoTheme {
+        PlanSelectionScreen(
+            uiState = SubscriptionViewModel.UiState(
+                isLoadingSubscriptions = false,
+                subscriptions = emptyList(),
+                hasValidSubscription = false,
+                isLoadingPlans = false,
+                planOptions = mockPlans,
+                selectedPlan = mockPlans.first(),
+                planFeatures = mockFeatures,
+                errorMessage = null,
+                paymentProcessingState = null,
+                isRefreshingPurchases = false,
+                googleProductDetails = emptyList(),
+                theme = null,
+                hasOffer = false,
+            ),
+            paymentEvent = PaymentEvent.Default,
+            onDismiss = {},
+            onPlanSelected = {},
+            onPurchaseClicked = {},
+            onClearError = {},
+        )
+    }
 }
 
 @Preview(name = "Plans with Error", showBackground = true)
@@ -283,15 +334,30 @@ fun PaymentDialogPlansWithErrorPreview() {
             offerToken = "token123"
         )
     )
-
-    PaymentDialogContentPreview(
-        isLoadingSubscriptions = false,
-        isLoadingPlans = false,
-        errorMessage = "Failed to load plans: Network error",
-        planOptions = mockPlans,
-        planFeatures = emptyList(),
-        selectedPlan = mockPlans.first()
-    )
+    LumoTheme {
+        PlanSelectionScreen(
+            uiState = SubscriptionViewModel.UiState(
+                isLoadingSubscriptions = false,
+                subscriptions = emptyList(),
+                hasValidSubscription = false,
+                isLoadingPlans = false,
+                planOptions = mockPlans,
+                selectedPlan = null,
+                planFeatures = emptyList(),
+                errorMessage = UiText.StringText("Failed to load plans: Network error"),
+                paymentProcessingState = null,
+                isRefreshingPurchases = false,
+                googleProductDetails = emptyList(),
+                theme = null,
+                hasOffer = false,
+            ),
+            paymentEvent = PaymentEvent.Default,
+            onDismiss = {},
+            onPlanSelected = {},
+            onPurchaseClicked = {},
+            onClearError = {},
+        )
+    }
 }
 
 // Payment Processing State Previews
@@ -377,187 +443,5 @@ fun PaymentProcessingSuccessPreview() {
             onRetry = { /* Preview - no action */ },
             onClose = { /* Preview - no action */ }
         )
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun PaymentDialogContentPreview(
-    isLoadingSubscriptions: Boolean = false,
-    isLoadingPlans: Boolean = false,
-    errorMessage: String? = null,
-    planOptions: List<JsPlanInfo> = emptyList(),
-    planFeatures: List<PlanFeature> = emptyList(),
-    selectedPlan: JsPlanInfo? = null
-) {
-    LumoTheme {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.9f) // Limit height to allow scrolling
-                .clip(RoundedCornerShape(16.dp)),
-            color = LumoTheme.colors.backgroundNorm
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp, vertical = 4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Close Button
-                IconButton(
-                    onClick = { /* Preview - no action */ },
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = "Close",
-                        tint = LumoTheme.colors.textWeak
-                    )
-                }
-
-                Image(
-                    painter = painterResource(id = R.drawable.lumo_cat_on_laptop),
-                    contentDescription = "Lumo Plus",
-                    modifier = Modifier.height(75.dp)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = stringResource(id = R.string.payment_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = LumoTheme.colors.textNorm,
-                    textAlign = TextAlign.Center
-                )
-
-                Text(
-                    text = stringResource(id = R.string.payment_subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = LumoTheme.colors.textWeak,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
-                )
-
-                // Dynamic Content based on loading/error/success
-                when {
-                    isLoadingSubscriptions -> {
-                        CircularProgressIndicator(color = LumoTheme.colors.primary)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = stringResource(id = R.string.payment_checking),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = LumoTheme.colors.textWeak
-                        )
-                    }
-
-                    isLoadingPlans -> {
-                        CircularProgressIndicator(color = LumoTheme.colors.primary)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = stringResource(id = R.string.payment_loading_plans),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = LumoTheme.colors.textWeak
-                        )
-                    }
-
-                    errorMessage != null -> {
-                        Text(
-                            text = errorMessage,
-                            color = LumoTheme.colors.signalDanger,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-
-                    planOptions.isNotEmpty() -> {
-                        // Features comparison table
-                        if (planFeatures.isNotEmpty()) {
-                            planFeatures.take(4).forEach { feature ->
-                                FeatureComparisonItem(feature)
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-
-                        // Plan Selection Section
-                        planOptions.forEach { plan ->
-                            if (plan.totalPrice.isNotEmpty()) {
-                                PlanSelectItem(
-                                    plan = plan,
-                                    isSelected = selectedPlan?.id == plan.id,
-                                    onSelected = { /* Preview - no action */ },
-                                    isDarkTheme = isSystemInDarkTheme()
-                                )
-                                Spacer(modifier = Modifier.height(6.dp))
-                            }
-                        }
-
-                        // Display error message if any (when plans are loaded but there's still an error)
-                        errorMessage?.let { errorMsg ->
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                errorMsg,
-                                color = LumoTheme.colors.signalDanger,
-                                fontSize = 14.sp,
-                                textAlign = TextAlign.Center
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                        }
-
-                        Text(
-                            stringResource(id = R.string.subscription_renewal),
-                            fontSize = 12.sp,
-                            color = LumoTheme.colors.textNorm,
-                        )
-
-                        Spacer(modifier = Modifier.height(6.dp))
-
-                        // Continue Button (Purchase)
-                        Button(
-                            onClick = { /* Preview - no action */ },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = LumoTheme.colors.primary,
-                                contentColor = LumoTheme.colors.textNorm
-                            ),
-                            shape = RoundedCornerShape(24.dp),
-                            enabled = selectedPlan != null && selectedPlan.totalPrice.isNotEmpty()
-                        ) {
-                            Text(
-                                stringResource(id = R.string.subscription_buy_lumo),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        TextButton(
-                            onClick = { /* Preview - no action */ },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = LumoTheme.colors.textWeak
-                            )
-                        ) {
-                            Text(
-                                "Not now",
-                                fontSize = 14.sp
-                            )
-                        }
-                    }
-
-                    else -> {
-                        Text(
-                            text = stringResource(id = R.string.payment_no_plans_available),
-                            color = LumoTheme.colors.textWeak,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        }
     }
 }

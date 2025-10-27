@@ -1212,7 +1212,7 @@ fun injectBF2025PromotionHandler(webView: WebView) {
                 // Function to attach click handlers to BF2025 promotion buttons
                 function attachBF2025ClickHandlers() {
                     // Select all buttons with the BF2025 promotion classes
-                    const bf2025Buttons = document.querySelectorAll('.lumo-bf2025-promotion, .button-promotion--bf-2025-free');
+                    const bf2025Buttons = document.querySelectorAll('.bf-2025-free');
 
                     if (bf2025Buttons.length > 0) {
                         console.log('Found ' + bf2025Buttons.length + ' BF2025 promotion button(s)');
@@ -1287,3 +1287,16 @@ fun injectBF2025PromotionHandler(webView: WebView) {
         Log.d(TAG, "BF2025 promotion button handler JS evaluation result: $result")
     }
 }
+
+fun hideBfButton(): String =
+    """
+        (function() {
+            setTimeout(() => {
+                const elements = document.querySelectorAll('.bf-2025-free');
+                elements.forEach(el => el.style.display = 'none');
+            }, 500);
+            
+            return 'done';
+        })();
+    """.trimIndent()
+

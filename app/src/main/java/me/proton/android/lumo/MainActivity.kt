@@ -70,7 +70,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var webViewManager: WebViewManager
     private lateinit var permissionManager: PermissionManager
 
-    //    private lateinit var uiManager: UIManager
     private val _lottieComposition = MutableStateFlow<LottieComposition?>(null)
     private val lottieComposition: StateFlow<LottieComposition?> = _lottieComposition.asStateFlow()
     private val webBridge = DependencyProvider.getWebBridge()
@@ -361,11 +360,6 @@ class MainActivity : ComponentActivity() {
         fileChooserLauncher.launch(intent)
     }
 
-    override fun onResume() {
-        super.onResume()
-//        uiManager.onResume()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         webViewManager.destroy()
@@ -374,7 +368,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-//        uiManager.onConfigurationChanged(newConfig)
         webViewManager.invalidate()
     }
 
@@ -382,10 +375,6 @@ class MainActivity : ComponentActivity() {
      * Initialize all manager instances
      */
     private fun initializeManagers() {
-        // Initialize UI manager first to set up edge-to-edge and status bar
-//        uiManager = UIManager(this)
-//        uiManager.initializeUI()
-
         // Initialize WebView manager first
         webViewManager = WebViewManager()
 
