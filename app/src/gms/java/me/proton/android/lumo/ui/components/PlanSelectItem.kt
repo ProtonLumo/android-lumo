@@ -1,5 +1,8 @@
 package me.proton.android.lumo.ui.components
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -16,12 +19,19 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.ui.text.asString
@@ -34,6 +44,7 @@ import me.proton.android.lumo.ui.theme.planSelectionBackground
 @Composable
 fun PlanSelectItem(
     plan: JsPlanInfo,
+    paymentEvent: PaymentEvent,
     isSelected: Boolean,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier,
@@ -41,9 +52,22 @@ fun PlanSelectItem(
 ) {
     val borderColor = if (isSelected) LumoTheme.colors.focus else LumoTheme.colors.borderNorm
 
+    val scale by animateFloatAsState(
+        targetValue = if (isSelected) 1.05f else 1f,
+        animationSpec = tween(
+            durationMillis = 250,
+            easing = FastOutSlowInEasing
+        ),
+        label = "scaleAnimation"
+    )
+
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .graphicsLayer(
+                scaleX = scale,
+                scaleY = scale
+            )
             .height(IntrinsicSize.Min)
             .border(1.dp, borderColor, RoundedCornerShape(12.dp))
             .background(
@@ -52,9 +76,10 @@ fun PlanSelectItem(
             )
             .clip(RoundedCornerShape(12.dp))
             .selectable(
-                selected = isSelected, onClick = onSelected
+                selected = isSelected,
+                onClick = onSelected,
             )
-            .padding(vertical = 4.dp),
+            .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
@@ -88,7 +113,16 @@ fun PlanSelectItem(
         ) {
             if (plan.totalPrice.isNotEmpty()) {
                 Text(
-                    stringResource(id = R.string.for_price) + " ${plan.totalPrice}",
+                    text = buildAnnotatedString {
+                        append(stringResource(id = R.string.for_price))
+                        append(" ")
+                        withStyle(
+                            style = SpanStyle(textDecoration = TextDecoration.LineThrough)
+                        ) {
+                            append(plan.previousTotalPrice)
+                        }
+                        append(" ${plan.totalPrice}")
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = LumoTheme.colors.linkNorm,
                     fontWeight = FontWeight.Medium
@@ -98,7 +132,17 @@ fun PlanSelectItem(
             plan.savings?.let {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = it,
+                    text = when (paymentEvent) {
+                        PaymentEvent.Default -> stringResource(
+                            R.string.discount_template,
+                            it
+                        )
+
+                        PaymentEvent.BlackFriday -> stringResource(
+                            R.string.discount_template_black_friday,
+                            it
+                        )
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = LumoTheme.colors.signalSuccess
                 )

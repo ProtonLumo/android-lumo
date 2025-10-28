@@ -53,7 +53,6 @@ private const val TAG = "PlanSelectionDialog"
 @Composable
 fun PlanSelectionScreen(
     uiState: UiState,
-    paymentEvent: PaymentEvent,
     onDismiss: () -> Unit,
     onPlanSelected: (JsPlanInfo) -> Unit,
     onPurchaseClicked: (JsPlanInfo) -> Unit,
@@ -69,7 +68,7 @@ fun PlanSelectionScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Header(
-                paymentEvent = paymentEvent,
+                paymentEvent = uiState.paymentEvent,
                 isDarkTheme = uiState.theme.isDarkTheme(),
             )
 
@@ -120,6 +119,7 @@ fun PlanSelectionScreen(
                             PlanSelectItem(
                                 plan = plan,
                                 isDarkTheme = uiState.theme.isDarkTheme(),
+                                paymentEvent = uiState.paymentEvent,
                                 isSelected = uiState.selectedPlan?.id == plan.id,
                                 onSelected = { onPlanSelected(plan) },
                                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -326,9 +326,9 @@ fun PlanSelectionDialogLoadingPreview() {
     LumoTheme {
         PlanSelectionScreen(
             uiState = UiState(
-                isLoadingPlans = true
+                isLoadingPlans = true,
+                paymentEvent = PaymentEvent.Default,
             ),
-            paymentEvent = PaymentEvent.Default,
             onDismiss = {},
             onPlanSelected = {},
             onPurchaseClicked = {}
@@ -388,9 +388,9 @@ fun PlanSelectionDialogPlansPreview() {
             uiState = UiState(
                 planOptions = mockPlans,
                 planFeatures = mockFeatures,
-                selectedPlan = mockPlans.first()
+                selectedPlan = mockPlans.first(),
+                paymentEvent = PaymentEvent.Default,
             ),
-            paymentEvent = PaymentEvent.Default,
             onDismiss = {},
             onPlanSelected = {},
             onPurchaseClicked = {}

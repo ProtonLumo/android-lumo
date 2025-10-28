@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.BuildConfig
+import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.R
 import me.proton.android.lumo.data.repository.SubscriptionRepository
 import me.proton.android.lumo.data.repository.ThemeRepository
@@ -33,6 +34,7 @@ class SubscriptionViewModel(
     private val repository: SubscriptionRepository,
     private val themeRepository: ThemeRepository,
     private val hasOfferUseCase: HasOfferUseCase,
+    private val paymentEvent: PaymentEvent
 ) : ViewModel() {
 
     data class UiState(
@@ -48,10 +50,10 @@ class SubscriptionViewModel(
         val isRefreshingPurchases: Boolean = false,
         val googleProductDetails: List<ProductDetails> = emptyList(),
         val theme: AppStyle? = null,
-        val hasOffer: Boolean = false,
+        val paymentEvent: PaymentEvent
     )
 
-    private val _uiStateFlow = MutableStateFlow(UiState())
+    private val _uiStateFlow = MutableStateFlow(UiState(paymentEvent = paymentEvent))
     val uiStateFlow = _uiStateFlow.asStateFlow()
 
     init {
@@ -67,7 +69,7 @@ class SubscriptionViewModel(
             hasOfferUseCase.hasOffer().collectLatest { hasOffer ->
                 _uiStateFlow.update {
                     it.copy(
-                        hasOffer = hasOffer
+                        paymentEvent = if (hasOffer) paymentEvent else PaymentEvent.Default
                     )
                 }
             }
@@ -177,13 +179,18 @@ class SubscriptionViewModel(
             plans = planOptions,
             productDetails = _uiStateFlow.value.googleProductDetails,
             offerId = BuildConfig.OFFER_ID
-        )
+        ).let {
+            when (_uiStateFlow.value.paymentEvent) {
+                PaymentEvent.Default -> it
+                PaymentEvent.BlackFriday -> it.reversed()
+            }
+        }
 
         // Only update if we have pricing info
         if (updatedPlans.any { it.totalPrice.isNotEmpty() }) {
             _uiStateFlow.update {
                 it.copy(
-                    planOptions = updatedPlans.toList() // Force update with new list
+                    planOptions = updatedPlans.toList()
                 )
             }
 

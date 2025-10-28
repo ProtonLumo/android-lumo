@@ -2,13 +2,16 @@ package me.proton.android.lumo.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.di.DependencyProvider
 
 /**
  * Modern ViewModel factory that uses dependency injection principles
  * Replaces the old SubscriptionViewModelFactory with a cleaner approach
  */
-class SubscriptionViewModelFactory : ViewModelProvider.Factory {
+class SubscriptionViewModelFactory(
+    private val paymentEvent: PaymentEvent
+) : ViewModelProvider.Factory {
 
 
     @Suppress("UNCHECKED_CAST")
@@ -21,7 +24,8 @@ class SubscriptionViewModelFactory : ViewModelProvider.Factory {
                 SubscriptionViewModel(
                     repository = DependencyProvider.getSubscriptionRepository(),
                     themeRepository = DependencyProvider.themeRepository(),
-                    hasOfferUseCase = DependencyProvider.hasOfferUseCase()
+                    hasOfferUseCase = DependencyProvider.hasOfferUseCase(),
+                    paymentEvent = paymentEvent,
                 ) as T
             }
 

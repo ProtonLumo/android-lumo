@@ -58,6 +58,17 @@ object PlanPricingHelper {
 
                 if (bestOffer != null) {
                     val pricingPhase = bestOffer.pricingPhases.pricingPhaseList.firstOrNull()
+                    val secondPhase =
+                        bestOffer.pricingPhases.pricingPhaseList.let { phases ->
+                            if (phases.size > 1) {
+                                phases[1]
+                            } else {
+                                null
+                            }
+                        }
+                    if (secondPhase != null) {
+                        plan.previousTotalPrice = secondPhase.formattedPrice
+                    }
 
                     if (pricingPhase != null) {
                         // Set total price
@@ -96,7 +107,7 @@ object PlanPricingHelper {
                                                 val savingsPercent =
                                                     ((annualMonthlyTotal - annualCost) / annualMonthlyTotal * 100).toInt()
                                                 if (savingsPercent > 0) {
-                                                    plan.savings = "Save ${savingsPercent}%"
+                                                    plan.savings = "${savingsPercent}%"
                                                 }
                                             }
                                         }
