@@ -1291,12 +1291,37 @@ fun injectBF2025PromotionHandler(webView: WebView) {
 fun hideBfButton(): String =
     """
         (function() {
-            setTimeout(() => {
+            // Define a function to hide all matching elements
+            const hideElements = () => {
                 const elements = document.querySelectorAll('.bf-2025-free');
-                elements.forEach(el => el.style.display = 'none');
-            }, 500);
-            
-            return 'done';
+                elements.forEach(el => {
+                    if (el.style.display !== 'none') {
+                        console.log('[hideBfButton] Hiding .bf-2025-free element');
+                        el.style.display = 'none';
+                    }
+                });
+            };
+
+            // Initial attempt in case elements already exist
+            hideElements();
+
+            // Set up a MutationObserver to monitor DOM changes
+            const observer = new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                    if (mutation.type === 'childList' || mutation.type === 'subtree') {
+                        hideElements();
+                    }
+                }
+            });
+
+            // Start observing the entire document body
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+
+            console.log('[hideBfButton] Observer registered');
+            return 'observer_active';
         })();
     """.trimIndent()
 

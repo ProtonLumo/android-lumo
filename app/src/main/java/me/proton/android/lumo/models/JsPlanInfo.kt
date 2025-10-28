@@ -17,6 +17,7 @@ data class JsPlanInfo(
     // Placeholders to be filled from Google Play
     var pricePerMonth: String = "",    // To be filled from Google Play data
     var totalPrice: String = "",       // To be filled from Google Play data
+    var previousTotalPrice: String = "",
     var savings: String? = null,       // e.g., "Save 20%" - calculated if applicable
     var offerToken: String? = null     // To be populated from Google Play
 ) 

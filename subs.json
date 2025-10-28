@@ -1,0 +1,49 @@
+{
+  "productId": "giaplumo_lumo2025_12_renewing",
+  "type": "subs",
+  "title": "Lumo Plus (12 months) (Lumo by Proton: IAP)",
+  "name": "Lumo Plus (12 months)",
+  "localizedIn": [
+    "en-US"
+  ],
+  "skuDetailsToken": "AEuhp4IvVAUP0YQ0SOR2onx3IbLdjvbBkrN2insFRlT-JHLsfJSAgTrzDTSIrdlZxhbZAoOqcMWui_WKSDpFYBAtrTWoWwIlhVfegLM=",
+  "subscriptionOfferDetails": [
+    {
+      "offerIdToken": "AWtSsBdYAR7Wqc6CiQsco4z4Vnsp1Es8RMbRUG6Ca13PAYkFmvxZ8oidY\/IY9sTOiVLfwI6etoRMG7bN1M5wqHJ37IjxWsdL1o+3Qd403O0oH8Der11vTnvsti\/uKKTcu0LLImcUVqM=",
+      "basePlanId": "giaplumo-lumo2025-12-renewing",
+      "offerId": "bf-test",
+      "pricingPhases": [
+        {
+          "priceAmountMicros": 79080000,
+          "priceCurrencyCode": "GBP",
+          "formattedPrice": "£ 79.08",
+          "billingPeriod": "P1Y",
+          "recurrenceMode": 2,
+          "billingCycleCount": 1
+        },
+        {
+          "priceAmountMicros": 97080000,
+          "priceCurrencyCode": "GBP",
+          "formattedPrice": "£ 97.08",
+          "billingPeriod": "P1Y",
+          "recurrenceMode": 1
+        }
+      ],
+      "offerTags": []
+    },
+    {
+      "offerIdToken": "AWtSsBcjHUnJWZOxpL75eNAAwJ0Fr\/DnKVc8UDdenepuFbVlgjYhfl05P15TwoG\/+noW1yj0lG6jYb\/nGxv7TdqbDOG9l0j+Q3xS5zZu\/F7LZzYUboq7YDWsHA==",
+      "basePlanId": "giaplumo-lumo2025-12-renewing",
+      "pricingPhases": [
+        {
+          "priceAmountMicros": 97080000,
+          "priceCurrencyCode": "GBP",
+          "formattedPrice": "£ 97.08",
+          "billingPeriod": "P1Y",
+          "recurrenceMode": 1
+        }
+      ],
+      "offerTags": []
+    }
+  ]
+}

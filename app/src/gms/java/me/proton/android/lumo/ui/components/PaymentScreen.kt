@@ -30,7 +30,7 @@ fun PaymentScreen(
     val context = LocalContext.current
     val mainActivity = context as MainActivity
     val subscriptionViewModel: SubscriptionViewModel = viewModel(
-        factory = SubscriptionViewModelFactory()
+        factory = SubscriptionViewModelFactory(paymentEvent = paymentEvent)
     )
     val uiState by subscriptionViewModel.uiStateFlow.collectAsStateWithLifecycle()
 
@@ -94,7 +94,6 @@ fun PaymentScreen(
 
     PlanSelectionScreen(
         uiState = uiState,
-        paymentEvent = if (uiState.hasOffer) paymentEvent else PaymentEvent.Default,
         onDismiss = onDismiss,
         onPlanSelected = { subscriptionViewModel.selectPlan(it) },
         onPurchaseClicked = { planToPurchase ->
@@ -134,9 +133,8 @@ fun PaymentDialogLoadingSubscriptionsPreview() {
                 isRefreshingPurchases = false,
                 googleProductDetails = emptyList(),
                 theme = null,
-                hasOffer = false,
+                paymentEvent = PaymentEvent.Default,
             ),
-            paymentEvent = PaymentEvent.Default,
             onDismiss = {},
             onPlanSelected = {},
             onPurchaseClicked = {},
@@ -164,9 +162,8 @@ fun PaymentDialogLoadingPlansPreview() {
                 isRefreshingPurchases = false,
                 googleProductDetails = emptyList(),
                 theme = null,
-                hasOffer = false,
+                paymentEvent = PaymentEvent.Default,
             ),
-            paymentEvent = PaymentEvent.Default,
             onDismiss = {},
             onPlanSelected = {},
             onPurchaseClicked = {},
@@ -194,9 +191,8 @@ fun PaymentDialogErrorPreview() {
                 isRefreshingPurchases = false,
                 googleProductDetails = emptyList(),
                 theme = null,
-                hasOffer = false,
+                paymentEvent = PaymentEvent.Default,
             ),
-            paymentEvent = PaymentEvent.Default,
             onDismiss = {},
             onPlanSelected = {},
             onPurchaseClicked = {},
@@ -224,9 +220,8 @@ fun PaymentDialogNoPlansPreview() {
                 isRefreshingPurchases = false,
                 googleProductDetails = emptyList(),
                 theme = null,
-                hasOffer = false,
+                paymentEvent = PaymentEvent.Default,
             ),
-            paymentEvent = PaymentEvent.Default,
             onDismiss = {},
             onPlanSelected = {},
             onPurchaseClicked = {},
@@ -304,9 +299,8 @@ fun PaymentDialogPlansAvailablePreview() {
                 isRefreshingPurchases = false,
                 googleProductDetails = emptyList(),
                 theme = null,
-                hasOffer = false,
+                paymentEvent = PaymentEvent.Default,
             ),
-            paymentEvent = PaymentEvent.Default,
             onDismiss = {},
             onPlanSelected = {},
             onPurchaseClicked = {},
@@ -349,9 +343,8 @@ fun PaymentDialogPlansWithErrorPreview() {
                 isRefreshingPurchases = false,
                 googleProductDetails = emptyList(),
                 theme = null,
-                hasOffer = false,
+                paymentEvent = PaymentEvent.Default,
             ),
-            paymentEvent = PaymentEvent.Default,
             onDismiss = {},
             onPlanSelected = {},
             onPurchaseClicked = {},

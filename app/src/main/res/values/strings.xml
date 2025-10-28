@@ -64,6 +64,8 @@
     <string name="subscription_use_lumo_free">Use Lumo Free instead</string>
     <string name="subscription_manage">Manage Subscription</string>
     <string name="subscription_manage_info">This subscription must be managed via the web interface.</string>
+    <string name="discount_template">Save %s</string>
+    <string name="discount_template_black_friday">Black Friday - Save %s</string>
 
     <string name="for_price">For</string>
     <string name="month">Month</string>
