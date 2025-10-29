@@ -62,10 +62,12 @@
     <string name="subscription_renewal">The selected plan will auto-renew until cancelled</string>
     <string name="subscription_buy_lumo">Get Lumo Plus</string>
     <string name="subscription_use_lumo_free">Use Lumo Free instead</string>
+    <string name="subscription_claim_black_friday_deal">Claim Black Friday Deal</string>
     <string name="subscription_manage">Manage Subscription</string>
     <string name="subscription_manage_info">This subscription must be managed via the web interface.</string>
     <string name="discount_template">Save %s</string>
-    <string name="discount_template_black_friday">Black Friday - Save %s</string>
+    <string name="best_value">Best Value</string>
+    <string name="limited_black_friday_offer">Limited time Black Friday offer</string>
 
     <string name="for_price">For</string>
     <string name="month">Month</string>

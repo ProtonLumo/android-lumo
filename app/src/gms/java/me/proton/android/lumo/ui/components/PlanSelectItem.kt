@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -12,8 +13,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
@@ -23,13 +27,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.R
@@ -50,7 +52,18 @@ fun PlanSelectItem(
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean,
 ) {
-    val borderColor = if (isSelected) LumoTheme.colors.focus else LumoTheme.colors.borderNorm
+    val borderColor = if (isSelected) {
+        if (plan.cycle == 12) {
+            when (paymentEvent) {
+                PaymentEvent.Default -> LumoTheme.colors.focus
+                PaymentEvent.BlackFriday -> LumoTheme.colors.interactionSecondary
+            }
+        } else {
+            LumoTheme.colors.focus
+        }
+    } else {
+        LumoTheme.colors.borderNorm
+    }
 
     val scale by animateFloatAsState(
         targetValue = if (isSelected) 1.05f else 1f,
@@ -78,25 +91,101 @@ fun PlanSelectItem(
             .selectable(
                 selected = isSelected,
                 onClick = onSelected,
-            )
-            .padding(4.dp),
+            ),
         verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (plan.cycle == 12 && paymentEvent == PaymentEvent.BlackFriday) {
+            Column {
+                PlanSelectorContent(isSelected, onSelected, borderColor, plan, paymentEvent)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .background(LumoTheme.colors.interactionSecondary.copy(alpha = 0.3f))
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .fillMaxWidth()
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_time),
+                            contentDescription = "",
+                            tint = LumoTheme.colors.interactionSecondary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.limited_black_friday_offer),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = LumoTheme.colors.textNorm
+                        )
+                    }
+                    Icon(
+                        painter = painterResource(R.drawable.ic_sparkles),
+                        contentDescription = "",
+                        tint = LumoTheme.colors.interactionSecondary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+        } else {
+            PlanSelectorContent(isSelected, onSelected, borderColor, plan, paymentEvent)
+        }
+
+    }
+}
+
+@Composable
+private fun PlanSelectorContent(
+    isSelected: Boolean,
+    onSelected: () -> Unit,
+    borderColor: Color,
+    plan: JsPlanInfo,
+    paymentEvent: PaymentEvent
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(4.dp)
     ) {
         RadioButton(
             selected = isSelected,
             onClick = onSelected,
             colors = RadioButtonDefaults.colors(
-                selectedColor = LumoTheme.colors.focus,
+                selectedColor = borderColor,
                 unselectedColor = LumoTheme.colors.borderNorm
             )
         )
 
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = plan.duration.asString(),
-                style = MaterialTheme.typography.labelLarge,
-                color = LumoTheme.colors.textNorm,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = plan.duration.asString(),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = LumoTheme.colors.textNorm,
+                )
+                if (plan.cycle == 12 && paymentEvent == PaymentEvent.BlackFriday) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = LumoTheme.colors.interactionSecondary,
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                    ) {
+                        Text(
+                            text = stringResource(R.string.best_value).uppercase(),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = LumoTheme.colors.textNorm,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+
+                        )
+                    }
+                }
+            }
             if (plan.pricePerMonth.isNotEmpty() && plan.cycle > 1) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -113,16 +202,7 @@ fun PlanSelectItem(
         ) {
             if (plan.totalPrice.isNotEmpty()) {
                 Text(
-                    text = buildAnnotatedString {
-                        append(stringResource(id = R.string.for_price))
-                        append(" ")
-                        withStyle(
-                            style = SpanStyle(textDecoration = TextDecoration.LineThrough)
-                        ) {
-                            append(plan.previousTotalPrice)
-                        }
-                        append(" ${plan.totalPrice}")
-                    },
+                    text = plan.totalPrice,
                     style = MaterialTheme.typography.bodyMedium,
                     color = LumoTheme.colors.linkNorm,
                     fontWeight = FontWeight.Medium
@@ -132,21 +212,18 @@ fun PlanSelectItem(
             plan.savings?.let {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = when (paymentEvent) {
-                        PaymentEvent.Default -> stringResource(
-                            R.string.discount_template,
-                            it
-                        )
-
-                        PaymentEvent.BlackFriday -> stringResource(
-                            R.string.discount_template_black_friday,
-                            it
-                        )
-                    },
+                    text = stringResource(
+                        R.string.discount_template,
+                        it
+                    ),
                     style = MaterialTheme.typography.bodySmall,
-                    color = LumoTheme.colors.signalSuccess
+                    color = when (paymentEvent) {
+                        PaymentEvent.Default -> LumoTheme.colors.signalSuccess
+                        PaymentEvent.BlackFriday -> LumoTheme.colors.interactionSecondary
+                    }
                 )
             }
         }
+
     }
-} 
+}
