@@ -10,17 +10,17 @@
   <string name="retry_button">Yeniden dene</string>
   <string name="retry_connection">Bağlantıyı yeniden dene</string>
   <!-- Loading Messages -->
-  <string name="loading_message_1">Dikkatinizi... ve işlem gücünüzü istiyor...</string>
-  <string name="loading_message_2">Yükleme çubuklarını patiliyor...</string>
+  <string name="loading_message_1">Dikkatinizi… ve işlem gücünüzü istiyor…</string>
+  <string name="loading_message_2">Yükleme ekranı yumruklanıyor…</string>
   <string name="loading_message_3">Veri simsarlarını kovalıyor…</string>
-  <string name="loading_message_4">Dijital fareleri kovalıyor...</string>
-  <string name="loading_message_5">Görünmez raflardan bir şeyler deviriyor...</string>
-  <string name="loading_message_6">Miyav-yükleniyor... lütfen bekleyin...</string>
-  <string name="loading_message_7">Güneş ışığında kestiriyor... neredeyse hazır...</string>
-  <string name="loading_message_8">Dünyaya hakim olmayı... ve uygulamanızın başlatılmasını bekliyor...</string>
-  <string name="loading_message_9">Mırıldayarak motorları çalıştırıyor...</string>
-  <string name="loading_message_10">Klavyenizde pençelerini biliyor...</string>
-  <string name="loading_message_11">Büyük atlayıştan önce esniyor...</string>
+  <string name="loading_message_4">Dijital fareler kovalanıyor…</string>
+  <string name="loading_message_5">Görünmeyen raflardan bir şeyler deviriliyor…</string>
+  <string name="loading_message_6">İndiriliyor… Lütfen bekleyin…</string>
+  <string name="loading_message_7">Gün ışığında uzanılıyor… Neredeyse hazır…</string>
+  <string name="loading_message_8">Dünyaya hakim olduğu senaryoyu… ve uygulamanızın başlatılmasını bekliyor…</string>
+  <string name="loading_message_9">Mırıldayarak motorlara hayat veriyor…</string>
+  <string name="loading_message_10">Klavye ile pençesini biliyor…</string>
+  <string name="loading_message_11">Büyük atlayıştan önce geriliyor…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Tanıma Google tarafından işlendi</string>
   <string name="speech_status_on_device">Aygıt üzerinde • Gizli</string>
@@ -52,8 +52,8 @@
   <!-- SUbscription Strings -->
   <string name="payment_title">Yapay zeka deneyiminizi geliştirin</string>
   <string name="payment_subtitle">Lumo Plus ile ayrıcalıklı hizmetin ve ücretli özelliklerin tadını çıkarın.</string>
-  <string name="payment_checking">Abonelik durumu denetleniyor...</string>
-  <string name="payment_loading_plans">Abonelik tarifeleri yükleniyor...</string>
+  <string name="payment_checking">Abonelik durumu denetleniyor…</string>
+  <string name="payment_loading_plans">Abonelik tarifeleri yükleniyor…</string>
   <string name="payment_no_plans_available">Şu anda herhangi bir abonelik tarifesi yok</string>
   <string name="subscription_renewal">Seçilmiş tarife iptal edilene kadar otomatik olarak yenilenir</string>
   <string name="subscription_buy_lumo">Lumo Plus satın alın</string>

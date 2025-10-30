@@ -15,10 +15,10 @@
   <string name="loading_message_3">Expulsando agentes de dados…</string>
   <string name="loading_message_4">Perseguindo ratos digitais…</string>
   <string name="loading_message_5">Derrubando coisas de prateleiras invisíveis…</string>
-  <string name="loading_message_6">Carregando… Miauguarde…</string>
+  <string name="loading_message_6">Baixando, aguarde…</string>
   <string name="loading_message_7">Tirando uma soneca no sol… Quase pronto…</string>
   <string name="loading_message_8">Planejando a dominação mundial… e abrindo o aplicativo…</string>
-  <string name="loading_message_9">Ligando os motores...</string>
+  <string name="loading_message_9">Ligando os motores</string>
   <string name="loading_message_10">Afiando as garras no teclado…</string>
   <string name="loading_message_11">Alongando antes de saltar…</string>
   <!-- MainActivity Status/Errors -->

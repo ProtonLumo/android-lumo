@@ -10,15 +10,15 @@
   <string name="retry_button">Erneut versuchen</string>
   <string name="retry_connection">Verbindung erneut versuchen</string>
   <!-- Loading Messages -->
-  <string name="loading_message_1">Fordert Aufmerksamkeit … und Rechenleistung …</string>
+  <string name="loading_message_1">Erfordert Aufmerksamkeit … und Rechenleistung …</string>
   <string name="loading_message_2">Spielt mit Ladebalken …</string>
   <string name="loading_message_3">Verjagt Datenhändler …</string>
   <string name="loading_message_4">Jagt digitale Mäuse …</string>
   <string name="loading_message_5">Stößt Dinge von unsichtbaren Regalen …</string>
-  <string name="loading_message_6">Miaulädt … bitte warten …</string>
-  <string name="loading_message_7">Macht ein Nickerchen in der Sonne … fast fertig …</string>
+  <string name="loading_message_6">Wird heruntergeladen …, bitte warten …</string>
+  <string name="loading_message_7">Macht ein Nickerchen in der Sonne …, fast fertig …</string>
   <string name="loading_message_8">Plant die Weltherrschaft … und den Start deiner App …</string>
-  <string name="loading_message_9">Schnurrt die Motoren zum Leben an …</string>
+  <string name="loading_message_9">Erweckt die Motoren zum Leben …</string>
   <string name="loading_message_10">Wetzt die Krallen an deiner Tastatur …</string>
   <string name="loading_message_11">Dehnt sich vor dem großen Sprung …</string>
   <!-- MainActivity Status/Errors -->
@@ -53,7 +53,7 @@
   <string name="payment_title">Steigere dein KI-Erlebnis</string>
   <string name="payment_subtitle">Genieße bevorzugte Behandlung und Premium-Funktionen mit Lumo Plus.</string>
   <string name="payment_checking">Abonnementstatus wird überprüft …</string>
-  <string name="payment_loading_plans">Abonnementpläne werden geladen …</string>
+  <string name="payment_loading_plans">Abonnements werden geladen …</string>
   <string name="payment_no_plans_available">Es sind derzeit keine Abonnementpläne verfügbar</string>
   <string name="subscription_renewal">Das ausgewählte Abonnement verlängert sich automatisch, bis es gekündigt wird</string>
   <string name="subscription_buy_lumo">Lumo Plus kaufen</string>

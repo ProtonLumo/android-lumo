@@ -10,17 +10,17 @@
   <string name="retry_button">Повторить</string>
   <string name="retry_connection">Повторить подключение</string>
   <!-- Loading Messages -->
-  <string name="loading_message_1">Требует внимания... и вычислительной мощности...</string>
-  <string name="loading_message_2">Играет с индикаторами загрузки...</string>
+  <string name="loading_message_1">Demanding attention… and processing power…</string>
+  <string name="loading_message_2">Batting at loading bars…</string>
   <string name="loading_message_3">Отгоняет дата-брокеров…</string>
-  <string name="loading_message_4">Гоняется за цифровыми мышами...</string>
-  <string name="loading_message_5">Сбрасывает вещи с невидимых полок...</string>
-  <string name="loading_message_6">Мяу-загрузка... подождите...</string>
-  <string name="loading_message_7">Дремлет на солнечном луче... почти готово...</string>
-  <string name="loading_message_8">Замышляет мировое господство... и запуск вашего приложения...</string>
-  <string name="loading_message_9">Мурлычет, запуская двигатели...</string>
-  <string name="loading_message_10">Точит когти о вашу клавиатуру...</string>
-  <string name="loading_message_11">Растягивается перед большим прыжком...</string>
+  <string name="loading_message_4">Chasing digital mice…</string>
+  <string name="loading_message_5">Knocking things off invisible shelves…</string>
+  <string name="loading_message_6">Downloading… please wait…</string>
+  <string name="loading_message_7">Napping in a sunbeam… almost ready…</string>
+  <string name="loading_message_8">Plotting world domination… and your app launch…</string>
+  <string name="loading_message_9">Purring the engines to life…</string>
+  <string name="loading_message_10">Sharpening claws on your keyboard…</string>
+  <string name="loading_message_11">Stretching before the big jump…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Распознавание обработано Google</string>
   <string name="speech_status_on_device">На устройстве • Конфиденциально</string>
@@ -52,8 +52,8 @@
   <!-- SUbscription Strings -->
   <string name="payment_title">Повысьте качество вашего взаимодействия с ИИ</string>
   <string name="payment_subtitle">Наслаждайтесь привилегированным обслуживанием и премиум-функциями с Lumo Plus.</string>
-  <string name="payment_checking">Проверка статуса подписки...</string>
-  <string name="payment_loading_plans">Загрузка тарифных планов...</string>
+  <string name="payment_checking">Checking subscription status…</string>
+  <string name="payment_loading_plans">Loading subscription plans…</string>
   <string name="payment_no_plans_available">Тарифные планы подписки в настоящее время недоступны</string>
   <string name="subscription_renewal">Выбранный тариф будет автоматически продлеваться до отмены</string>
   <string name="subscription_buy_lumo">Купить Lumo Plus</string>
