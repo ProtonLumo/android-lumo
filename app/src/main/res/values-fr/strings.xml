@@ -10,17 +10,17 @@
   <string name="retry_button">Réessayer</string>
   <string name="retry_connection">Réessayer la connexion</string>
   <!-- Loading Messages -->
-  <string name="loading_message_1">J\'ai besoin d\'attention... et de puissance de traitement...</string>
-  <string name="loading_message_2">Le chat joue avec les barres de chargement...</string>
+  <string name="loading_message_1">J\'ai besoin d\'attention… et de puissance de traitement…</string>
+  <string name="loading_message_2">Le chat joue avec les barres de chargement…</string>
   <string name="loading_message_3">Fait miauler de peur les courtiers de données…</string>
-  <string name="loading_message_4">Chasse des souris numériques...</string>
-  <string name="loading_message_5">Renversement d\'objets sur des étagères invisibles...</string>
-  <string name="loading_message_6">Miaou en chargement... Veuillez patienter...</string>
-  <string name="loading_message_7">Je me détends au soleil... prêt à bondir d’un instant à l’autre...</string>
-  <string name="loading_message_8">Je peaufine mon plan pour dominer le monde... et lance votre application...</string>
-  <string name="loading_message_9">Je fais ronronner les moteurs...</string>
-  <string name="loading_message_10">Aiguisage des griffes sur votre clavier...</string>
-  <string name="loading_message_11">Un petit étirement avant le grand saut...</string>
+  <string name="loading_message_4">Chasse des souris numériques…</string>
+  <string name="loading_message_5">Renversement d\'objets sur des étagères invisibles…</string>
+  <string name="loading_message_6">Téléchargement en cours… veuillez patienter…</string>
+  <string name="loading_message_7">Je me détends au solei… prêt à bondir d’un instant à l’autre…</string>
+  <string name="loading_message_8">Je peaufine mon plan pour dominer le monde… et lance votre application…</string>
+  <string name="loading_message_9">Je fais ronronner les moteurs…</string>
+  <string name="loading_message_10">Aiguisage des griffes sur votre clavier…</string>
+  <string name="loading_message_11">Un petit étirement avant le grand saut…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Reconnaissance traitée par Google</string>
   <string name="speech_status_on_device">Sur l\'appareil • Privé</string>
@@ -52,8 +52,8 @@
   <!-- SUbscription Strings -->
   <string name="payment_title">Améliorez votre expérience IA</string>
   <string name="payment_subtitle">Profitez d\'un traitement privilégié et de fonctionnalités premium avec Lumo Plus.</string>
-  <string name="payment_checking">Vérification du statut de l\'abonnement...</string>
-  <string name="payment_loading_plans">Chargement des abonnements...</string>
+  <string name="payment_checking">Vérification du statut de l\'abonnement…</string>
+  <string name="payment_loading_plans">Chargement des abonnements…</string>
   <string name="payment_no_plans_available">Aucun abonnement n\'est actuellement disponible.</string>
   <string name="subscription_renewal">L\'abonnement sélectionné sera automatiquement renouvelé jusqu\'à sa résiliation.</string>
   <string name="subscription_buy_lumo">Achetez Lumo Plus</string>

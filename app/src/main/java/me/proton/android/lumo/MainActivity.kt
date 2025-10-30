@@ -45,13 +45,13 @@ import kotlinx.coroutines.flow.collectLatest
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.di.DependencyProvider
 import me.proton.android.lumo.managers.PermissionManager
-import me.proton.android.lumo.managers.UIManager
 import me.proton.android.lumo.managers.WebViewManager
 import me.proton.android.lumo.navigation.NavRoutes
 import me.proton.android.lumo.navigation.paymentRoutes
 import me.proton.android.lumo.ui.components.ChatScreen
 import me.proton.android.lumo.ui.components.MainScreenListeners
 import me.proton.android.lumo.ui.components.PurchaseLinkDialog
+import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.webview.LumoChromeClient
 import me.proton.android.lumo.webview.LumoWebClient
@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var webViewManager: WebViewManager
     private lateinit var permissionManager: PermissionManager
-    private lateinit var uiManager: UIManager
+
     private val _lottieComposition = MutableStateFlow<LottieComposition?>(null)
     private val lottieComposition: StateFlow<LottieComposition?> = _lottieComposition.asStateFlow()
     private val webBridge = DependencyProvider.getWebBridge()
@@ -142,14 +142,13 @@ class MainActivity : ComponentActivity() {
             }
         }, 5000) // Reduced to 5 seconds for faster fallback
 
-        enableEdgeToEdge()
         setContent {
             val uiState by mainActivityViewModel.uiState.collectAsStateWithLifecycle()
             val initialUrl by mainActivityViewModel.initialUrl.collectAsStateWithLifecycle()
 
             val isDarkTheme = uiState.theme?.let { theme ->
                 when (theme) {
-                    is LumoTheme.System -> {
+                    is AppStyle.System -> {
                         webViewManager.webView?.let {
                             injectTheme(
                                 webView = it,
@@ -160,7 +159,7 @@ class MainActivity : ComponentActivity() {
                         isSystemInDarkTheme()
                     }
 
-                    is LumoTheme.Light -> {
+                    is AppStyle.Light -> {
                         webViewManager.webView?.let {
                             injectTheme(
                                 webView = it,
@@ -171,7 +170,7 @@ class MainActivity : ComponentActivity() {
                         false
                     }
 
-                    is LumoTheme.Dark -> {
+                    is AppStyle.Dark -> {
                         webViewManager.webView?.let {
                             injectTheme(
                                 webView = it,
@@ -183,6 +182,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             } ?: isSystemInDarkTheme()
+
 
             LaunchedEffect(isDarkTheme) {
                 enableEdgeToEdge(
@@ -240,7 +240,11 @@ class MainActivity : ComponentActivity() {
 
                                 is MainUiEvent.ShowPaymentDialog -> {
                                     if (DependencyProvider.isPaymentAvailable()) {
-                                        navController.navigate(NavRoutes.Subscription)
+                                        navController.navigate(
+                                            NavRoutes.Subscription(
+                                                event.paymentEvent
+                                            )
+                                        )
                                     } else {
                                         navController.navigate(NavRoutes.NoPayment)
                                     }
@@ -356,11 +360,6 @@ class MainActivity : ComponentActivity() {
         fileChooserLauncher.launch(intent)
     }
 
-    override fun onResume() {
-        super.onResume()
-        uiManager.onResume()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         webViewManager.destroy()
@@ -369,7 +368,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        uiManager.onConfigurationChanged(newConfig)
         webViewManager.invalidate()
     }
 
@@ -377,10 +375,6 @@ class MainActivity : ComponentActivity() {
      * Initialize all manager instances
      */
     private fun initializeManagers() {
-        // Initialize UI manager first to set up edge-to-edge and status bar
-        uiManager = UIManager(this)
-        uiManager.initializeUI()
-
         // Initialize WebView manager first
         webViewManager = WebViewManager()
 

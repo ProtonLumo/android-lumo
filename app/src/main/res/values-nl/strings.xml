@@ -11,16 +11,16 @@
   <string name="retry_connection">Verbinding opnieuw proberen</string>
   <!-- Loading Messages -->
   <string name="loading_message_1">Vraagt aandacht... en verwerkingskracht...</string>
-  <string name="loading_message_2">Laadbalken worden geladen...</string>
+  <string name="loading_message_2">Batting at loading bars…</string>
   <string name="loading_message_3">Wegjagen van datamakelaars…</string>
-  <string name="loading_message_4">Digitale muizen achterna zitten...</string>
-  <string name="loading_message_5">Dingen van onzichtbare planken stoten...</string>
-  <string name="loading_message_6">Miauwladen... een ogenblik geduld...</string>
-  <string name="loading_message_7">Dutje in de zon... bijna klaar...</string>
-  <string name="loading_message_8">Wereldheerschappij plannen... en de lancering van uw app...</string>
-  <string name="loading_message_9">De motoren worden gestart...</string>
-  <string name="loading_message_10">Klauwen scherpen op uw toetsenbord...</string>
-  <string name="loading_message_11">Rekken voor de grote sprong...</string>
+  <string name="loading_message_4">Chasing digital mice…</string>
+  <string name="loading_message_5">Knocking things off invisible shelves…</string>
+  <string name="loading_message_6">Downloading… please wait…</string>
+  <string name="loading_message_7">Napping in a sunbeam… almost ready…</string>
+  <string name="loading_message_8">Plotting world domination… and your app launch…</string>
+  <string name="loading_message_9">Purring the engines to life…</string>
+  <string name="loading_message_10">Sharpening claws on your keyboard…</string>
+  <string name="loading_message_11">Stretching before the big jump…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Herkenning verwerkt door Google</string>
   <string name="speech_status_on_device">Op apparaat • Privé</string>
@@ -52,8 +52,8 @@
   <!-- SUbscription Strings -->
   <string name="payment_title">Til uw AI-ervaring naar een hoger niveau</string>
   <string name="payment_subtitle">Geniet van voorkeursbehandeling en premiumfuncties met Lumo Plus.</string>
-  <string name="payment_checking">Abonnementsstatus controleren...</string>
-  <string name="payment_loading_plans">Abonnementsplannen laden...</string>
+  <string name="payment_checking">Checking subscription status…</string>
+  <string name="payment_loading_plans">Loading subscription plans…</string>
   <string name="payment_no_plans_available">Er zijn momenteel geen abonnementsplannen beschikbaar</string>
   <string name="subscription_renewal">Het geselecteerde abonnement wordt automatisch verlengd totdat het wordt geannuleerd</string>
   <string name="subscription_buy_lumo">Koop Lumo Plus</string>

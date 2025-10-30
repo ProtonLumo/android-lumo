@@ -13,8 +13,8 @@ android {
     defaultConfig {
         minSdk = 29
         targetSdk = 36
-        versionCode = 36
-        versionName = "1.2.5"
+        versionCode = 37
+        versionName = "1.2.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -60,6 +60,7 @@ android {
             dimension = "env"
             applicationId = "me.proton.android.lumo"
             buildConfigField("String", "BASE_DOMAIN", "\"proton.me\"")
+            buildConfigField("String", "OFFER_ID", "\"introductory-799\"")
         }
 
         try {

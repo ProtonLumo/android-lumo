@@ -10,17 +10,17 @@
   <string name="retry_button">Opakovat</string>
   <string name="retry_connection">Zkusit připojení znovu</string>
   <!-- Loading Messages -->
-  <string name="loading_message_1">Vyžaduje pozornost… a výpočetní výkon…</string>
-  <string name="loading_message_2">Hraje si s načítacími pruhy…</string>
-  <string name="loading_message_3">Odhání obchodníky s daty…</string>
-  <string name="loading_message_4">Honí digitální myši…</string>
-  <string name="loading_message_5">Shazuje věci z neviditelných polic…</string>
-  <string name="loading_message_6">Mňouknačítání… prosím čekejte…</string>
-  <string name="loading_message_7">Podřimuje na slunci… téměř připraveno…</string>
-  <string name="loading_message_8">Plánuje ovládnutí světa… a spuštění vaší aplikace…</string>
-  <string name="loading_message_9">Přede a spouští systémy...</string>
-  <string name="loading_message_10">Brousí si drápky o vaši klávesnici…</string>
-  <string name="loading_message_11">Protahuje se před velkým skokem…</string>
+  <string name="loading_message_1">Vyžaduji pozornost… a výpočetní výkon…</string>
+  <string name="loading_message_2">Hraji si s načítacími pruhy…</string>
+  <string name="loading_message_3">Odháním obchodníky s daty…</string>
+  <string name="loading_message_4">Chytám digitální myši…</string>
+  <string name="loading_message_5">Shazuji věci z neviditelných polic…</string>
+  <string name="loading_message_6">Stahuji… čekejte prosím…</string>
+  <string name="loading_message_7">Podřimuji na slunci… téměř připravena…</string>
+  <string name="loading_message_8">Plánuji ovládnutí světa… a spuštění vaší aplikace…</string>
+  <string name="loading_message_9">Motory již začaly příst…</string>
+  <string name="loading_message_10">Brousím si drápky o vaši klávesnici…</string>
+  <string name="loading_message_11">Protahuji se před velkým skokem…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Rozpoznávání zpracováno společností Google</string>
   <string name="speech_status_on_device">Na zařízení • Soukromé</string>

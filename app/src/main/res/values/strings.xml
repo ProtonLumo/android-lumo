@@ -53,14 +53,21 @@
 
     <!-- SUbscription Strings -->
     <string name="payment_title">Elevate your AI experience</string>
+    <string name="payment_black_friday_title">Don\'t miss our special deal</string>
     <string name="payment_subtitle">Enjoy preferred treatment and premium features with Lumo Plus.</string>
+    <string name="payment_black_friday_subtitle">Unlock all premium features today on Lumo Plus with our best price yet.</string>
     <string name="payment_checking">Checking subscription status…</string>
     <string name="payment_loading_plans">Loading subscription plans…</string>
     <string name="payment_no_plans_available">No subscription plans are currently available</string>
     <string name="subscription_renewal">The selected plan will auto-renew until cancelled</string>
-    <string name="subscription_buy_lumo">Buy Lumo Plus</string>
+    <string name="subscription_buy_lumo">Get Lumo Plus</string>
+    <string name="subscription_use_lumo_free">Use Lumo Free instead</string>
+    <string name="subscription_claim_black_friday_deal">Claim Black Friday Deal</string>
     <string name="subscription_manage">Manage Subscription</string>
     <string name="subscription_manage_info">This subscription must be managed via the web interface.</string>
+    <string name="discount_template">Save %s</string>
+    <string name="best_value">Best Value</string>
+    <string name="limited_black_friday_offer">Limited time Black Friday offer</string>
 
     <string name="for_price">For</string>
     <string name="month">Month</string>

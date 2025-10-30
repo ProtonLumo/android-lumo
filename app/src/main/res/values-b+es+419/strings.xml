@@ -10,17 +10,17 @@
   <string name="retry_button">Reintentar</string>
   <string name="retry_connection">Volver a intentar la conexión</string>
   <!-- Loading Messages -->
-  <string name="loading_message_1">Exigiendo atención... y poder de procesamiento...</string>
-  <string name="loading_message_2">Golpeando las barras de carga...</string>
+  <string name="loading_message_1">Exigiendo atención… y poder de procesamiento…</string>
+  <string name="loading_message_2">Golpeando las barras de carga…</string>
   <string name="loading_message_3">Ahuyentando a los intermediarios de datos…</string>
-  <string name="loading_message_4">Persiguiendo ratones digitales...</string>
-  <string name="loading_message_5">Tirando cosas de estantes invisibles...</string>
-  <string name="loading_message_6">Miaucargando... espere...</string>
-  <string name="loading_message_7">Durmiendo una siesta en un rayo de sol... casi listo...</string>
-  <string name="loading_message_8">Tramando la dominación mundial... y el lanzamiento de su aplicación...</string>
-  <string name="loading_message_9">Haciendo ronronear los motores para que cobren vida...</string>
-  <string name="loading_message_10">Afilando garras en su teclado...</string>
-  <string name="loading_message_11">Estirándose antes del gran salto...</string>
+  <string name="loading_message_4">Persiguiendo ratones digitales…</string>
+  <string name="loading_message_5">Tirando cosas de estantes invisibles…</string>
+  <string name="loading_message_6">Descargando… espere…</string>
+  <string name="loading_message_7">Durmiendo la siesta en un rayo de sol… casi listo…</string>
+  <string name="loading_message_8">Tramando la dominación mundial… y el lanzamiento de su aplicación…</string>
+  <string name="loading_message_9">Poniendo los motores en marcha…</string>
+  <string name="loading_message_10">Afilando las garras en su teclado…</string>
+  <string name="loading_message_11">Estirándome antes del gran salto…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Reconocimiento procesado por Google</string>
   <string name="speech_status_on_device">En el dispositivo • Privado</string>
@@ -52,8 +52,8 @@
   <!-- SUbscription Strings -->
   <string name="payment_title">Eleve su experiencia de IA</string>
   <string name="payment_subtitle">Disfrute de un trato preferencial y funciones premium con Lumo Plus.</string>
-  <string name="payment_checking">Comprobando el estado de la suscripción...</string>
-  <string name="payment_loading_plans">Cargando los planes de suscripción...</string>
+  <string name="payment_checking">Comprobando el estado de la suscripción…</string>
+  <string name="payment_loading_plans">Cargando los planes de suscripción…</string>
   <string name="payment_no_plans_available">No hay planes de suscripción disponibles en este momento.</string>
   <string name="subscription_renewal">El plan seleccionado se renovará automáticamente hasta que se cancele</string>
   <string name="subscription_buy_lumo">Comprar Lumo Plus</string>

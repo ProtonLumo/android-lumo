@@ -4,26 +4,26 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import me.proton.android.lumo.ui.theme.LumoTheme
+import me.proton.android.lumo.ui.theme.AppStyle
 
 interface ThemeRepository {
 
-    suspend fun saveTheme(theme: LumoTheme)
+    suspend fun saveTheme(theme: AppStyle)
 
-    suspend fun getTheme(): LumoTheme
+    suspend fun getTheme(): AppStyle
 }
 
 class ThemeRepositoryImpl(private val prefs: SharedPreferences) : ThemeRepository {
 
-    override suspend fun saveTheme(theme: LumoTheme) =
+    override suspend fun saveTheme(theme: AppStyle) =
         withContext(Dispatchers.IO) {
             prefs.edit { putInt(KEY_THEME, theme.mode) }
         }
 
-    override suspend fun getTheme(): LumoTheme =
+    override suspend fun getTheme(): AppStyle =
         withContext(Dispatchers.IO) {
-            LumoTheme.fromInt(
-                prefs.getInt(KEY_THEME, LumoTheme.Light.mode)
+            AppStyle.fromInt(
+                prefs.getInt(KEY_THEME, AppStyle.Light.mode)
             )
         }
 

@@ -15,12 +15,12 @@
   <string name="loading_message_3">Ahuyentando a los intermediarios de datos…</string>
   <string name="loading_message_4">Persiguiendo ratones digitales...</string>
   <string name="loading_message_5">Tirando cosas de estantes invisibles...</string>
-  <string name="loading_message_6">Miaucargando... por favor, espera...</string>
-  <string name="loading_message_7">Echando la siesta en un rayo de sol... casi listo...</string>
-  <string name="loading_message_8">Tramando la dominación mundial... y el lanzamiento de tu aplicación...</string>
-  <string name="loading_message_9">Poniendo los motores en marcha...</string>
-  <string name="loading_message_10">Afilando garras en tu teclado...</string>
-  <string name="loading_message_11">Estirándome antes del gran salto...</string>
+  <string name="loading_message_6">Descargando... por favor, espera...</string>
+  <string name="loading_message_7">Napping in a sunbeam… almost ready…</string>
+  <string name="loading_message_8">Plotting world domination… and your app launch…</string>
+  <string name="loading_message_9">Purring the engines to life…</string>
+  <string name="loading_message_10">Sharpening claws on your keyboard…</string>
+  <string name="loading_message_11">Stretching before the big jump…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Reconocimiento procesado por Google</string>
   <string name="speech_status_on_device">En el dispositivo • Privado</string>
@@ -52,8 +52,8 @@
   <!-- SUbscription Strings -->
   <string name="payment_title">Mejora tu experiencia de IA</string>
   <string name="payment_subtitle">Disfruta de un trato preferente y funciones prémium con Lumo Plus.</string>
-  <string name="payment_checking">Comprobando estado de la suscripción...</string>
-  <string name="payment_loading_plans">Cargando planes de suscripción...</string>
+  <string name="payment_checking">Checking subscription status…</string>
+  <string name="payment_loading_plans">Loading subscription plans…</string>
   <string name="payment_no_plans_available">No hay planes de suscripción disponibles actualmente</string>
   <string name="subscription_renewal">El plan seleccionado se renovará automáticamente hasta que lo canceles</string>
   <string name="subscription_buy_lumo">Comprar Lumo Plus</string>

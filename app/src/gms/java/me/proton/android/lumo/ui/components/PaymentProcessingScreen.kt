@@ -41,8 +41,7 @@ import kotlinx.coroutines.delay
 import me.proton.android.lumo.R
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.text.asString
-import me.proton.android.lumo.ui.theme.ErrorRed
-import me.proton.android.lumo.ui.theme.WarningYellow
+import me.proton.android.lumo.ui.theme.LumoTheme
 
 /**
  * Represents the different states of payment processing
@@ -66,7 +65,7 @@ fun PaymentProcessingScreen(
     onClose: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.background
+        modifier = Modifier.fillMaxWidth(), color = LumoTheme.colors.backgroundNorm
     ) {
         Column(
             modifier = Modifier
@@ -146,7 +145,7 @@ private fun PaymentLoadingContent() {
     Text(
         text = "Payment Processing",
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface
+        color = LumoTheme.colors.textNorm
     )
 
     Spacer(modifier = Modifier.height(8.dp))
@@ -154,7 +153,7 @@ private fun PaymentLoadingContent() {
     Text(
         text = loadingTexts[currentTextIndex],
         style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onBackground,
+        color = LumoTheme.colors.textNorm,
         textAlign = TextAlign.Center
     )
 
@@ -162,7 +161,7 @@ private fun PaymentLoadingContent() {
 
     CircularProgressIndicator(
         modifier = Modifier.size(48.dp),
-        color = MaterialTheme.colorScheme.primary,
+        color = LumoTheme.colors.primary,
         strokeWidth = 4.dp
     )
 
@@ -171,7 +170,7 @@ private fun PaymentLoadingContent() {
     Text(
         text = "Please wait while we process your payment with Google Play.",
         style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = LumoTheme.colors.textWeak,
         textAlign = TextAlign.Center
     )
 }
@@ -181,7 +180,7 @@ private fun PaymentVerifyingContent() {
     Text(
         text = "Verifying Subscription",
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface
+        color = LumoTheme.colors.textNorm
     )
 
     Spacer(modifier = Modifier.height(8.dp))
@@ -189,7 +188,7 @@ private fun PaymentVerifyingContent() {
     Text(
         text = "We're confirming your subscription with our servers...",
         style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = LumoTheme.colors.textWeak,
         textAlign = TextAlign.Center
     )
 
@@ -197,7 +196,7 @@ private fun PaymentVerifyingContent() {
 
     CircularProgressIndicator(
         modifier = Modifier.size(48.dp),
-        color = MaterialTheme.colorScheme.primary,
+        color = LumoTheme.colors.primary,
         strokeWidth = 4.dp
     )
 
@@ -206,7 +205,7 @@ private fun PaymentVerifyingContent() {
     Text(
         text = "This usually takes less than a minute. Please don't close the app.",
         style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = LumoTheme.colors.textWeak,
         textAlign = TextAlign.Center
     )
 }
@@ -225,7 +224,7 @@ private fun PaymentErrorContent(
     Icon(
         imageVector = Icons.Default.Error,
         contentDescription = "Error",
-        tint = ErrorRed,
+        tint = LumoTheme.colors.signalDanger,
         modifier = Modifier.size(48.dp)
     )
 
@@ -234,7 +233,7 @@ private fun PaymentErrorContent(
     Text(
         text = "Payment Error",
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface
+        color = LumoTheme.colors.textNorm
     )
 
     Spacer(modifier = Modifier.height(8.dp))
@@ -249,7 +248,7 @@ private fun PaymentErrorContent(
     Text(
         text = truncatedMessage,
         style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = LumoTheme.colors.textWeak,
         textAlign = TextAlign.Center,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis
@@ -261,11 +260,16 @@ private fun PaymentErrorContent(
         onClick = {
             isRetrying = true
             onRetry()
-        }, modifier = Modifier
+        },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = LumoTheme.colors.primary,
+            contentColor = LumoTheme.colors.textInvert,
+        ),
+        shape = RoundedCornerShape(24.dp),
+        enabled = !isRetrying,
+        modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp), colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        ), shape = RoundedCornerShape(24.dp), enabled = !isRetrying
+            .height(48.dp),
     ) {
         if (isRetrying) {
             CircularProgressIndicator(
@@ -286,9 +290,9 @@ private fun PaymentErrorContent(
             .fillMaxWidth()
             .height(48.dp),
         colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.colorScheme.primary
+            contentColor = LumoTheme.colors.primary
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+        border = BorderStroke(1.dp, LumoTheme.colors.primary),
         shape = RoundedCornerShape(24.dp)
     ) {
         Text(
@@ -301,7 +305,7 @@ private fun PaymentErrorContent(
     Text(
         text = "Your payment was processed but we couldn't verify it with our servers. " + "Don't worry, we'll try again.",
         style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = LumoTheme.colors.textWeak,
         textAlign = TextAlign.Center
     )
 }
@@ -320,7 +324,7 @@ private fun PaymentNetworkErrorContent(
     Icon(
         imageVector = Icons.Default.Warning,
         contentDescription = "Network Error",
-        tint = WarningYellow,
+        tint = LumoTheme.colors.signalWarning,
         modifier = Modifier.size(48.dp)
     )
 
@@ -329,7 +333,7 @@ private fun PaymentNetworkErrorContent(
     Text(
         text = "Connection Error",
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface
+        color = LumoTheme.colors.textNorm
     )
 
     Spacer(modifier = Modifier.height(8.dp))
@@ -344,7 +348,7 @@ private fun PaymentNetworkErrorContent(
     Text(
         text = truncatedMessage,
         style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = LumoTheme.colors.textWeak,
         textAlign = TextAlign.Center,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis
@@ -356,11 +360,16 @@ private fun PaymentNetworkErrorContent(
         onClick = {
             isRetrying = true
             onRetry()
-        }, modifier = Modifier
+        },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = LumoTheme.colors.primary,
+            contentColor = LumoTheme.colors.textInvert,
+        ),
+        shape = RoundedCornerShape(24.dp),
+        enabled = !isRetrying,
+        modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp), colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        ), shape = RoundedCornerShape(24.dp), enabled = !isRetrying
+            .height(48.dp),
     ) {
         if (isRetrying) {
             CircularProgressIndicator(
@@ -382,9 +391,9 @@ private fun PaymentNetworkErrorContent(
             .fillMaxWidth()
             .height(48.dp),
         colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.colorScheme.primary
+            contentColor = LumoTheme.colors.primary
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+        border = BorderStroke(1.dp, LumoTheme.colors.primary),
         shape = RoundedCornerShape(24.dp)
     ) {
         Text(
@@ -397,7 +406,7 @@ private fun PaymentNetworkErrorContent(
     Text(
         text = stringResource(id = R.string.please_check_your_internet_connection_and_try_again),
         style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = LumoTheme.colors.textWeak,
         textAlign = TextAlign.Center
     )
 }
@@ -416,7 +425,7 @@ private fun SubscriptionRecoveryContent(
     Icon(
         imageVector = Icons.Default.Warning,
         contentDescription = "Subscription Recovery",
-        tint = WarningYellow,
+        tint = LumoTheme.colors.signalDanger,
         modifier = Modifier.size(48.dp)
     )
 
@@ -425,7 +434,7 @@ private fun SubscriptionRecoveryContent(
     Text(
         text = "Subscription Recovery",
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface
+        color = LumoTheme.colors.textNorm
     )
 
     Spacer(modifier = Modifier.height(8.dp))
@@ -433,7 +442,7 @@ private fun SubscriptionRecoveryContent(
     Text(
         text = "We found an active subscription on your Google Play account that isn't synced with our servers.",
         style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = LumoTheme.colors.textWeak,
         textAlign = TextAlign.Center
     )
 
@@ -446,7 +455,7 @@ private fun SubscriptionRecoveryContent(
         }, modifier = Modifier
             .fillMaxWidth()
             .height(48.dp), colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary
+            containerColor = LumoTheme.colors.primary
         ), shape = RoundedCornerShape(24.dp), enabled = !isRetrying
     ) {
         if (isRetrying) {
@@ -468,9 +477,9 @@ private fun SubscriptionRecoveryContent(
             .fillMaxWidth()
             .height(48.dp),
         colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.colorScheme.primary
+            contentColor = LumoTheme.colors.primary
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+        border = BorderStroke(1.dp, LumoTheme.colors.primary),
         shape = RoundedCornerShape(24.dp)
     ) {
         Text(
@@ -483,7 +492,7 @@ private fun SubscriptionRecoveryContent(
     Text(
         text = "Click 'Recover Subscription' to sync your Google Play subscription with our servers. " + "This will restore your subscription access.",
         style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = LumoTheme.colors.textWeak,
         textAlign = TextAlign.Center
     )
 }
@@ -495,7 +504,7 @@ private fun PaymentSuccessContent(
     Text(
         text = "Payment Successful!",
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface
+        color = LumoTheme.colors.textNorm
     )
 
     Spacer(modifier = Modifier.height(8.dp))
@@ -503,7 +512,7 @@ private fun PaymentSuccessContent(
     Text(
         text = "Your subscription has been activated successfully.",
         style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = LumoTheme.colors.textWeak,
         textAlign = TextAlign.Center
     )
 
@@ -511,13 +520,14 @@ private fun PaymentSuccessContent(
 
     Button(
         onClick = onClose,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = LumoTheme.colors.primary,
+            contentColor = LumoTheme.colors.textInvert,
+        ),
+        shape = RoundedCornerShape(24.dp),
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        ),
-        shape = RoundedCornerShape(24.dp)
     ) {
         Text(
             text = "Continue", style = MaterialTheme.typography.labelLarge

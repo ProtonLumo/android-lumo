@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import me.proton.android.lumo.R
+import me.proton.android.lumo.ui.theme.LumoTheme
 import kotlin.math.max
 import kotlin.math.pow
 
@@ -120,7 +121,7 @@ fun SpeechInputSheetContent(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                MaterialTheme.colorScheme.primary,
+                LumoTheme.colors.primary,
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             )
             .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
@@ -190,7 +191,7 @@ fun SpeechInputSheetContent(
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowUp,
                     contentDescription = stringResource(id = R.string.speech_sheet_submit_desc),
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = LumoTheme.colors.primary,
                     modifier = Modifier.size(28.dp)
                 )
             }

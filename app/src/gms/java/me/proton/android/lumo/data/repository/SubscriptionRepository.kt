@@ -30,7 +30,8 @@ interface SubscriptionRepository {
      */
     fun updatePlanPricing(
         plans: List<JsPlanInfo>,
-        productDetails: List<ProductDetails>
+        productDetails: List<ProductDetails>,
+        offerId: String?,
     ): List<JsPlanInfo>
 
     /**
