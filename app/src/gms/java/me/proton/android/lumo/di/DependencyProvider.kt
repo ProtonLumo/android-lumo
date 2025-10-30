@@ -3,6 +3,10 @@ package me.proton.android.lumo.di
 import android.annotation.SuppressLint
 import android.app.Application
 import me.proton.android.lumo.billing.BillingManagerWrapper
+import me.proton.android.lumo.data.repository.SubscriptionRepository
+import me.proton.android.lumo.data.repository.SubscriptionRepositoryImpl
+import me.proton.android.lumo.usecase.HasOffer
+import me.proton.android.lumo.usecase.HasOfferUseCase
 import me.proton.android.lumo.webview.WebAppWithPaymentsInterface
 
 /**
@@ -12,8 +16,11 @@ import me.proton.android.lumo.webview.WebAppWithPaymentsInterface
 object DependencyProvider : BaseDependencyProvider() {
 
     private var billingManagerWrapper: BillingManagerWrapper? = null
+
     @SuppressLint("StaticFieldLeak")
     private var webBridge: WebAppWithPaymentsInterface? = null
+    private var hasOfferUseCase: HasOfferUseCase? = null
+    private var subscriptionRepository: SubscriptionRepository? = null
 
     override fun initialise(application: Application) {
         super.initialise(application)
@@ -32,6 +39,17 @@ object DependencyProvider : BaseDependencyProvider() {
     fun getWebBridge(): WebAppWithPaymentsInterface =
         webBridge ?: WebAppWithPaymentsInterface().also { webBridge = it }
 
-    override fun isPaymentAvailable(): Boolean  =
+    fun getSubscriptionRepository(): SubscriptionRepository =
+        subscriptionRepository ?: SubscriptionRepositoryImpl(
+            billingManager = getBillingManagerWrapper().getBillingManager(),
+            webBridge = getWebBridge(),
+        ).also { subscriptionRepository = it }
+
+    override fun isPaymentAvailable(): Boolean =
         billingManagerWrapper?.getBillingManager() != null
+
+    override fun hasOfferUseCase(): HasOfferUseCase =
+        hasOfferUseCase ?: HasOffer(
+            subscriptionRepository = getSubscriptionRepository()
+        ).also { hasOfferUseCase = it }
 }

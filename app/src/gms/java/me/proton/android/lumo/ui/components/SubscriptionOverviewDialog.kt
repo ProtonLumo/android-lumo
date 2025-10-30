@@ -1,12 +1,12 @@
 package me.proton.android.lumo.ui.components
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.android.billingclient.api.ProductDetails
 import me.proton.android.lumo.models.SubscriptionItemResponse
+import me.proton.android.lumo.ui.theme.LumoTheme
 
 @Composable
 fun SubscriptionOverviewDialog(
@@ -17,7 +17,7 @@ fun SubscriptionOverviewDialog(
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = LumoTheme.colors.backgroundNorm
     ) {
         SubscriptionOverviewSection(
             subscriptions = subscriptions,

@@ -943,25 +943,62 @@ fun injectKeyboardHandling(webView: WebView) {
 fun injectAccountPageModifier(webView: WebView) {
     val js = """
         (function() {
-            function removeYourPlanSection() {
-                var yourPlanSection = document.querySelector('#your-plan');
-                if (yourPlanSection) {
-                    yourPlanSection.remove();
-                    console.log('Removed #your-plan section from account page');
+            function removeIfExists(selector, description) {
+                const elements = document.querySelectorAll(selector);
+                if (elements.length > 0) {
+                    elements.forEach(el => el.remove());
+                    console.log(`Removed ${'$'}{elements.length} ${'$'}{description}`);
                     return true;
                 }
                 return false;
             }
-            
+
+            function removeSidebarUpgradeItem() {
+                const links = document.querySelectorAll('a.navigation-link');
+                let removed = false;
+
+                links.forEach(link => {
+                    const href = link.getAttribute('href')?.toLowerCase() || '';
+                    const text = link.textContent?.toLowerCase() || '';
+                    if (href.includes('upgrade') || text.includes('upgrade')) {
+                        const li = link.closest('li.navigation-item');
+                        if (li) {
+                            li.remove();
+                            removed = true;
+                            console.log('Removed sidebar item containing "upgrade"');
+                        }
+                    }
+                });
+
+                return removed;
+            }
+
+            function modifyAccountPage() {
+                // Remove "Your plan" section
+                removeIfExists('#your-plan', '#your-plan section');
+
+                removeIfExists('.button-promotion--bf-2025-free', 'Black Friday promo button');
+                removeIfExists('.button-promotion.button-promotion--icon-gradient', 'Default upgrade button');
+
+                // Remove sidebar item containing "upgrade"
+                removeSidebarUpgradeItem();
+            }
+
             // Run immediately
-            removeYourPlanSection();
-            
-            // Set up observer for dynamically loaded content
-            var observer = new MutationObserver(function(mutations) {
-                removeYourPlanSection();
+            modifyAccountPage();
+
+            // Observe DOM for dynamic sidebar expansion or async loads
+            const observer = new MutationObserver((mutationsList) => {
+                for (const mutation of mutationsList) {
+                    if (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) {
+                        modifyAccountPage();
+                        break;
+                    }
+                }
             });
-            
             observer.observe(document.body, { childList: true, subtree: true });
+
+            console.log('Account page modifier observer registered');
         })();
     """.trimIndent()
 
@@ -1199,3 +1236,174 @@ fun keyboardHeightChange(isVisible: Boolean, keyboardHeight: Int): String =
         }
     })();
     """.trimIndent()
+
+/**
+ * Injects JavaScript to handle Black Friday 2025 promotion button clicks
+ */
+fun injectBF2025PromotionHandler(webView: WebView) {
+    val js = """
+        (function() {
+            try {
+                console.log('Setting up BF2025 promotion button click handlers');
+
+                // Function to attach click handlers to BF2025 promotion buttons
+                function attachBF2025ClickHandlers() {
+                    // Select all buttons with the BF2025 promotion classes
+                    const bf2025Buttons = document.querySelectorAll('.bf-2025-free');
+
+                    if (bf2025Buttons.length > 0) {
+                        console.log('Found ' + bf2025Buttons.length + ' BF2025 promotion button(s)');
+
+                        // Add click handlers to each button
+                        bf2025Buttons.forEach((button, index) => {
+                            // Ensure we don't add multiple handlers to the same button
+                            if (!button.hasAttribute('data-bf2025-payment-handler')) {
+                                button.addEventListener('click', function(e) {
+                                    console.log('BF2025 promotion button clicked');
+                                    e.preventDefault();
+                                    e.stopPropagation();
+
+                                    if (window.Android && window.Android.showBlackFridaySale) {
+                                        // Fallback to direct call if polyfill not loaded
+                                        window.Android.showBlackFridaySale();
+                                    } else {
+                                        console.error('Android payment interface not available');
+                                        alert('Payment interface not available. Please refresh the page and try again.');
+                                    }
+                                    return false;
+                                });
+                                // Mark the button as having a handler
+                                button.setAttribute('data-bf2025-payment-handler', 'true');
+                                console.log('Added payment handler to BF2025 promotion button ' + (index + 1));
+                            }
+                        });
+                    } else {
+                        console.log('No BF2025 promotion buttons found yet');
+                    }
+                }
+
+                // Run immediately for any buttons that already exist
+                attachBF2025ClickHandlers();
+
+                // Set up a MutationObserver to watch for dynamically added buttons
+                if (!window._bf2025ButtonObserver) {
+                    const observer = new MutationObserver((mutations) => {
+                        let shouldCheckForButtons = false;
+
+                        for (const mutation of mutations) {
+                            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                                shouldCheckForButtons = true;
+                                break;
+                            }
+                        }
+
+                        if (shouldCheckForButtons) {
+                            console.log('DOM changed, checking for new BF2025 promotion buttons');
+                            attachBF2025ClickHandlers();
+                        }
+                    });
+
+                    // Start observing the document body for DOM changes
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+
+                    window._bf2025ButtonObserver = observer;
+                    console.log('BF2025 promotion button observer started');
+                }
+            } catch (e) {
+                console.error('Error setting up BF2025 promotion button handlers:', e);
+                console.error('Error stack:', e.stack);
+            }
+        })();
+    """.trimIndent()
+
+    Log.d(TAG, "Injecting BF2025 promotion button handlers JavaScript")
+    webView.evaluateJavascript(js) { result ->
+        Log.d(TAG, "BF2025 promotion button handler JS evaluation result: $result")
+    }
+}
+
+fun hideBfButton(): String =
+    """
+        (function() {
+            // Define a function to hide all matching elements
+            const hideElements = () => {
+                const elements = document.querySelectorAll('.bf-2025-free');
+                elements.forEach(el => {
+                    if (el.style.display !== 'none') {
+                        console.log('[hideBfButton] Hiding .bf-2025-free element');
+                        el.style.display = 'none';
+                    }
+                });
+            };
+
+            // Initial attempt in case elements already exist
+            hideElements();
+
+            // Set up a MutationObserver to monitor DOM changes
+            const observer = new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                    if (mutation.type === 'childList' || mutation.type === 'subtree') {
+                        hideElements();
+                    }
+                }
+            });
+
+            // Start observing the entire document body
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+
+            console.log('[hideBfButton] Observer registered');
+            return 'observer_active';
+        })();
+    """.trimIndent()
+
+fun injectUpgradeLinkHider(webView: WebView) {
+    val js = """
+        (function() {
+            function removeUpgradeLinks() {
+                const links = document.querySelectorAll('a');
+                let removedCount = 0;
+
+                links.forEach(link => {
+                    const href = link.getAttribute('href')?.toLowerCase() || '';
+                    const text = link.textContent?.toLowerCase() || '';
+                    if (href.includes('upgrade') || text.includes('upgrade')) {
+                        link.remove();
+                        removedCount++;
+                    }
+                });
+
+                if (removedCount > 0) {
+                    console.log(`Removed ${'$'}{removedCount} upgrade link(s)`);
+                }
+
+                return removedCount > 0;
+            }
+
+            // Run immediately in case the link already exists
+            removeUpgradeLinks();
+
+            // Observe for dynamically loaded or re-rendered links
+            const observer = new MutationObserver((mutationsList) => {
+                for (const mutation of mutationsList) {
+                    if (mutation.addedNodes.length > 0) {
+                        removeUpgradeLinks();
+                        break;
+                    }
+                }
+            });
+
+            observer.observe(document.body, { childList: true, subtree: true });
+
+            console.log('Upgrade link hider observer registered');
+        })();
+    """.trimIndent()
+
+    Log.d(TAG, "Injecting upgrade link hider JavaScript")
+    webView.evaluateJavascript(js, null)
+}

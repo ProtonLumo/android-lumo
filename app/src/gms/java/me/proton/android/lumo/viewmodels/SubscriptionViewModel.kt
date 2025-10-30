@@ -12,13 +12,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import me.proton.android.lumo.BuildConfig
+import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.R
 import me.proton.android.lumo.data.repository.SubscriptionRepository
+import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.models.SubscriptionItemResponse
 import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.ui.text.UiText
+import me.proton.android.lumo.ui.theme.AppStyle
+import me.proton.android.lumo.usecase.HasOfferUseCase
 
 private const val TAG = "SubscriptionViewModel"
 
@@ -26,7 +31,10 @@ private const val TAG = "SubscriptionViewModel"
  * ViewModel that manages subscription data
  */
 class SubscriptionViewModel(
-    private val repository: SubscriptionRepository
+    private val repository: SubscriptionRepository,
+    private val themeRepository: ThemeRepository,
+    private val hasOfferUseCase: HasOfferUseCase,
+    private val paymentEvent: PaymentEvent
 ) : ViewModel() {
 
     data class UiState(
@@ -40,18 +48,38 @@ class SubscriptionViewModel(
         val errorMessage: UiText? = null,
         val paymentProcessingState: PaymentProcessingState? = null,
         val isRefreshingPurchases: Boolean = false,
-        val googleProductDetails: List<ProductDetails> = emptyList()
+        val googleProductDetails: List<ProductDetails> = emptyList(),
+        val theme: AppStyle? = null,
+        val paymentEvent: PaymentEvent
     )
 
-    private val _uiStateFlow = MutableStateFlow(UiState())
+    private val _uiStateFlow = MutableStateFlow(UiState(paymentEvent = paymentEvent))
     val uiStateFlow = _uiStateFlow.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            val theme = themeRepository.getTheme()
+            _uiStateFlow.update { state ->
+                state.copy(theme = theme)
+            }
+        }
+
         // Collect Google Play product details
+        viewModelScope.launch {
+            hasOfferUseCase.hasOffer().collectLatest { hasOffer ->
+                _uiStateFlow.update {
+                    it.copy(
+                        paymentEvent = if (hasOffer) paymentEvent else PaymentEvent.Default
+                    )
+                }
+            }
+        }
         viewModelScope.launch {
             repository.getGooglePlayProducts().collectLatest { products ->
                 _uiStateFlow.update {
-                    it.copy(googleProductDetails = products)
+                    it.copy(
+                        googleProductDetails = products,
+                    )
                 }
                 Log.d(TAG, "Received ${products.size} Google Play products")
 
@@ -125,6 +153,7 @@ class SubscriptionViewModel(
             _uiStateFlow.update {
                 it.copy(
                     isLoadingPlans = false,
+                    planFeatures = planResult.planFeatures,
                     errorMessage = planResult.error
                 )
             }
@@ -147,14 +176,21 @@ class SubscriptionViewModel(
         Log.d(TAG, "Updating plan pricing from Google Play")
 
         val updatedPlans = repository.updatePlanPricing(
-            planOptions, _uiStateFlow.value.googleProductDetails
-        )
+            plans = planOptions,
+            productDetails = _uiStateFlow.value.googleProductDetails,
+            offerId = BuildConfig.OFFER_ID
+        ).let {
+            when (_uiStateFlow.value.paymentEvent) {
+                PaymentEvent.Default -> it
+                PaymentEvent.BlackFriday -> it.reversed()
+            }
+        }
 
         // Only update if we have pricing info
         if (updatedPlans.any { it.totalPrice.isNotEmpty() }) {
             _uiStateFlow.update {
                 it.copy(
-                    planOptions = updatedPlans.toList() // Force update with new list
+                    planOptions = updatedPlans.toList()
                 )
             }
 

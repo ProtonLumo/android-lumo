@@ -5,40 +5,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 
-private val LightColorScheme = lightColorScheme(
-    primary = Primary,
-    secondary = LightPurple,
-    tertiary = Green,
-    background = White,
-    surface = White,
-    onPrimary = White,
-    onSecondary = DarkText,
-    onTertiary = White,
-    onBackground = DarkText,
-    onSurface = DarkText,
-    surfaceVariant = BorderGray,
-    onSurfaceVariant = GrayText,
-    error = ErrorRed,
-    onError = White
-)
 
-private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryDark,
-    secondary = LightPurple,
-    tertiary = Green,
-    background = DarkBackground,
-    surface = Black,
-    onPrimary = White,
-    onSecondary = DarkText,
-    onTertiary = White,
-    onBackground = LightText,
-    onSurface = LightText,
-    surfaceVariant = BorderGray,
-    onSurfaceVariant = GrayText,
-    error = ErrorRed,
-    onError = White
-)
+val LocalLumoAppColors = staticCompositionLocalOf { LightColors }
+val LocalLumoAppTypography = staticCompositionLocalOf { Typography }
+
+object LumoTheme {
+    val colors: AppColors
+        @Composable
+        get() = LocalLumoAppColors.current
+
+    val typography: androidx.compose.material3.Typography
+        @Composable get() = LocalLumoAppTypography.current
+}
 
 
 @Composable
@@ -46,14 +27,30 @@ fun LumoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colors = if (darkTheme) DarkColors else LightColors
+    val typography = Typography
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(
+        LocalLumoAppColors provides colors
+    ) {
+        MaterialTheme(
+            colorScheme = if (darkTheme) darkColorScheme(
+                primary = colors.primary,
+                onPrimary = colors.textNorm,
+                background = colors.backgroundNorm,
+                onBackground = colors.textNorm,
+                surface = colors.backgroundNorm,
+                onSurface = colors.textNorm
+            ) else lightColorScheme(
+                primary = colors.primary,
+                onPrimary = colors.textNorm,
+                background = colors.backgroundNorm,
+                onBackground = colors.textNorm,
+                surface = colors.backgroundNorm,
+                onSurface = colors.textNorm
+            ),
+            typography = typography,
+            content = content
+        )
+    }
 }

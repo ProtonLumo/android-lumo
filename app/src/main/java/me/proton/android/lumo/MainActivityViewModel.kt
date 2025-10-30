@@ -8,6 +8,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -16,8 +19,10 @@ import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.data.repository.WebAppRepository
 import me.proton.android.lumo.speech.SpeechRecognitionManager
 import me.proton.android.lumo.ui.text.UiText
-import me.proton.android.lumo.ui.theme.LumoTheme
+import me.proton.android.lumo.ui.theme.AppStyle
+import me.proton.android.lumo.usecase.HasOfferUseCase
 import me.proton.android.lumo.utils.isHostReachable
+import me.proton.android.lumo.webview.hideBfButton
 import me.proton.android.lumo.webview.keyboardHeightChange
 
 private const val TAG = "MainActivityViewModel"
@@ -35,25 +40,30 @@ data class MainUiState(
     val isLumoPage: Boolean = true,
     val hasSeenLumoContainer: Boolean = false,
     val shouldShowBackButton: Boolean = false,
-    val theme: LumoTheme? = null
+    val theme: AppStyle? = null
 )
 
 class MainActivityViewModel(
     application: Application,
     private val themeRepository: ThemeRepository,
     private val webAppRepository: WebAppRepository,
+    private val hasOfferUseCase: HasOfferUseCase,
 ) : AndroidViewModel(application) {
 
     sealed class UiEvent {
         data class EvaluateJavascript(val script: String) : UiEvent()
         data class ShowToast(val message: UiText) : UiEvent()
         object RequestAudioPermission : UiEvent()
+        class ShowPaymentDialog(val paymentEvent: PaymentEvent = PaymentEvent.Default) : UiEvent()
+    }
 
-        object ShowPaymentDialog : UiEvent()
+    enum class PaymentEvent {
+        Default, BlackFriday
     }
 
     sealed interface WebEvent {
         data object ShowPaymentRequested : WebEvent
+        data object ShowBlackFridaySale : WebEvent
         data object StartVoiceEntryRequested : WebEvent
         data object RetryLoadRequested : WebEvent
         data class PageTypeChanged(val isLumo: Boolean, val url: String) : WebEvent
@@ -95,20 +105,37 @@ class MainActivityViewModel(
             }
         }
 
+        viewModelScope.launch {
+            combine(
+                hasOfferUseCase.hasOffer(),
+                _uiState.map { it.hasSeenLumoContainer }.distinctUntilChanged()
+            ) { hasOffer, hasSeenLumoContainer ->
+                !hasOffer && hasSeenLumoContainer
+            }.distinctUntilChanged()
+                .collect { shouldHide ->
+                    if (shouldHide) {
+                        _eventChannel.send(
+                            UiEvent.EvaluateJavascript(
+                                hideBfButton()
+                            )
+                        )
+                    }
+                }
+        }
         // Don't call performInitialNetworkCheck here, call from Activity onCreate
         viewModelScope.launch {
             webAppRepository.listenToWebEvent().collect { event ->
                 when (event) {
                     // UI state toggle; Activity will render from state in a later step
-                    WebEvent.ShowPaymentRequested -> {
-                        _eventChannel.trySend(UiEvent.ShowPaymentDialog)
+                    is WebEvent.ShowPaymentRequested -> {
+                        _eventChannel.trySend(UiEvent.ShowPaymentDialog())
                     }
 
-                    WebEvent.StartVoiceEntryRequested -> {
+                    is WebEvent.StartVoiceEntryRequested -> {
                         onStartVoiceEntryRequested()
                     }
 
-                    WebEvent.RetryLoadRequested -> {
+                    is WebEvent.RetryLoadRequested -> {
                         resetNetworkCheckFlag()
                         performInitialNetworkCheck()
                     }
@@ -133,7 +160,7 @@ class MainActivityViewModel(
                         }
                     }
 
-                    WebEvent.LumoContainerVisible -> {
+                    is WebEvent.LumoContainerVisible -> {
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
@@ -145,17 +172,25 @@ class MainActivityViewModel(
                     is WebEvent.ThemeResult -> {
                         _uiState.update { state ->
                             if (event.theme != state.theme?.mode) {
-                                val lumoTheme = LumoTheme.fromInt(event.theme)
+                                val appStyle = AppStyle.fromInt(event.theme)
                                 viewModelScope.launch {
-                                    themeRepository.saveTheme(lumoTheme)
+                                    themeRepository.saveTheme(appStyle)
                                 }
                                 state.copy(
-                                    theme = lumoTheme
+                                    theme = appStyle
                                 )
                             } else {
                                 state
                             }
                         }
+                    }
+
+                    is WebEvent.ShowBlackFridaySale -> {
+                        _eventChannel.trySend(
+                            UiEvent.ShowPaymentDialog(
+                                paymentEvent = PaymentEvent.BlackFriday
+                            )
+                        )
                     }
                 }
             }

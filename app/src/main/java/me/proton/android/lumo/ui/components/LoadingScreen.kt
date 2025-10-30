@@ -26,6 +26,7 @@ import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.*
 import kotlinx.coroutines.delay
 import me.proton.android.lumo.R
+import me.proton.android.lumo.ui.theme.LumoTheme
 
 @Preview
 @Composable
@@ -68,7 +69,7 @@ fun LoadingScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(LumoTheme.colors.backgroundNorm),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -115,7 +116,7 @@ fun LoadingScreen(
                 text = stringResource(id = loadingMessages[currentMessageIndex]),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = LumoTheme.colors.textWeak
             )
         }
     }
