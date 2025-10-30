@@ -943,25 +943,69 @@ fun injectKeyboardHandling(webView: WebView) {
 fun injectAccountPageModifier(webView: WebView) {
     val js = """
         (function() {
-            function removeYourPlanSection() {
-                var yourPlanSection = document.querySelector('#your-plan');
-                if (yourPlanSection) {
-                    yourPlanSection.remove();
-                    console.log('Removed #your-plan section from account page');
+            function removeIfExists(selector, description) {
+                const elements = document.querySelectorAll(selector);
+                if (elements.length > 0) {
+                    elements.forEach(el => el.remove());
+                    console.log(`Removed ${'$'}{elements.length} ${'$'}{description}`);
                     return true;
                 }
                 return false;
             }
-            
+
+            function removeSidebarUpgradeItem() {
+                const links = document.querySelectorAll('a.navigation-link');
+                let removed = false;
+
+                links.forEach(link => {
+                    const href = link.getAttribute('href')?.toLowerCase() || '';
+                    const text = link.textContent?.toLowerCase() || '';
+                    if (href.includes('upgrade') || text.includes('upgrade')) {
+                        const li = link.closest('li.navigation-item');
+                        if (li) {
+                            li.remove();
+                            removed = true;
+                            console.log('Removed sidebar item containing "upgrade"');
+                        }
+                    }
+                });
+
+                return removed;
+            }
+
+            function modifyAccountPage() {
+                // Remove "Your plan" section
+                removeIfExists('#your-plan', '#your-plan section');
+
+                // Remove Black Friday promo button
+                removeIfExists(
+                    'button.button.button-for-icon.button-small.button-ghost-norm.max-w-full.flex.items-center.text-sm.button-promotion--bf-2025-free.text-uppercase.text-semibold',
+                    'Black Friday promo button'
+                 );
+                removeIfExists(
+                    'button.button.button-medium.button-outline-weak.button.button-for-icon.button-medium.button-ghost-weak.inline-block.text-center.max-w-full.flex.items-center.button-promotion.button-promotion--icon-gradient',
+                    'Default upgrade button'
+                );
+
+                // Remove sidebar item containing "upgrade"
+                removeSidebarUpgradeItem();
+            }
+
             // Run immediately
-            removeYourPlanSection();
-            
-            // Set up observer for dynamically loaded content
-            var observer = new MutationObserver(function(mutations) {
-                removeYourPlanSection();
+            modifyAccountPage();
+
+            // Observe DOM for dynamic sidebar expansion or async loads
+            const observer = new MutationObserver((mutationsList) => {
+                for (const mutation of mutationsList) {
+                    if (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) {
+                        modifyAccountPage();
+                        break;
+                    }
+                }
             });
-            
             observer.observe(document.body, { childList: true, subtree: true });
+
+            console.log('Account page modifier observer registered');
         })();
     """.trimIndent()
 
@@ -1325,3 +1369,48 @@ fun hideBfButton(): String =
         })();
     """.trimIndent()
 
+fun injectUpgradeLinkHider(webView: WebView) {
+    val js = """
+        (function() {
+            function removeUpgradeLinks() {
+                const links = document.querySelectorAll('a');
+                let removedCount = 0;
+
+                links.forEach(link => {
+                    const href = link.getAttribute('href')?.toLowerCase() || '';
+                    const text = link.textContent?.toLowerCase() || '';
+                    if (href.includes('upgrade') || text.includes('upgrade')) {
+                        link.remove();
+                        removedCount++;
+                    }
+                });
+
+                if (removedCount > 0) {
+                    console.log(`Removed ${'$'}{removedCount} upgrade link(s)`);
+                }
+
+                return removedCount > 0;
+            }
+
+            // Run immediately in case the link already exists
+            removeUpgradeLinks();
+
+            // Observe for dynamically loaded or re-rendered links
+            const observer = new MutationObserver((mutationsList) => {
+                for (const mutation of mutationsList) {
+                    if (mutation.addedNodes.length > 0) {
+                        removeUpgradeLinks();
+                        break;
+                    }
+                }
+            });
+
+            observer.observe(document.body, { childList: true, subtree: true });
+
+            console.log('Upgrade link hider observer registered');
+        })();
+    """.trimIndent()
+
+    Log.d(TAG, "Injecting upgrade link hider JavaScript")
+    webView.evaluateJavascript(js, null)
+}
