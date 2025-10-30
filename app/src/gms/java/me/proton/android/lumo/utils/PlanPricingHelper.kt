@@ -49,12 +49,6 @@ object PlanPricingHelper {
                 return@map plan
             }
 
-            val cycleMapping = when (plan.cycle) {
-                1 -> "P1M"
-                12 -> "P1Y"
-                else -> null
-            }
-
             // Step 3: Pick offer by explicit ID or fallback
             val bestOffer = run {
                 offerId?.let { offerMap["${plan.productId}:$it"] }
