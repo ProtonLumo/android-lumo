@@ -977,15 +977,8 @@ fun injectAccountPageModifier(webView: WebView) {
                 // Remove "Your plan" section
                 removeIfExists('#your-plan', '#your-plan section');
 
-                // Remove Black Friday promo button
-                removeIfExists(
-                    'button.button.button-for-icon.button-small.button-ghost-norm.max-w-full.flex.items-center.text-sm.button-promotion--bf-2025-free.text-uppercase.text-semibold',
-                    'Black Friday promo button'
-                 );
-                removeIfExists(
-                    'button.button.button-medium.button-outline-weak.button.button-for-icon.button-medium.button-ghost-weak.inline-block.text-center.max-w-full.flex.items-center.button-promotion.button-promotion--icon-gradient',
-                    'Default upgrade button'
-                );
+                removeIfExists('.button-promotion--bf-2025-free', 'Black Friday promo button');
+                removeIfExists('.button-promotion.button-promotion--icon-gradient', 'Default upgrade button');
 
                 // Remove sidebar item containing "upgrade"
                 removeSidebarUpgradeItem();
