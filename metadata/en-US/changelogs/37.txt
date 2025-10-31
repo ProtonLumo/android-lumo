@@ -1,0 +1,4 @@
+* Navigation improvements
+
+* App stability improvements and bug fixing
+
