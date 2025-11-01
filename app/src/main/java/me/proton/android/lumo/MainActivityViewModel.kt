@@ -1,8 +1,7 @@
 package me.proton.android.lumo
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +16,7 @@ import kotlinx.coroutines.launch
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.data.repository.WebAppRepository
-import me.proton.android.lumo.speech.SpeechRecognitionManager
+import me.proton.android.lumo.permission.PermissionContract
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.usecase.HasOfferUseCase
@@ -29,32 +28,25 @@ private const val TAG = "MainActivityViewModel"
 
 // Define UI State (can be expanded later)
 data class MainUiState(
-    val showSpeechSheet: Boolean = false,
-    val isListening: Boolean = false,
-    val partialSpokenText: String = "",
-    val rmsDbValue: Float = 0f,
-    val speechStatusText: UiText = UiText.StringText(""),
-    val hasRecordAudioPermission: Boolean = false,
     val isLoading: Boolean = true,
     val initialLoadError: String? = null,
     val isLumoPage: Boolean = true,
     val hasSeenLumoContainer: Boolean = false,
     val shouldShowBackButton: Boolean = false,
-    val theme: AppStyle? = null
+    val theme: AppStyle? = null,
 )
 
 class MainActivityViewModel(
-    application: Application,
     private val themeRepository: ThemeRepository,
     private val webAppRepository: WebAppRepository,
     private val hasOfferUseCase: HasOfferUseCase,
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
     sealed class UiEvent {
         data class EvaluateJavascript(val script: String) : UiEvent()
         data class ShowToast(val message: UiText) : UiEvent()
-        object RequestAudioPermission : UiEvent()
         class ShowPaymentDialog(val paymentEvent: PaymentEvent = PaymentEvent.Default) : UiEvent()
+        object ShowSpeechSheet : UiEvent()
     }
 
     enum class PaymentEvent {
@@ -85,19 +77,14 @@ class MainActivityViewModel(
     private val _eventChannel = Channel<UiEvent>()
     val events = _eventChannel.receiveAsFlow()
 
-    private val speechRecognitionManager = SpeechRecognitionManager(application)
-
     // State for initial URL after network check
     private val _initialUrl =
         MutableStateFlow(LumoConfig.LUMO_URL) // Start with default URL
     val initialUrl: StateFlow<String> = _initialUrl.asStateFlow()
     private var checkCompleted = false // Prevent re-checking on config change
+    private var audioPermissionContract: PermissionContract? = null
 
     init {
-        setupSpeechRecognition()
-        updatePermissionStatus()
-        determineSpeechStatusText()
-
         viewModelScope.launch {
             val theme = themeRepository.getTheme()
             _uiState.update { state ->
@@ -132,7 +119,7 @@ class MainActivityViewModel(
                     }
 
                     is WebEvent.StartVoiceEntryRequested -> {
-                        onStartVoiceEntryRequested()
+                        startVoiceEntry()
                     }
 
                     is WebEvent.RetryLoadRequested -> {
@@ -197,6 +184,14 @@ class MainActivityViewModel(
         }
     }
 
+    fun startVoiceEntry() {
+        if (audioPermissionContract?.isGranted == true) {
+            _eventChannel.trySend(UiEvent.ShowSpeechSheet)
+        } else {
+            audioPermissionContract?.request()
+        }
+    }
+
     // --- Initial Network Check ---
     fun performInitialNetworkCheck() {
         if (checkCompleted) {
@@ -239,131 +234,6 @@ class MainActivityViewModel(
     fun resetNetworkCheckFlag() {
         Log.d(TAG, "Resetting checkCompleted flag for retry.")
         checkCompleted = false
-    }
-
-    private fun setupSpeechRecognition() {
-        speechRecognitionManager.setListener(object :
-            SpeechRecognitionManager.SpeechRecognitionListener {
-            override fun onReadyForSpeech() {
-                _uiState.update { it.copy(isListening = true) }
-            }
-
-            override fun onBeginningOfSpeech() {
-                // Nothing to do here
-            }
-
-            override fun onRmsChanged(rmsdB: Float) {
-                _uiState.update { it.copy(rmsDbValue = rmsdB) }
-            }
-
-            override fun onEndOfSpeech() {
-                _uiState.update { it.copy(isListening = false) }
-            }
-
-            override fun onError(errorMessage: UiText) {
-                _uiState.update { it.copy(isListening = false, showSpeechSheet = false) }
-                viewModelScope.launch {
-                    _eventChannel.send(UiEvent.ShowToast(errorMessage))
-                }
-            }
-
-            override fun onPartialResults(text: String) {
-                _uiState.update { it.copy(partialSpokenText = text) }
-            }
-
-            override fun onResults(text: String) {
-                _uiState.update { it.copy(partialSpokenText = text, isListening = false) }
-            }
-        })
-    }
-
-    fun updatePermissionStatus() {
-        val hasPermission = speechRecognitionManager.isPermissionGranted()
-        _uiState.value = _uiState.value.copy(hasRecordAudioPermission = hasPermission)
-        Log.d(TAG, "Record audio permission status updated: $hasPermission")
-    }
-
-    private fun determineSpeechStatusText() {
-        val statusText = if (speechRecognitionManager.isOnDeviceRecognitionAvailable()) {
-            Log.d(TAG, "On-device recognition IS available.")
-            UiText.ResText(R.string.speech_status_on_device)
-        } else {
-            Log.d(TAG, "On-device recognition NOT available.")
-            UiText.ResText(R.string.speech_status_network)
-        }
-        _uiState.value = _uiState.value.copy(speechStatusText = statusText)
-    }
-
-    // --- Event Handlers ---
-
-    fun onStartVoiceEntryRequested() {
-        Log.d(TAG, "onStartVoiceEntryRequested")
-        if (speechRecognitionManager.isPermissionGranted()) {
-            if (!speechRecognitionManager.isSpeechRecognitionAvailable()) {
-                viewModelScope.launch {
-                    _eventChannel.send(
-                        UiEvent.ShowToast(
-                            UiText.ResText(R.string.speech_not_available)
-                        )
-                    )
-                }
-                return
-            }
-            _uiState.value = _uiState.value.copy(showSpeechSheet = true)
-            speechRecognitionManager.startListening()
-        } else {
-            Log.d(TAG, "Permission not granted. Requesting permission via event.")
-            viewModelScope.launch { _eventChannel.send(UiEvent.RequestAudioPermission) }
-        }
-    }
-
-    fun onCancelListening() {
-        Log.d(TAG, "onCancelListening")
-        speechRecognitionManager.cancelListening()
-        _uiState.value = _uiState.value.copy(
-            isListening = false,
-            showSpeechSheet = false,
-            partialSpokenText = ""
-        )
-    }
-
-    fun onSubmitTranscription() {
-        val transcript = _uiState.value.partialSpokenText
-        Log.d(TAG, "onSubmitTranscription: $transcript")
-
-        // Reset state immediately
-        _uiState.value = _uiState.value.copy(isListening = false, showSpeechSheet = false)
-        speechRecognitionManager.cancelListening()
-
-        if (transcript.isNotEmpty()) {
-            val escaped = transcript
-                .replace("\\", "\\\\") // Must replace backslash first!
-                .replace("\"", "\\\"") // Escape double quotes
-                .replace("'", "\\'")   // Escape single quotes (optional but safe)
-                .replace("\n", "\\n")  // Escape newlines
-                .replace("\r", "\\r")  // Escape carriage returns
-            val escapedText = "\"$escaped\""
-
-            val script = """
-                (function() {
-                    if (typeof window.insertPromptAndSubmit === 'function') {
-                        return window.insertPromptAndSubmit($escapedText);
-                    } else {
-                        console.error('insertPromptAndSubmit function not found');
-                        return 'Error: insertPromptAndSubmit not found';
-                    }
-                })()
-            """.trimIndent()
-
-            Log.d(TAG, "Executing script: $script")
-            viewModelScope.launch {
-                _eventChannel.send(UiEvent.EvaluateJavascript(script))
-            }
-        } else {
-            Log.w(TAG, "Skipping submission, empty transcript")
-        }
-        // Clear partial text after attempting submission
-        _uiState.value = _uiState.value.copy(partialSpokenText = "")
     }
 
     fun handleJavascriptResult(result: String?) {
@@ -413,9 +283,11 @@ class MainActivityViewModel(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        speechRecognitionManager.removeListener()
-        speechRecognitionManager.destroy()
+    fun attachPermissionContract(permissionContract: PermissionContract) {
+        audioPermissionContract = permissionContract
+    }
+
+    fun detachPermissionContract() {
+        audioPermissionContract = null
     }
 }

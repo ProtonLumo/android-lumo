@@ -48,13 +48,6 @@ class SpeechRecognitionManager(private val context: Context) {
         this.listener = null
     }
 
-    fun isPermissionGranted(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.RECORD_AUDIO
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
     /**
      * Checks if speech recognition is available on the device
      */
