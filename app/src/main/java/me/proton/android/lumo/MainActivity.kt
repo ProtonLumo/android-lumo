@@ -36,11 +36,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
-import com.airbnb.lottie.LottieComposition
-import com.airbnb.lottie.LottieCompositionFactory
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.di.DependencyProvider
@@ -48,30 +43,29 @@ import me.proton.android.lumo.managers.PermissionManager
 import me.proton.android.lumo.managers.WebViewManager
 import me.proton.android.lumo.navigation.NavRoutes
 import me.proton.android.lumo.navigation.paymentRoutes
+import me.proton.android.lumo.permission.rememberSinglePermission
 import me.proton.android.lumo.ui.components.ChatScreen
 import me.proton.android.lumo.ui.components.MainScreenListeners
 import me.proton.android.lumo.ui.components.PurchaseLinkDialog
+import me.proton.android.lumo.ui.components.SpeechSheet
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.webview.LumoChromeClient
 import me.proton.android.lumo.webview.LumoWebClient
 import me.proton.android.lumo.webview.createWebView
+import me.proton.android.lumo.webview.injectSpokenText
 import me.proton.android.lumo.webview.injectTheme
 import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
-    // Make viewModel accessible to WebAppInterface
-    internal val mainActivityViewModel: MainActivityViewModel by viewModels {
-        MainActivityViewModelFactory(application)
+    internal val viewModel: MainActivityViewModel by viewModels {
+        MainActivityViewModelFactory()
     }
 
     private lateinit var webViewManager: WebViewManager
     private lateinit var permissionManager: PermissionManager
-
-    private val _lottieComposition = MutableStateFlow<LottieComposition?>(null)
-    private val lottieComposition: StateFlow<LottieComposition?> = _lottieComposition.asStateFlow()
     private val webBridge = DependencyProvider.getWebBridge()
 
     // Expose file path callback for backward compatibility
@@ -116,11 +110,6 @@ class MainActivity : ComponentActivity() {
         Log.d(TAG, "onCreate called")
         Log.d(TAG, LumoConfig.getConfigInfo())
 
-        LottieCompositionFactory
-            .fromAsset(this, "lumo-loader.json")
-            .addListener { composition ->
-                _lottieComposition.value = composition
-            }
 
         ServiceWorkerController.getInstance()
             .setServiceWorkerClient(object : ServiceWorkerClient() {
@@ -129,22 +118,29 @@ class MainActivity : ComponentActivity() {
                 }
             })
         // Trigger the initial network connectivity check (independent of billing)
-        mainActivityViewModel.performInitialNetworkCheck()
+        viewModel.performInitialNetworkCheck()
 
         // Add a global safety timer to ensure loading screen doesn't get stuck
         Handler(Looper.getMainLooper()).postDelayed({
             Log.d(TAG, "Global safety timeout reached for loading screen")
-            val currentState = mainActivityViewModel.uiState.value
+            val currentState = viewModel.uiState.value
             if (currentState.isLoading) {
 
                 Log.d(TAG, "Forcing loading screen to hide from global timer")
-                mainActivityViewModel.hideLoading()
+                viewModel.hideLoading()
             }
         }, 5000) // Reduced to 5 seconds for faster fallback
 
         setContent {
-            val uiState by mainActivityViewModel.uiState.collectAsStateWithLifecycle()
-            val initialUrl by mainActivityViewModel.initialUrl.collectAsStateWithLifecycle()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val initialUrl by viewModel.initialUrl.collectAsStateWithLifecycle()
+            viewModel.attachPermissionContract(
+                permissionContract = rememberSinglePermission(
+                    permission = Manifest.permission.RECORD_AUDIO,
+                    onGranted = { viewModel.startVoiceEntry() },
+                    onDenied = { }
+                )
+            )
 
             val isDarkTheme = uiState.theme?.let { theme ->
                 when (theme) {
@@ -215,12 +211,12 @@ class MainActivity : ComponentActivity() {
 
                 LaunchedEffect(Unit) {
                     repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        mainActivityViewModel.events.collectLatest { event ->
+                        viewModel.events.collectLatest { event ->
                             when (event) {
                                 is MainUiEvent.EvaluateJavascript -> {
                                     Log.d(TAG, "Received EvaluateJavascript event")
                                     webViewManager.evaluateJavaScript(event.script) { result ->
-                                        mainActivityViewModel.handleJavascriptResult(result)
+                                        viewModel.handleJavascriptResult(result)
                                     }
                                 }
 
@@ -233,11 +229,6 @@ class MainActivity : ComponentActivity() {
                                     ).show()
                                 }
 
-                                is MainUiEvent.RequestAudioPermission -> {
-                                    Log.d(TAG, "Received RequestAudioPermission event")
-                                    permissionManager.requestRecordAudioPermission()
-                                }
-
                                 is MainUiEvent.ShowPaymentDialog -> {
                                     if (DependencyProvider.isPaymentAvailable()) {
                                         navController.navigate(
@@ -248,6 +239,10 @@ class MainActivity : ComponentActivity() {
                                     } else {
                                         navController.navigate(NavRoutes.NoPayment)
                                     }
+                                }
+
+                                is MainUiEvent.ShowSpeechSheet -> {
+                                    navController.navigate(NavRoutes.SpeechToText)
                                 }
                             }
                         }
@@ -264,6 +259,12 @@ class MainActivity : ComponentActivity() {
         uiState: MainUiState,
         initialUrl: String
     ) {
+        LaunchedEffect(uiState.hasSeenLumoContainer) {
+            if (uiState.hasSeenLumoContainer) {
+                webViewManager.clearHistory()
+            }
+        }
+
         val mainScreenListeners = remember {
             MainScreenListeners(
                 handleWebViewNavigation = {
@@ -274,22 +275,13 @@ class MainActivity : ComponentActivity() {
                         webViewManager.clearHistory()
                     }
                 },
-                onWebViewCleared = {
-                    webViewManager.clearHistory()
-                },
-                cancelSpeech = {
-                    mainActivityViewModel.onCancelListening()
-                },
-                submitSpeechTranscript = {
-                    mainActivityViewModel.onSubmitTranscription()
-                },
             )
         }
 
         val lumoWebClient = LumoWebClient(
             isLoading = { uiState.isLoading },
-            showLoading = { mainActivityViewModel.showLoading() },
-            hideLoading = { mainActivityViewModel.hideLoading(it) }
+            showLoading = { viewModel.showLoading() },
+            hideLoading = { viewModel.hideLoading(it) }
         )
 
         val lumoChromeClient = LumoChromeClient(showFileChooser = ::showFileChooser)
@@ -302,7 +294,7 @@ class MainActivity : ComponentActivity() {
                 lumoChromeClient = lumoChromeClient,
                 onAttach = { webBridge.attachWebView(it) },
                 keyboardVisibilityChanged = { isVisible, keyboardHeight ->
-                    mainActivityViewModel.onKeyboardVisibilityChanged(
+                    viewModel.onKeyboardVisibilityChanged(
                         isVisible = isVisible,
                         keyboardHeightPx = keyboardHeight
                     )
@@ -319,15 +311,9 @@ class MainActivity : ComponentActivity() {
                 ChatScreen(
                     webView = webView,
                     hasSeenLumoContainer = uiState.hasSeenLumoContainer,
-                    showSpeechSheet = uiState.showSpeechSheet,
                     shouldShowBackButton = uiState.shouldShowBackButton,
                     isLoading = uiState.isLoading,
                     isLumoPage = uiState.isLumoPage,
-                    isListening = uiState.isListening,
-                    partialSpokenText = uiState.partialSpokenText,
-                    rmsDbValue = uiState.rmsDbValue,
-                    speechStatusText = uiState.speechStatusText,
-                    lottieComposition = lottieComposition.collectAsStateWithLifecycle().value,
                     mainScreenListeners = mainScreenListeners
                 )
             }
@@ -346,6 +332,12 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     onDismissRequest = { navController.popBackStack() },
+                )
+            }
+            dialog<NavRoutes.SpeechToText> {
+                SpeechSheet(
+                    onDismiss = { navController.popBackStack() },
+                    onSubmitText = { injectSpokenText(webView = webView, text = it) }
                 )
             }
         }
@@ -379,36 +371,12 @@ class MainActivity : ComponentActivity() {
         webViewManager = WebViewManager()
 
         // Initialize permission manager with callback for permission results and WebView manager
-        permissionManager = PermissionManager(this, { permission, isGranted ->
-            handlePermissionResult(permission, isGranted)
-        }, webViewManager)
+        permissionManager = PermissionManager(
+            activity = this,
+            webViewManager = webViewManager
+        )
 
         Log.d(TAG, "All managers initialized successfully")
-    }
-
-    /**
-     * Handle permission results from PermissionManager
-     */
-    private fun handlePermissionResult(permission: String, isGranted: Boolean) {
-        when (permission) {
-            Manifest.permission.RECORD_AUDIO -> {
-                mainActivityViewModel.updatePermissionStatus() // Update ViewModel's knowledge regardless
-                if (isGranted) {
-                    Log.d(
-                        TAG,
-                        "RECORD_AUDIO permission granted by user, re-triggering voice entry request"
-                    )
-                    mainActivityViewModel.onStartVoiceEntryRequested()
-                } else {
-                    Log.w(TAG, "RECORD_AUDIO permission denied by user")
-                    Toast.makeText(
-                        this@MainActivity,
-                        R.string.permission_mic_rationale,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        }
     }
 
     companion object {

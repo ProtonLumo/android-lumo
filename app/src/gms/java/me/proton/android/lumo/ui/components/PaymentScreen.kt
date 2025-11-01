@@ -29,14 +29,14 @@ fun PaymentScreen(
 ) {
     val context = LocalContext.current
     val mainActivity = context as MainActivity
-    val subscriptionViewModel: SubscriptionViewModel = viewModel(
+    val viewModel: SubscriptionViewModel = viewModel(
         factory = SubscriptionViewModelFactory(paymentEvent = paymentEvent)
     )
-    val uiState by subscriptionViewModel.uiStateFlow.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiStateFlow.collectAsStateWithLifecycle()
 
     LaunchedEffect(isReady) {
         if (isReady) {
-            subscriptionViewModel.refreshSubscriptionStatus()
+            viewModel.refreshSubscriptionStatus()
         }
     }
 
@@ -55,9 +55,9 @@ fun PaymentScreen(
                 "Both loading operations complete, checking for subscription sync mismatch..."
             )
             // Check if there's a mismatch that needs recovery
-            if (subscriptionViewModel.checkSubscriptionSyncMismatch()) {
+            if (viewModel.checkSubscriptionSyncMismatch()) {
                 // Trigger the recovery flow
-                subscriptionViewModel.triggerSubscriptionRecovery()
+                viewModel.triggerSubscriptionRecovery()
             }
         }
     }
@@ -67,11 +67,11 @@ fun PaymentScreen(
         PaymentProcessingDialog(
             state = it,
             onRetry = {
-                subscriptionViewModel.retryPaymentVerification()
+                viewModel.retryPaymentVerification()
             },
             onClose = {
                 onDismiss()
-                subscriptionViewModel.resetPaymentState()
+                viewModel.resetPaymentState()
             }
         )
 
@@ -84,7 +84,7 @@ fun PaymentScreen(
             subscriptions = uiState.subscriptions,
             googleProductDetails = uiState.googleProductDetails,
             getSubscriptionPaymentStatus = {
-                subscriptionViewModel.getGooglePlaySubscriptionStatus()
+                viewModel.getGooglePlaySubscriptionStatus()
             },
             onClose = onDismiss
         )
@@ -95,9 +95,9 @@ fun PaymentScreen(
     PlanSelectionScreen(
         uiState = uiState,
         onDismiss = onDismiss,
-        onPlanSelected = { subscriptionViewModel.selectPlan(it) },
+        onPlanSelected = { viewModel.selectPlan(it) },
         onPurchaseClicked = { planToPurchase ->
-            subscriptionViewModel.launchBillingFlowForProduct(
+            viewModel.launchBillingFlowForProduct(
                 productId = planToPurchase.productId,
                 offerToken = planToPurchase.offerToken,
                 customerID = planToPurchase.customerId,
@@ -106,7 +106,7 @@ fun PaymentScreen(
                 },
             )
         },
-        onClearError = { subscriptionViewModel.clearError() }
+        onClearError = { viewModel.clearError() }
     )
 }
 

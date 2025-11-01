@@ -12,4 +12,7 @@ sealed interface NavRoutes {
 
     @Serializable
     data object NoPayment : NavRoutes
+
+    @Serializable
+    data object SpeechToText : NavRoutes
 }

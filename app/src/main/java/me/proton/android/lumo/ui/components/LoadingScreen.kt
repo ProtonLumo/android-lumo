@@ -14,25 +14,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.LottieComposition
-import com.airbnb.lottie.compose.*
+import com.airbnb.lottie.LottieCompositionFactory
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.delay
 import me.proton.android.lumo.R
 import me.proton.android.lumo.ui.theme.LumoTheme
 
 @Preview
 @Composable
-fun LoadingScreen(
-    preloadedComposition: LottieComposition? = null,
-) {
+fun LoadingScreen() {
     // Define the loading messages
     val loadingMessages = listOf(
         R.string.loading_message_1,
@@ -49,10 +54,20 @@ fun LoadingScreen(
     )
 
     // State to track current message index
-    var currentMessageIndex by remember { mutableIntStateOf((loadingMessages.indices).random()) }
+    var currentMessageIndex by remember {
+        mutableIntStateOf((loadingMessages.indices).random())
+    }
+    var lottieComposition by remember {
+        mutableStateOf<LottieComposition?>(null)
+    }
 
     // Effect to rotate messages every 4 seconds
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
+        LottieCompositionFactory
+            .fromAsset(context, "lumo-loader.json")
+            .addListener { composition -> lottieComposition = composition }
+
         while (true) {
             delay(4000) // 4 seconds
             // Pick a random message that's different from the current one
@@ -76,13 +91,13 @@ fun LoadingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (preloadedComposition != null) {
+            if (lottieComposition != null) {
                 val progress by animateLottieCompositionAsState(
-                    preloadedComposition,
+                    lottieComposition,
                     iterations = LottieConstants.IterateForever
                 )
                 LottieAnimation(
-                    composition = preloadedComposition,
+                    composition = lottieComposition,
                     progress = { progress },
                     modifier = Modifier.size(180.dp)
                 )
