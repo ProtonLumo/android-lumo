@@ -61,7 +61,6 @@ class MainActivityViewModel(
         data class PageTypeChanged(val isLumo: Boolean, val url: String) : WebEvent
         data class Navigated(val url: String, val type: String) : WebEvent
         data object LumoContainerVisible : WebEvent
-
         data class ThemeResult(val mode: String) : WebEvent {
             val theme = when (mode) {
                 "Dark" -> 1
@@ -85,13 +84,6 @@ class MainActivityViewModel(
     private var audioPermissionContract: PermissionContract? = null
 
     init {
-        viewModelScope.launch {
-            val theme = themeRepository.getTheme()
-            _uiState.update { state ->
-                state.copy(theme = theme)
-            }
-        }
-
         viewModelScope.launch {
             combine(
                 hasOfferUseCase.hasOffer(),
@@ -157,17 +149,10 @@ class MainActivityViewModel(
                     }
 
                     is WebEvent.ThemeResult -> {
-                        _uiState.update { state ->
-                            if (event.theme != state.theme?.mode) {
-                                val appStyle = AppStyle.fromInt(event.theme)
-                                viewModelScope.launch {
-                                    themeRepository.saveTheme(appStyle)
-                                }
-                                state.copy(
-                                    theme = appStyle
-                                )
-                            } else {
-                                state
+                        if (event.theme != _uiState.value.theme?.mode) {
+                            val appStyle = AppStyle.fromInt(event.theme)
+                            viewModelScope.launch {
+                                themeRepository.saveTheme(appStyle)
                             }
                         }
                     }
@@ -179,6 +164,16 @@ class MainActivityViewModel(
                             )
                         )
                     }
+                }
+            }
+        }
+    }
+
+    fun setupThemeUpdates(isSystemInDarkMode: Boolean) {
+        viewModelScope.launch {
+            themeRepository.observeTheme(isSystemInDarkMode).collect { theme ->
+                _uiState.update { state ->
+                    state.copy(theme = theme)
                 }
             }
         }

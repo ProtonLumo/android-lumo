@@ -45,7 +45,7 @@ fun ChatScreen(
     shouldShowBackButton: Boolean,
     isLoading: Boolean,
     isLumoPage: Boolean,
-    mainScreenListeners: MainScreenListeners,
+    handleWebViewNavigation: () -> Unit,
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -69,7 +69,7 @@ fun ChatScreen(
                                         MainActivity.TAG,
                                         "Back button clicked, navigating to Lumo"
                                     )
-                                    mainScreenListeners.handleWebViewNavigation()
+                                    handleWebViewNavigation()
                                 }
                                 .padding(all = 8.dp) // optional padding
                         ) {
@@ -129,7 +129,3 @@ private fun LoadingScreen(show: Boolean) {
         LoadingScreen()
     }
 }
-
-class MainScreenListeners(
-    val handleWebViewNavigation: () -> Unit,
-)

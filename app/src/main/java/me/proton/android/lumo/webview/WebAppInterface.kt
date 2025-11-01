@@ -46,6 +46,12 @@ open class WebAppInterface {
         webView = null
     }
 
+    fun injectTheme(theme: Int, mode: Int) {
+        val webView = webView ?: throw IllegalStateException("WebView not attached")
+
+        injectTheme(webView = webView, theme = theme, mode = mode)
+    }
+
     @JavascriptInterface
     fun showPayment() {
         Log.d(TAG, "showPayment called from JavaScript")
