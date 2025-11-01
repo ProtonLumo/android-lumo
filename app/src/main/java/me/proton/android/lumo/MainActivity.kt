@@ -12,6 +12,7 @@ import android.webkit.ServiceWorkerClient
 import android.webkit.ServiceWorkerController
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
+import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
@@ -45,7 +46,6 @@ import me.proton.android.lumo.navigation.NavRoutes
 import me.proton.android.lumo.navigation.paymentRoutes
 import me.proton.android.lumo.permission.rememberSinglePermission
 import me.proton.android.lumo.ui.components.ChatScreen
-import me.proton.android.lumo.ui.components.MainScreenListeners
 import me.proton.android.lumo.ui.components.PurchaseLinkDialog
 import me.proton.android.lumo.ui.components.SpeechSheet
 import me.proton.android.lumo.ui.theme.AppStyle
@@ -54,7 +54,6 @@ import me.proton.android.lumo.webview.LumoChromeClient
 import me.proton.android.lumo.webview.LumoWebClient
 import me.proton.android.lumo.webview.createWebView
 import me.proton.android.lumo.webview.injectSpokenText
-import me.proton.android.lumo.webview.injectTheme
 import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 
 
@@ -134,6 +133,32 @@ class MainActivity : ComponentActivity() {
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val initialUrl by viewModel.initialUrl.collectAsStateWithLifecycle()
+            val lumoWebClient = LumoWebClient(
+                isLoading = { uiState.isLoading },
+                showLoading = { viewModel.showLoading() },
+                hideLoading = { viewModel.hideLoading(it) }
+            )
+
+            val lumoChromeClient = LumoChromeClient(showFileChooser = ::showFileChooser)
+
+            val webView = remember {
+                createWebView(
+                    context = this,
+                    initialUrl = initialUrl,
+                    lumoWebClient = lumoWebClient,
+                    lumoChromeClient = lumoChromeClient,
+                    onAttach = { webBridge.attachWebView(it) },
+                    keyboardVisibilityChanged = { isVisible, keyboardHeight ->
+                        viewModel.onKeyboardVisibilityChanged(
+                            isVisible = isVisible,
+                            keyboardHeightPx = keyboardHeight
+                        )
+                    }
+                )
+            }
+            webViewManager.setWebView(webView)
+
+            viewModel.setupThemeUpdates(isSystemInDarkTheme())
             viewModel.attachPermissionContract(
                 permissionContract = rememberSinglePermission(
                     permission = Manifest.permission.RECORD_AUDIO,
@@ -144,38 +169,9 @@ class MainActivity : ComponentActivity() {
 
             val isDarkTheme = uiState.theme?.let { theme ->
                 when (theme) {
-                    is AppStyle.System -> {
-                        webViewManager.webView?.let {
-                            injectTheme(
-                                webView = it,
-                                theme = if (isSystemInDarkTheme()) 15 else 14,
-                                mode = 0
-                            )
-                        }
-                        isSystemInDarkTheme()
-                    }
-
-                    is AppStyle.Light -> {
-                        webViewManager.webView?.let {
-                            injectTheme(
-                                webView = it,
-                                theme = 14,
-                                mode = 2
-                            )
-                        }
-                        false
-                    }
-
-                    is AppStyle.Dark -> {
-                        webViewManager.webView?.let {
-                            injectTheme(
-                                webView = it,
-                                theme = 15,
-                                mode = 1
-                            )
-                        }
-                        true
-                    }
+                    is AppStyle.System -> isSystemInDarkTheme()
+                    is AppStyle.Dark -> true
+                    is AppStyle.Light -> false
                 }
             } ?: isSystemInDarkTheme()
 
@@ -248,7 +244,11 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                MainScreen(navController, uiState, initialUrl)
+                MainScreen(
+                    navController = navController,
+                    uiState = uiState,
+                    webView = webView
+                )
             }
         }
     }
@@ -257,51 +257,13 @@ class MainActivity : ComponentActivity() {
     private fun MainScreen(
         navController: NavHostController,
         uiState: MainUiState,
-        initialUrl: String
+        webView: WebView,
     ) {
         LaunchedEffect(uiState.hasSeenLumoContainer) {
             if (uiState.hasSeenLumoContainer) {
                 webViewManager.clearHistory()
             }
         }
-
-        val mainScreenListeners = remember {
-            MainScreenListeners(
-                handleWebViewNavigation = {
-                    if (webViewManager.canGoBack()) {
-                        webViewManager.goBack()
-                    } else {
-                        webViewManager.loadUrl(LumoConfig.LUMO_URL)
-                        webViewManager.clearHistory()
-                    }
-                },
-            )
-        }
-
-        val lumoWebClient = LumoWebClient(
-            isLoading = { uiState.isLoading },
-            showLoading = { viewModel.showLoading() },
-            hideLoading = { viewModel.hideLoading(it) }
-        )
-
-        val lumoChromeClient = LumoChromeClient(showFileChooser = ::showFileChooser)
-
-        val webView = remember {
-            createWebView(
-                context = this,
-                initialUrl = initialUrl,
-                lumoWebClient = lumoWebClient,
-                lumoChromeClient = lumoChromeClient,
-                onAttach = { webBridge.attachWebView(it) },
-                keyboardVisibilityChanged = { isVisible, keyboardHeight ->
-                    viewModel.onKeyboardVisibilityChanged(
-                        isVisible = isVisible,
-                        keyboardHeightPx = keyboardHeight
-                    )
-                }
-            )
-        }
-        webViewManager.setWebView(webView)
 
         NavHost(
             navController = navController,
@@ -314,7 +276,16 @@ class MainActivity : ComponentActivity() {
                     shouldShowBackButton = uiState.shouldShowBackButton,
                     isLoading = uiState.isLoading,
                     isLumoPage = uiState.isLumoPage,
-                    mainScreenListeners = mainScreenListeners
+                    handleWebViewNavigation = remember {
+                        {
+                            if (webViewManager.canGoBack()) {
+                                webViewManager.goBack()
+                            } else {
+                                webViewManager.loadUrl(LumoConfig.LUMO_URL)
+                                webViewManager.clearHistory()
+                            }
+                        }
+                    },
                 )
             }
             paymentRoutes(

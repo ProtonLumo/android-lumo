@@ -31,7 +31,10 @@ abstract class BaseDependencyProvider {
         ).also { webAppRepository = it }
 
     fun themeRepository(): ThemeRepository =
-        themeRepository ?: ThemeRepositoryImpl(getPrefs()).also { themeRepository = it }
+        themeRepository ?: ThemeRepositoryImpl(
+            prefs = getPrefs(),
+            webBridge = DependencyProvider.getWebBridge()
+        ).also { themeRepository = it }
 
     private fun getPrefs(): SharedPreferences =
         prefs ?: application.getSharedPreferences(
