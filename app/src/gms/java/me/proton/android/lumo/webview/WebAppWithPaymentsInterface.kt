@@ -2,8 +2,8 @@ package me.proton.android.lumo.webview
 
 import android.util.Log
 import android.webkit.JavascriptInterface
-import com.google.gson.Gson
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.serialization.json.Json
 import me.proton.android.lumo.billing.BillingManagerWrapper.PaymentRequestType
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.PaymentTokenPayload
@@ -48,7 +48,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
     suspend fun fetchSubscriptions(): Result<PaymentJsResponse> {
         val webView = webView ?: throw IllegalStateException("WebView not attached")
 
-        return sendPaymentDataToWebView(
+        return sendPaymentDataToWebView<Unit>(
             webView = webView,
             payload = null,
             jsFunction = PaymentRequestType.GET_SUBSCRIPTIONS
@@ -60,7 +60,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
     suspend fun fetchPlans(): Result<PaymentJsResponse> {
         val webView = webView ?: throw IllegalStateException("WebView not attached")
 
-        return sendPaymentDataToWebView(
+        return sendPaymentDataToWebView<Unit>(
             webView = webView,
             payload = null,
             jsFunction = PaymentRequestType.GET_PLANS
@@ -87,7 +87,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
         }
 
         // Process the result string and invoke the callback
-        val finalResult = processJavascriptResult(resultJson, Gson())
+        val finalResult = processJavascriptResult(resultJson)
         deferred.complete(finalResult)
     }
 
@@ -96,7 +96,6 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
      */
     private fun processJavascriptResult(
         resultString: String?,
-        gson: Gson
     ): Result<PaymentJsResponse> {
         // Add check for common unresolved promise representations
         if (resultString?.startsWith("[object Promise]") == true || resultString == "undefined" || resultString == "{}") {
@@ -112,7 +111,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
             // attempt to parse it as a string first to decode it
             if (processableString?.startsWith("\\\"") == true && processableString.endsWith("\\\"")) {
                 try {
-                    processableString = gson.fromJson(processableString, String::class.java)
+                    processableString = Json.decodeFromString<String>(processableString)
                 } catch (e: Exception) {
                     Log.w(
                         TAG,
@@ -123,7 +122,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
                 }
             }
             if (processableString != null) {
-                val parsedResponse = gson.fromJson(processableString, PaymentJsResponse::class.java)
+                val parsedResponse = Json.decodeFromString<PaymentJsResponse>(processableString)
                 if (parsedResponse.status == "success") {
                     Result.success(parsedResponse)
                 } else {

@@ -98,13 +98,13 @@ fun SubscriptionOverviewSection(
             // Debug log the subscription info
             Log.d(
                 "SubscriptionOverview",
-                "Subscription: Name=${subscription.Name}, External=${subscription.External}, Renew=${subscription.Renew}"
+                "Subscription: Name=${subscription.name}, External=${subscription.external}, Renew=${subscription.renew}"
             )
 
             // For mobile plans (External==2), always pass the Google Play status
             // This ensures we show the correct cancellation status from Google Play
-            val isGooglePlayPlan = subscription.Name?.contains("lumo", ignoreCase = true) == true &&
-                    subscription.External == 2
+            val isGooglePlayPlan = subscription.name?.contains("lumo", ignoreCase = true) == true &&
+                    subscription.external == 2
 
             if (isGooglePlayPlan) {
                 Log.d(

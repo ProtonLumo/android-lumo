@@ -1,84 +1,73 @@
-package me.proton.android.lumo.utils
-
 import android.util.Log
-import com.google.gson.JsonObject
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.ui.text.UiText
 
-private const val TAG = "PlanExtractor"
-
-/**
- * Helper for extracting plan information from the API response
- */
 object PlanExtractor {
 
-    /**
-     * Extracts plans from the API response
-     *
-     * @param dataObject The JSON object containing the plans data
-     * @param context Context for accessing string resources (optional)
-     * @return List of extracted JsPlanInfo objects
-     */
+    private const val TAG = "PlanExtractor"
+
     fun extractPlans(dataObject: JsonObject): List<JsPlanInfo> {
         val extractedPlans = mutableListOf<JsPlanInfo>()
 
-        if (dataObject.has("Plans") && dataObject.get("Plans").isJsonArray) {
-            val plansArray = dataObject.getAsJsonArray("Plans")
+        val plansArray = dataObject["Plans"]?.jsonArray ?: return emptyList()
 
-            // Process each plan in the Plans array
-            for (i in 0 until plansArray.size()) {
-                val planObject = plansArray[i].asJsonObject
-                val planTitle = planObject.get("Title")?.asString ?: "Lumo Plus" // Default fallback
+        for (planElement in plansArray) {
+            val planObject = planElement.jsonObject
+            val planTitle = planObject["Title"]?.jsonPrimitive?.contentOrNull ?: "Lumo Plus"
+            val planId = planObject["ID"]?.jsonPrimitive?.contentOrNull ?: continue
 
-                // Process Instances
-                if (planObject.has("Instances") && planObject.get("Instances").isJsonArray) {
-                    val instancesArray = planObject.getAsJsonArray("Instances")
+            val instancesArray = planObject["Instances"]?.jsonArray ?: continue
 
-                    for (j in 0 until instancesArray.size()) {
-                        try {
-                            val instance = instancesArray[j].asJsonObject
-                            val cycle = instance.get("Cycle")?.asInt ?: 0
-                            val description = instance.get("Description")?.asString ?: ""
+            for (instanceElement in instancesArray) {
+                runCatching {
+                    val instance = instanceElement.jsonObject
 
-                            // Get Google vendor info
-                            val vendors = instance.get("Vendors")?.asJsonObject
-                            val googleVendor = vendors?.get("Google")?.asJsonObject
-                            val productId = googleVendor?.get("ProductID")?.asString
-                            val customerId = googleVendor?.get("CustomerID")?.asString
+                    val cycle = instance["Cycle"]?.jsonPrimitive?.intOrNull ?: 0
+                    val description =
+                        instance["Description"]?.jsonPrimitive?.contentOrNull.orEmpty()
 
-                            // Only create plans for instances with valid Google productId
-                            if (productId != null) {
-                                val durationText = when (cycle) {
-                                    1 -> UiText.ResText(R.string.plan_duration_1_month)
-                                    12 -> UiText.ResText(R.string.plan_duration_12_months)
-                                    else ->
-                                        UiText.ResText(
-                                            R.string.plan_duration_n_months,
-                                            cycle
-                                        )
-                                }
+                    // Vendors → Google → ProductID, CustomerID
+                    val googleVendor = instance["Vendors"]
+                        ?.jsonObject
+                        ?.get("Google")
+                        ?.jsonObject
 
-                                val jsPlan = JsPlanInfo(
-                                    id = "${planObject.get("ID")?.asString}-$cycle",
-                                    name = planTitle,
-                                    duration = durationText,
-                                    cycle = cycle,
-                                    description = description,
-                                    productId = productId,
-                                    customerId = customerId
-                                )
-                                extractedPlans.add(jsPlan)
-                                Log.d(TAG, "Added plan: ${jsPlan.name} (${jsPlan.duration})")
-                            }
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Error parsing instance", e)
+                    val productId = googleVendor?.get("ProductID")?.jsonPrimitive?.contentOrNull
+                    val customerId = googleVendor?.get("CustomerID")?.jsonPrimitive?.contentOrNull
+
+                    if (!productId.isNullOrBlank()) {
+                        val durationText = when (cycle) {
+                            1 -> UiText.ResText(R.string.plan_duration_1_month)
+                            12 -> UiText.ResText(R.string.plan_duration_12_months)
+                            else -> UiText.ResText(R.string.plan_duration_n_months, cycle)
                         }
+
+                        val jsPlan = JsPlanInfo(
+                            id = "$planId-$cycle",
+                            name = planTitle,
+                            duration = durationText,
+                            cycle = cycle,
+                            description = description,
+                            productId = productId,
+                            customerId = customerId
+                        )
+
+                        extractedPlans.add(jsPlan)
+                        Log.d(TAG, "Added plan: ${jsPlan.name} (${jsPlan.duration})")
                     }
+                }.onFailure { e ->
+                    Log.e(TAG, "Error parsing instance", e)
                 }
             }
         }
 
         return extractedPlans
     }
-} 
+}

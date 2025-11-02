@@ -1,6 +1,10 @@
 package me.proton.android.lumo.data.mapper
 
 import android.util.Log
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 import me.proton.android.lumo.billing.BillingManager
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.Subscription
@@ -34,16 +38,11 @@ class PaymentTokenMapper(private val billingManager: BillingManager) {
                 return null
             }
 
-            val token = try {
-                // If data is a JsonObject
-                if (paymentJsResponse.data?.isJsonObject == true) {
-                    paymentJsResponse.data.asJsonObject?.get("Token")?.asString
-                }
-                // If data is directly a primitive (like a string)
-                else if (paymentJsResponse.data?.isJsonPrimitive == true) {
-                    paymentJsResponse.data.asString
-                } else {
-                    null
+            val token: String? = try {
+                when (paymentJsResponse.data) {
+                    is JsonObject -> paymentJsResponse.data["Token"]?.jsonPrimitive?.contentOrNull
+                    is JsonPrimitive -> paymentJsResponse.data.contentOrNull
+                    else -> null
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error parsing token from response", e)
@@ -52,7 +51,7 @@ class PaymentTokenMapper(private val billingManager: BillingManager) {
                         "Error processing payment response: ${e.message}"
                     )
                 )
-                return null
+                null
             }
 
             if (token != null) {

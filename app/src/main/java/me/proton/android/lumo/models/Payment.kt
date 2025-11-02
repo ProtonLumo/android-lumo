@@ -1,45 +1,37 @@
 package me.proton.android.lumo.models
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-
+@Serializable
 data class InAppGooglePayload(
-    val purchaseToken: String,
-    val customerID: String,
-    val packageName: String,
-    val productID: String,
-    val orderID: String
+    @SerialName("purchaseToken") val purchaseToken: String,
+    @SerialName("customerID") val customerID: String,
+    @SerialName("packageName") val packageName: String,
+    @SerialName("productID") val productID: String,
+    @SerialName("orderID") val orderID: String
 )
 
+@Serializable
 data class Payment(
-    @SerializedName("Type")
-    val type: String,
-    @SerializedName("Details")
-    val details: InAppGooglePayload? = null
+    @SerialName("Type") val type: String,
+    @SerialName("Details") val details: InAppGooglePayload? = null
 )
 
+@Serializable
 data class PaymentTokenPayload(
-    @SerializedName("Amount")
-    val amount: Int,
-    @SerializedName("Currency")
-    val currency: String,
-    @SerializedName("PaymentMethodID")
-    val paymentMethodID: String? = null,
-    @SerializedName("Payment")
-    val payment: Payment? = null
+    @SerialName("Amount") val amount: Int,
+    @SerialName("Currency") val currency: String,
+    @SerialName("PaymentMethodID") val paymentMethodID: String? = null,
+    @SerialName("Payment") val payment: Payment? = null
 )
 
+@Serializable
 data class Subscription(
-    @SerializedName("PaymentToken")
-    val paymentToken: String?,
-    @SerializedName("Cycle")
-    val cycle: Int,
-    @SerializedName("Currency")
-    val currency: String,
-    @SerializedName("Plans")
-    val plans: Map<String, Int>,
-    @SerializedName("CouponCode")
-    val couponCode: String?,
-    @SerializedName("BillingAddress")
-    val billingAddress: String?
+    @SerialName("PaymentToken") val paymentToken: String?,
+    @SerialName("Cycle") val cycle: Int,
+    @SerialName("Currency") val currency: String,
+    @SerialName("Plans") val plans: Map<String, Int>,
+    @SerialName("CouponCode") val couponCode: String?,
+    @SerialName("BillingAddress") val billingAddress: String?
 )

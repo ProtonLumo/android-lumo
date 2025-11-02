@@ -2,36 +2,34 @@ package me.proton.android.lumo.webview
 
 import android.util.Log
 import android.webkit.WebView
-import com.google.gson.Gson
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import me.proton.android.lumo.billing.BillingManagerWrapper.PaymentRequestType
 import me.proton.android.lumo.models.PaymentJsResponse
 import java.util.UUID
 
-private const val TAG = "PaymentsJsInjector"
 
 /**
  * Generic method to send data to the WebView's JavaScript API using JavascriptInterface for callback
  */
-suspend fun <T> sendPaymentDataToWebView(
+suspend inline fun <reified T> sendPaymentDataToWebView(
     webView: WebView,
     payload: T?, // Payload is nullable
     jsFunction: PaymentRequestType,
     deferredCreated: (String, CompletableDeferred<Result<PaymentJsResponse>>) -> Unit,
 ): Result<PaymentJsResponse> {
-    val gson = Gson()
-    val payloadJson = payload?.let { gson.toJson(it) } ?: "null"
-    val payloadLog = payload?.let { gson.toJson(it) } ?: "No payload"
+    val payloadJson = payload?.let { Json.encodeToString(it) } ?: "null"
+    val payloadLog = payload?.let { Json.encodeToString(it) } ?: "No payload"
 
     // Generate a unique ID for this transaction
     val transactionId = UUID.randomUUID().toString()
     val deferred = CompletableDeferred<Result<PaymentJsResponse>>()
     deferredCreated(transactionId, deferred)
 
-    Log.d(TAG, "Sending ${jsFunction.name.lowercase()} (ID: $transactionId)...")
-    Log.d(TAG, "Payload: $payloadLog")
+    Log.d("PaymentsJsInjector", "Sending ${jsFunction.name.lowercase()} (ID: $transactionId)...")
+    Log.d("PaymentsJsInjector", "Payload: $payloadLog")
 
     val jsFunctionCall =
         if (jsFunction == PaymentRequestType.GET_PLANS || jsFunction == PaymentRequestType.GET_SUBSCRIPTIONS) {

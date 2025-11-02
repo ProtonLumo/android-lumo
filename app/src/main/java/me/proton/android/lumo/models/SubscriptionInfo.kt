@@ -1,44 +1,53 @@
 package me.proton.android.lumo.models
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
 /**
  * Represents a subscription entitlement feature description
  */
+@Serializable
 data class SubscriptionEntitlement(
-    val type: String, val text: String, val iconName: String, val hint: String? = null
+    @SerialName("type") val type: String,
+    @SerialName("text") val text: String,
+    @SerialName("iconName") val iconName: String,
+    @SerialName("hint") val hint: String? = null
 )
 
+@Serializable
 data class SubscriptionItemResponse(
-    val ID: String,
-    val InvoiceID: String,
-    val Cycle: Int,
-    val PeriodStart: Long,
-    val PeriodEnd: Long,
-    val CreateTime: Long,
-    val CouponCode: String?,
-    val Currency: String,
-    val Amount: Int,
-    val Discount: Int,
-    val RenewDiscount: Int,
-    val RenewAmount: Int,
-    val Renew: Int,
-    val External: Int,
-    val BillingPlatform: Int,
-    val IsTrial: Boolean,
-    val CustomerID: String?,
-    val Title: String? = null,
-    val Description: String? = null,
-    val Name: String? = null,
-    val CycleDescription: String? = null,
-    val Offer: String? = null,
-    val Entitlements: List<SubscriptionEntitlement>? = null,
-    val Decorations: List<String>? = null
+    @SerialName("ID") val id: String,
+    @SerialName("InvoiceID") val invoiceId: String,
+    @SerialName("Cycle") val cycle: Int,
+    @SerialName("PeriodStart") val periodStart: Long,
+    @SerialName("PeriodEnd") val periodEnd: Long,
+    @SerialName("CreateTime") val createTime: Long,
+    @SerialName("CouponCode") val couponCode: String?,
+    @SerialName("Currency") val currency: String,
+    @SerialName("Amount") val amount: Int,
+    @SerialName("Discount") val discount: Int,
+    @SerialName("RenewDiscount") val renewDiscount: Int,
+    @SerialName("RenewAmount") val renewAmount: Int,
+    @SerialName("Renew") val renew: Int,
+    @SerialName("External") val external: Int,
+    @SerialName("BillingPlatform") val billingPlatform: Int,
+    @SerialName("IsTrial") val isTrial: Boolean,
+    @SerialName("CustomerID") val customerID: String?,
+    @SerialName("Title") val title: String? = null,
+    @SerialName("Description") val description: String? = null,
+    @SerialName("Name") val name: String? = null,
+    @SerialName("CycleDescription") val cycleDescription: String? = null,
+    @SerialName("Offer") val offer: String? = null,
+    @SerialName("Entitlements") val entitlements: List<SubscriptionEntitlement>? = null,
+    @SerialName("Decorations") val decorations: List<String>? = null
 )
 
+@Serializable
 data class SubscriptionsResponse(
-    val Code: Number,
-    val Subscriptions: List<SubscriptionItemResponse>,
-    val UpcomingSubscriptions: List<SubscriptionItemResponse>? = null,
-    val uid: String? = null
+    @SerialName("Code") val code: Int,
+    @SerialName("Subscriptions") val subscriptions: List<SubscriptionItemResponse>,
+    @SerialName("UpcomingSubscriptions") val upcomingSubscriptions: List<SubscriptionItemResponse>? = null,
+    @SerialName("uid") val uid: String? = null
 )
 
 data class SubscriptionPlan(

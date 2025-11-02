@@ -14,8 +14,6 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
-import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,6 +23,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.InAppGooglePayload
 import me.proton.android.lumo.models.Payment
@@ -38,6 +40,7 @@ class BillingManager(private val application: Application) {
 
     companion object {
         private const val TAG = "BillingManager"
+
         // Production subscription product IDs (must match Google Play Console exactly)
         internal val SUBSCRIPTION_PLANS = listOf(
             SubscriptionPlan(
@@ -374,13 +377,13 @@ class BillingManager(private val application: Application) {
                                 // Extract expiry time from subscription
                                 try {
                                     // Get expiry date from purchase token (if available)
-                                    val subscriptionInfo = Gson().fromJson(
-                                        purchase.originalJson,
-                                        JsonObject::class.java
+                                    val subscriptionInfo = Json.decodeFromString<JsonObject>(
+                                        purchase.originalJson
                                     )
                                     Log.d(TAG, "Subscription info: $subscriptionInfo")
-                                    val expiryTimeMillis =
-                                        subscriptionInfo.get("expiryTimeMillis")?.asLong ?: 0
+                                    val expiryTimeMillis: Long =
+                                        subscriptionInfo["expiryTimeMillis"]?.jsonPrimitive?.long
+                                            ?: 0
 
                                     if (expiryTimeMillis > 0) {
                                         subscriptionExpiryTimeMillis = expiryTimeMillis
