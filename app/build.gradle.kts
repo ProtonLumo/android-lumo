@@ -1,3 +1,5 @@
+import java.util.UUID
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,6 +9,10 @@ plugins {
 }
 
 android {
+    sourceSets.named("main") {
+        assets.srcDir(layout.buildDirectory.dir("generated/assets"))
+    }
+
     namespace = "me.proton.android.lumo"
     compileSdk = 36
 
@@ -135,6 +141,10 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.profileinstaller)
+
+    implementation("com.alphacephei:vosk-android:0.3.70@aar")
+    implementation("net.java.dev.jna:jna:5.13.0@aar")
+
     "baselineProfile"(project(":baselineprofile"))
 
     "gmsImplementation"(libs.billing.ktx)
@@ -153,4 +163,22 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+tasks.register("genUUID") {
+    val odir = layout.buildDirectory.dir("generated/assets/model-en-us")
+    val ofile = odir.map { it.file("uuid") }
+
+    outputs.file(ofile)
+
+    doLast {
+        val uuid = UUID.randomUUID().toString()
+        val outputFile = ofile.get().asFile
+        outputFile.parentFile.mkdirs()
+        outputFile.writeText(uuid)
+    }
+}
+
+tasks.named("preBuild") {
+    dependsOn("genUUID")
 }
