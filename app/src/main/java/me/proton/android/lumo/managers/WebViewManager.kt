@@ -1,7 +1,5 @@
 package me.proton.android.lumo.managers
 
-import android.app.Activity
-import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.webkit.ServiceWorkerClient
@@ -10,7 +8,6 @@ import android.webkit.ValueCallback
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
-import androidx.core.net.toUri
 
 private const val TAG = "WebViewManager"
 

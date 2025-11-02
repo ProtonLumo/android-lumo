@@ -197,7 +197,7 @@ class MainActivityViewModel(
 
         // Add safety timeout to ensure loading state is cleared even if network check takes too long
         viewModelScope.launch {
-            kotlinx.coroutines.delay(3000) // 5 second timeout
+            delay(3000) // 5 second timeout
             if (_uiState.value.isLoading) {
                 _uiState.update { it.copy(isLoading = false) }
             }

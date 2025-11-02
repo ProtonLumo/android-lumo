@@ -5,8 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.webkit.WebView
 import android.widget.Toast
@@ -19,6 +17,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -127,9 +126,20 @@ class MainActivity : ComponentActivity() {
                 permissionContract = rememberSinglePermission(
                     permission = Manifest.permission.RECORD_AUDIO,
                     onGranted = { viewModel.startVoiceEntry() },
-                    onDenied = { }
+                    onDenied = {
+                        Toast.makeText(
+                            this,
+                            R.string.permission_mic_rationale,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 )
             )
+            DisposableEffect(Unit) {
+                onDispose {
+                    viewModel.detachPermissionContract()
+                }
+            }
 
             val isDarkTheme = uiState.theme?.let { theme ->
                 when (theme) {

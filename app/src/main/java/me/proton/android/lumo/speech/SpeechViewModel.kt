@@ -12,9 +12,7 @@ import kotlinx.coroutines.launch
 import me.proton.android.lumo.R
 import me.proton.android.lumo.ui.text.UiText
 
-class SpeechViewModel(
-    private val application: Application,
-) : ViewModel() {
+class SpeechViewModel(application: Application) : ViewModel() {
 
     data class SpeechUiState(
         val isListening: Boolean = false,
