@@ -4,9 +4,11 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.R
@@ -23,7 +25,8 @@ class SpeechViewModel(application: Application) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SpeechUiState())
     val uiState: StateFlow<SpeechUiState> = _uiState.asStateFlow()
-
+    private val _errorChannel = Channel<UiText>()
+    val errors = _errorChannel.receiveAsFlow()
     private val speechRecognitionManager = SpeechRecognitionManager(application)
 
     init {
@@ -53,7 +56,7 @@ class SpeechViewModel(application: Application) : ViewModel() {
             override fun onError(errorMessage: UiText) {
                 _uiState.update { it.copy(isListening = false) }
                 viewModelScope.launch {
-//                    _eventChannel.send(UiEvent.ShowToast(errorMessage))
+                    _errorChannel.send(errorMessage)
                 }
             }
 
@@ -71,11 +74,9 @@ class SpeechViewModel(application: Application) : ViewModel() {
         Log.d(TAG, "onStartVoiceEntryRequested")
         if (!speechRecognitionManager.isSpeechRecognitionAvailable()) {
             viewModelScope.launch {
-//                    _eventChannel.send(
-//                        UiEvent.ShowToast(
-//                            UiText.ResText(R.string.speech_not_available)
-//                        )
-//                    )
+                _errorChannel.send(
+                    UiText.ResText(R.string.speech_not_available)
+                )
             }
             return
         }

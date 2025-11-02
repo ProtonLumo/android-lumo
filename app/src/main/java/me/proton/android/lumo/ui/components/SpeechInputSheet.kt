@@ -3,6 +3,7 @@ package me.proton.android.lumo.ui.components
 import android.Manifest
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -46,8 +47,12 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
@@ -73,11 +78,27 @@ fun SpeechSheet(
 
     LaunchedEffect(Unit) {
         viewModel.onStartVoiceEntryRequested()
+
         try {
             sheetState.show()
             Log.d(MainActivity.TAG, "Effect: sheetState.show() finished.")
         } catch (e: Exception) {
             Log.e(MainActivity.TAG, "Error showing bottom sheet", e)
+        }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(Unit) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.errors.collectLatest { error ->
+                Toast.makeText(
+                    context,
+                    error.getText(context),
+                    Toast.LENGTH_SHORT
+                ).show()
+                sheetState.hide()
+                onDismiss()
+            }
         }
     }
 
@@ -290,4 +311,4 @@ fun SpeechInputSheetContent(
         )
         Spacer(modifier = Modifier.height(16.dp)) // Bottom padding
     }
-} 
+}
