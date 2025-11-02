@@ -4,7 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.webkit.ServiceWorkerClient
+import android.webkit.ServiceWorkerController
 import android.webkit.ValueCallback
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import androidx.core.net.toUri
 
@@ -23,32 +27,13 @@ class WebViewManager() {
     private var _webView: WebView? = null
     val webView: WebView? get() = _webView
 
-    /**
-     * Handle file chooser result from activity result launcher
-     */
-    fun handleFileChooserResult(
-        resultCode: Int,
-        data: Intent?
-    ) {
-        val results = if (data == null || resultCode != Activity.RESULT_OK) {
-            null
-        } else {
-            val dataString = data.dataString
-            if (dataString != null) {
-                arrayOf(dataString.toUri())
-            } else {
-                data.clipData?.let { clipData ->
-                    Array(clipData.itemCount) { i ->
-                        clipData.getItemAt(i).uri
-                    }
+    init {
+        ServiceWorkerController.getInstance()
+            .setServiceWorkerClient(object : ServiceWorkerClient() {
+                override fun shouldInterceptRequest(request: WebResourceRequest): WebResourceResponse? {
+                    return null
                 }
-            }
-        }
-
-        filePathCallback?.onReceiveValue(results ?: arrayOf())
-        filePathCallback = null
-
-        Log.d(TAG, "File chooser result handled. Results: ${results?.size ?: 0} files")
+            })
     }
 
     /**

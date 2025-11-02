@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -187,7 +188,6 @@ class MainActivityViewModel(
         }
     }
 
-    // --- Initial Network Check ---
     fun performInitialNetworkCheck() {
         if (checkCompleted) {
             Log.d(TAG, "Initial network check already completed, skipping.")
@@ -223,6 +223,17 @@ class MainActivityViewModel(
             _uiState.update { it.copy(isLoading = false) } // Hide loading
             checkCompleted = true
             Log.d(TAG, "Initial network check finished. Initial URL set to: ${_initialUrl.value}")
+        }
+    }
+
+    fun forceHideLoadingAfterDelay() {
+        viewModelScope.launch {
+            delay(5000)
+            val currentState = _uiState.value
+            if (currentState.isLoading) {
+                Log.d(TAG, "Forcing loading screen to hide from global timer")
+                hideLoading()
+            }
         }
     }
 
