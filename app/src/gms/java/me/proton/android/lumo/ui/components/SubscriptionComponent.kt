@@ -1,6 +1,8 @@
 package me.proton.android.lumo.ui.components
 
 import android.content.Context
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.content.res.Configuration.UI_MODE_TYPE_NORMAL
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -170,7 +172,7 @@ fun SubscriptionComponent(
                 shape = RoundedCornerShape(16.dp)
             )
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(LumoTheme.colors.backgroundNorm)
     ) {
         Column(
             modifier = Modifier
@@ -360,7 +362,8 @@ fun SubscriptionComponent(
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = LumoTheme.colors.primary
+                        containerColor = LumoTheme.colors.primary,
+                        contentColor = LumoTheme.colors.textInvert,
                     ),
                     shape = RoundedCornerShape(24.dp)
                 ) {
@@ -387,6 +390,7 @@ fun SubscriptionComponent(
 }
 
 @Preview(showBackground = true)
+@Preview(name = "Dark - Loading Plans", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
 fun SubscriptionComponentPreview() {
     // Preview both types of subscription structures based on the real API format
@@ -460,7 +464,7 @@ fun SubscriptionComponentPreview() {
         System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000 // expiryTimeMillis (30 days from now)
     )
 
-    MaterialTheme {
+    LumoTheme {
         Surface(
             modifier = Modifier.padding(16.dp),
             color = Color.White

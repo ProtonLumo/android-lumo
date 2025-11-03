@@ -31,7 +31,7 @@ data class SubscriptionItemResponse(
     @SerialName("Renew") val renew: Int,
     @SerialName("External") val external: Int,
     @SerialName("BillingPlatform") val billingPlatform: Int,
-    @SerialName("IsTrial") val isTrial: Boolean,
+    @SerialName("IsTrial") val isTrial: Boolean = false,
     @SerialName("CustomerID") val customerID: String?,
     @SerialName("Title") val title: String? = null,
     @SerialName("Description") val description: String? = null,
