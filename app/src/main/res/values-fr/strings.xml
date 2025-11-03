@@ -51,14 +51,21 @@
   <string name="speech_error_unknown">Erreur de reconnaissance vocale inconnue</string>
   <!-- SUbscription Strings -->
   <string name="payment_title">Améliorez votre expérience IA</string>
+  <string name="payment_black_friday_title">Ne manquez pas notre offre spéciale</string>
   <string name="payment_subtitle">Profitez d\'un traitement privilégié et de fonctionnalités premium avec Lumo Plus.</string>
+  <string name="payment_black_friday_subtitle">Débloquez dès aujourd\'hui toutes les fonctionnalités premium de Lumo Plus à son meilleur prix à ce jour.</string>
   <string name="payment_checking">Vérification du statut de l\'abonnement…</string>
   <string name="payment_loading_plans">Chargement des abonnements…</string>
   <string name="payment_no_plans_available">Aucun abonnement n\'est actuellement disponible.</string>
   <string name="subscription_renewal">L\'abonnement sélectionné sera automatiquement renouvelé jusqu\'à sa résiliation.</string>
-  <string name="subscription_buy_lumo">Achetez Lumo Plus</string>
+  <string name="subscription_buy_lumo">Profiter de Lumo Plus</string>
+  <string name="subscription_use_lumo_free">Utilisez Lumo Free à la place</string>
+  <string name="subscription_claim_black_friday_deal">Profitez de l\'offre Black Friday</string>
   <string name="subscription_manage">Gérer l\'abonnement</string>
   <string name="subscription_manage_info">Cet abonnement doit être géré via l\'interface web.</string>
+  <string name="discount_template">Économisez %s </string>
+  <string name="best_value">Meilleure offre</string>
+  <string name="limited_black_friday_offer">Offre Black Friday à durée limitée</string>
   <string name="for_price">Pour</string>
   <string name="month">Mois</string>
   <string name="months">Mois</string>

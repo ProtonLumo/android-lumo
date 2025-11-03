@@ -51,14 +51,21 @@
   <string name="speech_error_unknown">Bilinmeyen konuşma tanıma sorunu</string>
   <!-- SUbscription Strings -->
   <string name="payment_title">Yapay zeka deneyiminizi geliştirin</string>
+  <string name="payment_black_friday_title">Özel teklifimizi kaçırmayın</string>
   <string name="payment_subtitle">Lumo Plus ile ayrıcalıklı hizmetin ve ücretli özelliklerin tadını çıkarın.</string>
+  <string name="payment_black_friday_subtitle">Şimdiye kadar sunulmuş en iyi fiyat ile Lumo Plus alın ve tüm ücretli özelliklere erişin.</string>
   <string name="payment_checking">Abonelik durumu denetleniyor…</string>
   <string name="payment_loading_plans">Abonelik tarifeleri yükleniyor…</string>
   <string name="payment_no_plans_available">Şu anda herhangi bir abonelik tarifesi yok</string>
   <string name="subscription_renewal">Seçilmiş tarife iptal edilene kadar otomatik olarak yenilenir</string>
-  <string name="subscription_buy_lumo">Lumo Plus satın alın</string>
+  <string name="subscription_buy_lumo">Lumo Plus edinin</string>
+  <string name="subscription_use_lumo_free">Bunun yerine Lumo Free kullan</string>
+  <string name="subscription_claim_black_friday_deal">Muhteşem Cuma teklifini değerlendir</string>
   <string name="subscription_manage">Abonelik yönetimi</string>
   <string name="subscription_manage_info">Bu abonelik, internet arayüzü üzerinden yönetilmelidir.</string>
+  <string name="discount_template">%s indirim</string>
+  <string name="best_value">En iyi değer</string>
+  <string name="limited_black_friday_offer">Sınırlı süreli Muhteşem Cuma teklifi</string>
   <string name="for_price">Şunun için</string>
   <string name="month">Ay</string>
   <string name="months">Ay</string>

@@ -51,14 +51,21 @@
   <string name="speech_error_unknown">Unbekannter Spracherkennungsfehler</string>
   <!-- SUbscription Strings -->
   <string name="payment_title">Steigere dein KI-Erlebnis</string>
+  <string name="payment_black_friday_title">Verpasse nicht unser Sonderangebot</string>
   <string name="payment_subtitle">Genieße bevorzugte Behandlung und Premium-Funktionen mit Lumo Plus.</string>
+  <string name="payment_black_friday_subtitle">Aktiviere noch heute alle Premium-Funktionen auf Lumo Plus zu unserem bisher besten Preis.</string>
   <string name="payment_checking">Abonnementstatus wird überprüft …</string>
   <string name="payment_loading_plans">Abonnements werden geladen …</string>
   <string name="payment_no_plans_available">Es sind derzeit keine Abonnementpläne verfügbar</string>
   <string name="subscription_renewal">Das ausgewählte Abonnement verlängert sich automatisch, bis es gekündigt wird</string>
-  <string name="subscription_buy_lumo">Lumo Plus kaufen</string>
+  <string name="subscription_buy_lumo">Lumo Plus holen</string>
+  <string name="subscription_use_lumo_free">Alternativ Lumo Free nutzen</string>
+  <string name="subscription_claim_black_friday_deal">Nutze das Black-Friday-Angebot</string>
   <string name="subscription_manage">Abonnement verwalten</string>
   <string name="subscription_manage_info">Dieses Abonnement muss über die Weboberfläche verwaltet werden.</string>
+  <string name="discount_template">Spare %s</string>
+  <string name="best_value">Bestes Angebot</string>
+  <string name="limited_black_friday_offer">Zeitlich befristetes Black-Friday-Angebot</string>
   <string name="for_price">Für</string>
   <string name="month">Monat</string>
   <string name="months">Monat</string>
