@@ -86,12 +86,12 @@ class SpeechViewModel(application: Application) : ViewModel() {
     }
 
     private fun determineSpeechStatusText() {
-        val statusText = if (speechRecognitionManager.isOnDeviceRecognitionAvailable()) {
+        val statusText = if (speechRecognitionManager.isVosk()) {
+            Log.d(TAG, "On-device recognition NOT available, falling back to Vosk.")
+            UiText.ResText(R.string.speech_status_vosk)
+        } else {
             Log.d(TAG, "On-device recognition IS available.")
             UiText.ResText(R.string.speech_status_on_device)
-        } else {
-            Log.d(TAG, "On-device recognition NOT available.")
-            UiText.ResText(R.string.speech_status_vosk)
         }
         _uiState.value = _uiState.value.copy(speechStatusText = statusText)
     }

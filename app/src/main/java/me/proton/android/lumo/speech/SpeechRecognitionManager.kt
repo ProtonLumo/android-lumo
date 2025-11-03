@@ -26,12 +26,10 @@ class SpeechRecognitionManager(private val context: Context) {
     }
 
     private val speechRecognizer: LumoSpeechRecognizer =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (isOnDeviceRecognitionAvailable()) {
-                OnDeviceSpeechRecognizer(context)
-            } else {
-                VoskSpeechRecognizer(context)
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
+        ) {
+            OnDeviceSpeechRecognizer(context)
         } else {
             VoskSpeechRecognizer(context)
         }
@@ -46,13 +44,6 @@ class SpeechRecognitionManager(private val context: Context) {
 
     fun isSpeechRecognitionAvailable(): Boolean =
         speechRecognizer.isSpeechRecognitionAvailable()
-
-    fun isOnDeviceRecognitionAvailable(): Boolean =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
-        } else {
-            false
-        }
 
     fun startListening() {
         speechRecognizer.startListening()
