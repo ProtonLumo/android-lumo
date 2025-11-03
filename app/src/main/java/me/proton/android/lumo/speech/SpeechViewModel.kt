@@ -21,13 +21,18 @@ class SpeechViewModel(application: Application) : ViewModel() {
         val partialSpokenText: String = "",
         val rmsDbValue: Float = 0f,
         val speechStatusText: UiText = UiText.StringText(""),
+        val isVosk: Boolean = false,
     )
 
-    private val _uiState = MutableStateFlow(SpeechUiState())
-    val uiState: StateFlow<SpeechUiState> = _uiState.asStateFlow()
     private val _errorChannel = Channel<UiText>()
     val errors = _errorChannel.receiveAsFlow()
     private val speechRecognitionManager = SpeechRecognitionManager(application)
+    private val _uiState = MutableStateFlow(
+        value = SpeechUiState(
+            isVosk = speechRecognitionManager.isVosk()
+        )
+    )
+    val uiState: StateFlow<SpeechUiState> = _uiState.asStateFlow()
 
     init {
         setupSpeechRecognition()
@@ -39,10 +44,6 @@ class SpeechViewModel(application: Application) : ViewModel() {
             SpeechRecognitionManager.SpeechRecognitionListener {
             override fun onReadyForSpeech() {
                 _uiState.update { it.copy(isListening = true) }
-            }
-
-            override fun onBeginningOfSpeech() {
-                // Nothing to do here
             }
 
             override fun onRmsChanged(rmsdB: Float) {
@@ -85,12 +86,12 @@ class SpeechViewModel(application: Application) : ViewModel() {
     }
 
     private fun determineSpeechStatusText() {
-        val statusText = if (speechRecognitionManager.isOnDeviceRecognitionAvailable()) {
+        val statusText = if (speechRecognitionManager.isVosk()) {
+            Log.d(TAG, "On-device recognition NOT available, falling back to Vosk.")
+            UiText.ResText(R.string.speech_status_vosk)
+        } else {
             Log.d(TAG, "On-device recognition IS available.")
             UiText.ResText(R.string.speech_status_on_device)
-        } else {
-            Log.d(TAG, "On-device recognition NOT available.")
-            UiText.ResText(R.string.speech_status_network)
         }
         _uiState.value = _uiState.value.copy(speechStatusText = statusText)
     }
