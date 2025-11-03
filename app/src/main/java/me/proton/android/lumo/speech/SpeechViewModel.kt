@@ -91,7 +91,7 @@ class SpeechViewModel(application: Application) : ViewModel() {
             UiText.ResText(R.string.speech_status_on_device)
         } else {
             Log.d(TAG, "On-device recognition NOT available.")
-            UiText.ResText(R.string.speech_status_network)
+            UiText.ResText(R.string.speech_status_vosk)
         }
         _uiState.value = _uiState.value.copy(speechStatusText = statusText)
     }
