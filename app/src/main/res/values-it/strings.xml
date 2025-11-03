@@ -51,14 +51,21 @@
   <string name="speech_error_unknown">Si è verificato un errore nel riconoscimento</string>
   <!-- SUbscription Strings -->
   <string name="payment_title">Migliora l\'esperienza IA</string>
+  <string name="payment_black_friday_title">Non perdere la nostra offerta speciale.</string>
   <string name="payment_subtitle">Passa a Lumo Plus per funzionalità premium e un servizio prioritario</string>
+  <string name="payment_black_friday_subtitle">Sblocca oggi tutte le funzionalità premium di Lumo Plus al nostro prezzo migliore di sempre.</string>
   <string name="payment_checking">Controllo stato abbonamento</string>
   <string name="payment_loading_plans">Caricamento piani di abbonamento...</string>
   <string name="payment_no_plans_available">Nessun piano a pagamento disponibile</string>
   <string name="subscription_renewal">Si rinnova automaticamente eccetto annullamento</string>
-  <string name="subscription_buy_lumo">Acquista Lumo Plus</string>
+  <string name="subscription_buy_lumo">Ottieni Lumo Plus</string>
+  <string name="subscription_use_lumo_free">Usa invece Lumo Free</string>
+  <string name="subscription_claim_black_friday_deal">Approfitta dell’offerta del Black Friday</string>
   <string name="subscription_manage">Gestisci l\'abbonamento</string>
   <string name="subscription_manage_info">Gestione dell\'abbonamento disponibile solamente nell\'app web</string>
+  <string name="discount_template">Risparmia il %s</string>
+  <string name="best_value">Offerta migliore</string>
+  <string name="limited_black_friday_offer">Offerta Black Friday a tempo limitato</string>
   <string name="for_price">Per</string>
   <string name="month">Mese</string>
   <string name="months">Mesi</string>

@@ -51,14 +51,21 @@
   <string name="speech_error_unknown">Neznámá chyba rozpoznávání řeči</string>
   <!-- SUbscription Strings -->
   <string name="payment_title">Zlepšete svůj zážitek s AI</string>
+  <string name="payment_black_friday_title">Nezmeškejte naši speciální nabídku</string>
   <string name="payment_subtitle">Užijte si preferované zacházení a prémiové funkce s Lumo Plus.</string>
+  <string name="payment_black_friday_subtitle">Odemkněte si ještě dnes všechny prémiové funkce Lumo Plus za naši dosud nejlepší cenu.</string>
   <string name="payment_checking">Kontroluji stav předplatného…</string>
   <string name="payment_loading_plans">Načítám tarify předplatného…</string>
   <string name="payment_no_plans_available">Momentálně nejsou k dispozici žádné tarify předplatného</string>
   <string name="subscription_renewal">Vybraný tarif se bude automaticky obnovovat, dokud nebude zrušen</string>
-  <string name="subscription_buy_lumo">Koupit Lumo Plus</string>
+  <string name="subscription_buy_lumo">Získat Lumo Plus</string>
+  <string name="subscription_use_lumo_free">Použít místo toho Lumo Free</string>
+  <string name="subscription_claim_black_friday_deal">Využijte nabídku Black Friday</string>
   <string name="subscription_manage">Správa předplatného</string>
   <string name="subscription_manage_info">Toto předplatné musí být spravováno prostřednictvím webového rozhraní.</string>
+  <string name="discount_template">Ušetřete %s</string>
+  <string name="best_value">Nejvýhodnější</string>
+  <string name="limited_black_friday_offer">Časově omezená nabídka Black Friday</string>
   <string name="for_price">Za</string>
   <string name="month">Měsíc</string>
   <string name="months">Měsíc</string>

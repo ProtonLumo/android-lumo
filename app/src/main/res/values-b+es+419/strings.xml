@@ -51,14 +51,21 @@
   <string name="speech_error_unknown">Error desconocido de reconocimiento de voz</string>
   <!-- SUbscription Strings -->
   <string name="payment_title">Eleve su experiencia de IA</string>
+  <string name="payment_black_friday_title">No te pierdas nuestra oferta especial</string>
   <string name="payment_subtitle">Disfrute de un trato preferencial y funciones premium con Lumo Plus.</string>
+  <string name="payment_black_friday_subtitle">Unlock all premium features today on Lumo Plus with our best price yet.</string>
   <string name="payment_checking">Comprobando el estado de la suscripción…</string>
   <string name="payment_loading_plans">Cargando los planes de suscripción…</string>
   <string name="payment_no_plans_available">No hay planes de suscripción disponibles en este momento.</string>
   <string name="subscription_renewal">El plan seleccionado se renovará automáticamente hasta que se cancele</string>
-  <string name="subscription_buy_lumo">Comprar Lumo Plus</string>
+  <string name="subscription_buy_lumo">Obtener Lumo Plus</string>
+  <string name="subscription_use_lumo_free">Use Lumo Free instead</string>
+  <string name="subscription_claim_black_friday_deal">Claim Black Friday Deal</string>
   <string name="subscription_manage">Gestionar suscripción</string>
   <string name="subscription_manage_info">Esta suscripción debe gestionarse a través de la interfaz web.</string>
+  <string name="discount_template">Ahorra %s</string>
+  <string name="best_value">Best Value</string>
+  <string name="limited_black_friday_offer">Limited time Black Friday offer</string>
   <string name="for_price">Por</string>
   <string name="month">Mes</string>
   <string name="months">Mes</string>
