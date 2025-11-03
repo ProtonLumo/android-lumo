@@ -63,12 +63,15 @@ object SubscriptionMapper {
 
 
         try {
+            val json = Json {
+                ignoreUnknownKeys = true
+            }
             // Try parsing as SubscriptionsResponse (multiple subscriptions)
             val subscriptions = response.data["Subscriptions"]
             val subscription = response.data["Subscription"] // notice, SINGULAR
             if (subscriptions != null) {
                 val subscriptionsResponse =
-                    Json.decodeFromJsonElement<SubscriptionsResponse>(response.data)
+                    json.decodeFromJsonElement<SubscriptionsResponse>(response.data)
                 Log.d(
                     TAG,
                     "Parsed multiple subscriptions: ${subscriptionsResponse.subscriptions.size}"
@@ -78,7 +81,7 @@ object SubscriptionMapper {
             // Try parsing as SubscriptionResponse (single subscription)
             else if (subscription != null) {
                 val subscriptionResponse =
-                    Json.decodeFromJsonElement<SubscriptionsResponse>(response.data)
+                    json.decodeFromJsonElement<SubscriptionsResponse>(response.data)
 
                 Log.d(TAG, "Parsed single subscription response")
                 return subscriptionResponse.subscriptions

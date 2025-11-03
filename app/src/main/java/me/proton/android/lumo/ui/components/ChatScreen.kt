@@ -19,16 +19,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,12 +33,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.airbnb.lottie.LottieComposition
-import kotlinx.coroutines.launch
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
-import me.proton.android.lumo.ui.text.UiText
-import me.proton.android.lumo.ui.text.asString
 import me.proton.android.lumo.ui.theme.LumoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,27 +42,11 @@ import me.proton.android.lumo.ui.theme.LumoTheme
 fun ChatScreen(
     webView: WebView,
     hasSeenLumoContainer: Boolean,
-    showSpeechSheet: Boolean,
     shouldShowBackButton: Boolean,
     isLoading: Boolean,
     isLumoPage: Boolean,
-    isListening: Boolean,
-    partialSpokenText: String,
-    rmsDbValue: Float,
-    speechStatusText: UiText,
-    lottieComposition: LottieComposition?,
-    mainScreenListeners: MainScreenListeners,
+    handleWebViewNavigation: () -> Unit,
 ) {
-    SpeechSheet(
-        hasSeenLumoContainer = hasSeenLumoContainer,
-        mainScreenListeners = mainScreenListeners,
-        showSpeechSheet = showSpeechSheet,
-        isListening = isListening,
-        partialSpokenText = partialSpokenText,
-        rmsDbValue = rmsDbValue,
-        speechStatusText = speechStatusText,
-    )
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -93,7 +69,7 @@ fun ChatScreen(
                                         MainActivity.TAG,
                                         "Back button clicked, navigating to Lumo"
                                     )
-                                    mainScreenListeners.handleWebViewNavigation()
+                                    handleWebViewNavigation()
                                 }
                                 .padding(all = 8.dp) // optional padding
                         ) {
@@ -133,16 +109,13 @@ fun ChatScreen(
                         "hasSeenLumoContainer: $hasSeenLumoContainer, " +
                         "isLumoPage: $isLumoPage"
             )
-            LoadingScreen(showLoading, lottieComposition)
+            LoadingScreen(show = showLoading)
         }
     }
 }
 
 @Composable
-private fun LoadingScreen(
-    show: Boolean,
-    lottieComposition: LottieComposition?
-) {
+private fun LoadingScreen(show: Boolean) {
     // Overlay LoadingScreen if loading (use only ViewModel state)
     AnimatedVisibility(
         visible = show,
@@ -153,91 +126,6 @@ private fun LoadingScreen(
             animationSpec = tween(200)
         )
     ) {
-        LoadingScreen(preloadedComposition = lottieComposition)
+        LoadingScreen()
     }
 }
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun SpeechSheet(
-    hasSeenLumoContainer: Boolean,
-    mainScreenListeners: MainScreenListeners,
-    showSpeechSheet: Boolean,
-    isListening: Boolean,
-    partialSpokenText: String,
-    rmsDbValue: Float,
-    speechStatusText: UiText,
-) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(hasSeenLumoContainer) {
-        if (hasSeenLumoContainer) {
-            mainScreenListeners.onWebViewCleared()
-        }
-    }
-
-    LaunchedEffect(showSpeechSheet) {
-        Log.d(
-            MainActivity.TAG,
-            "LaunchedEffect(showSpeechSheet) triggered. showSpeechSheet = $showSpeechSheet"
-        )
-        scope.launch {
-            if (showSpeechSheet) {
-                Log.d(
-                    MainActivity.TAG,
-                    "Effect: showSpeechSheet is TRUE. Calling sheetState.show()..."
-                )
-                try {
-                    sheetState.show()
-                    Log.d(MainActivity.TAG, "Effect: sheetState.show() finished.")
-                } catch (e: Exception) {
-                    Log.e(MainActivity.TAG, "Error showing bottom sheet", e)
-                }
-            } else {
-                Log.d(
-                    MainActivity.TAG,
-                    "Effect: showSpeechSheet is FALSE. Checking if sheet is visible..."
-                )
-                if (sheetState.isVisible) {
-                    Log.d(
-                        MainActivity.TAG,
-                        "Effect: Sheet is visible. Calling sheetState.hide()..."
-                    )
-                    try {
-                        sheetState.hide()
-                        Log.d(MainActivity.TAG, "Effect: sheetState.hide() finished.")
-                    } catch (e: Exception) {
-                        Log.e(MainActivity.TAG, "Error hiding bottom sheet", e)
-                    }
-                } else {
-                    Log.d(MainActivity.TAG, "Effect: Sheet is already hidden.")
-                }
-            }
-        }
-    }
-
-    if (showSpeechSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { mainScreenListeners.cancelSpeech() },
-            sheetState = sheetState,
-            containerColor = LumoTheme.colors.primary,
-        ) {
-            SpeechInputSheetContent(
-                isListening = isListening,
-                partialSpokenText = partialSpokenText,
-                rmsDbValue = rmsDbValue,
-                speechStatusText = speechStatusText.asString(),
-                onCancel = { mainScreenListeners.cancelSpeech() },
-                onSubmit = { mainScreenListeners.submitSpeechTranscript() }
-            )
-        }
-    }
-}
-
-class MainScreenListeners(
-    val handleWebViewNavigation: () -> Unit,
-    val onWebViewCleared: () -> Unit,
-    val cancelSpeech: () -> Unit,
-    val submitSpeechTranscript: () -> Unit,
-)

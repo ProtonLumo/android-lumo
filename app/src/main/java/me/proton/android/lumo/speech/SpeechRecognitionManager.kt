@@ -1,16 +1,13 @@
 package me.proton.android.lumo.speech
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
-import androidx.core.content.ContextCompat
 import me.proton.android.lumo.R
 import me.proton.android.lumo.ui.text.UiText
 
@@ -46,13 +43,6 @@ class SpeechRecognitionManager(private val context: Context) {
 
     fun removeListener() {
         this.listener = null
-    }
-
-    fun isPermissionGranted(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.RECORD_AUDIO
-        ) == PackageManager.PERMISSION_GRANTED
     }
 
     /**

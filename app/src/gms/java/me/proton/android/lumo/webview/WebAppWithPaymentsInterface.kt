@@ -106,12 +106,15 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
             return Result.failure(Exception("JavaScript promise handling error or unexpected result."))
         }
         return try {
+            val json = Json {
+                ignoreUnknownKeys = true
+            }
             var processableString = resultString?.removeSurrounding("\"")
             // If the string still looks like an encoded JSON string (starts with \" and ends with \")
             // attempt to parse it as a string first to decode it
             if (processableString?.startsWith("\\\"") == true && processableString.endsWith("\\\"")) {
                 try {
-                    processableString = Json.decodeFromString<String>(processableString)
+                    processableString = json.decodeFromString<String>(processableString)
                 } catch (e: Exception) {
                     Log.w(
                         TAG,
@@ -122,7 +125,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
                 }
             }
             if (processableString != null) {
-                val parsedResponse = Json.decodeFromString<PaymentJsResponse>(processableString)
+                val parsedResponse = json.decodeFromString<PaymentJsResponse>(processableString)
                 if (parsedResponse.status == "success") {
                     Result.success(parsedResponse)
                 } else {

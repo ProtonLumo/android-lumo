@@ -376,8 +376,11 @@ class BillingManager(private val application: Application) {
 
                                 // Extract expiry time from subscription
                                 try {
+                                    val json = Json {
+                                        ignoreUnknownKeys = true
+                                    }
                                     // Get expiry date from purchase token (if available)
-                                    val subscriptionInfo = Json.decodeFromString<JsonObject>(
+                                    val subscriptionInfo = json.decodeFromString<JsonObject>(
                                         purchase.originalJson
                                     )
                                     Log.d(TAG, "Subscription info: $subscriptionInfo")

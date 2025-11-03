@@ -1407,3 +1407,22 @@ fun injectUpgradeLinkHider(webView: WebView) {
     Log.d(TAG, "Injecting upgrade link hider JavaScript")
     webView.evaluateJavascript(js, null)
 }
+
+fun injectSpokenText(
+    webView: WebView,
+    text: String,
+) {
+    val js = """
+        (function() {
+            if (typeof window.insertPromptAndSubmit === 'function') {
+                return window.insertPromptAndSubmit($text);
+            } else {
+                console.error('insertPromptAndSubmit function not found');
+                return 'Error: insertPromptAndSubmit not found';
+            }
+        })()
+    """.trimIndent()
+
+    Log.d(TAG, "Injecting spoken text JavaScript")
+    webView.evaluateJavascript(js, null)
+}

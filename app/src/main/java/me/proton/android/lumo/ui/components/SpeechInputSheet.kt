@@ -1,6 +1,9 @@
 package me.proton.android.lumo.ui.components
 
+import android.Manifest
+import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,16 +23,20 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,12 +44,105 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
+import me.proton.android.lumo.permission.rememberSinglePermission
+import me.proton.android.lumo.speech.SpeechViewModel
+import me.proton.android.lumo.speech.SpeechViewModelFactory
+import me.proton.android.lumo.ui.text.asString
 import me.proton.android.lumo.ui.theme.LumoTheme
 import kotlin.math.max
 import kotlin.math.pow
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun SpeechSheet(
+    onDismiss: () -> Unit,
+    onSubmitText: (String) -> Unit,
+) {
+    val context = LocalContext.current
+    val viewModel: SpeechViewModel =
+        viewModel(factory = SpeechViewModelFactory(context.applicationContext as Application))
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        viewModel.onStartVoiceEntryRequested()
+
+        try {
+            sheetState.show()
+            Log.d(MainActivity.TAG, "Effect: sheetState.show() finished.")
+        } catch (e: Exception) {
+            Log.e(MainActivity.TAG, "Error showing bottom sheet", e)
+        }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(Unit) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.errors.collectLatest { error ->
+                Toast.makeText(
+                    context,
+                    error.getText(context),
+                    Toast.LENGTH_SHORT
+                ).show()
+                sheetState.hide()
+                onDismiss()
+            }
+        }
+    }
+
+    val permission = rememberSinglePermission(
+        permission = Manifest.permission.RECORD_AUDIO,
+    )
+    LaunchedEffect(permission.isGranted) {
+        if (!permission.isGranted) {
+            scope.launch {
+                sheetState.hide()
+                onDismiss()
+            }
+        }
+    }
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = LumoTheme.colors.primary,
+    ) {
+        SpeechInputSheetContent(
+            isListening = uiState.isListening,
+            partialSpokenText = uiState.partialSpokenText,
+            rmsDbValue = uiState.rmsDbValue,
+            speechStatusText = uiState.speechStatusText.asString(),
+            onCancel = {
+                scope.launch {
+                    sheetState.hide()
+                    viewModel.onCancelListening()
+                }
+                onDismiss()
+            },
+            onSubmit = {
+                scope.launch {
+                    sheetState.hide()
+                }
+                val spokenText = viewModel.onSubmitTranscription()
+                onSubmitText(spokenText)
+                onDismiss()
+            }
+        )
+    }
+}
 
 @Composable
 fun AudioWaveform(
@@ -211,4 +311,4 @@ fun SpeechInputSheetContent(
         )
         Spacer(modifier = Modifier.height(16.dp)) // Bottom padding
     }
-} 
+}
