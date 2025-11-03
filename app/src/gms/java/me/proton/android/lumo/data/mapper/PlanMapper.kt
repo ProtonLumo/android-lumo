@@ -1,6 +1,8 @@
 package me.proton.android.lumo.data.mapper
 
 import android.util.Log
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
 import me.proton.android.lumo.R
 import me.proton.android.lumo.data.PlanResult
 import me.proton.android.lumo.models.JsPlanInfo
@@ -8,7 +10,6 @@ import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.utils.FeatureExtractor
-import me.proton.android.lumo.utils.PlanExtractor
 
 object PlanMapper {
 
@@ -47,18 +48,15 @@ object PlanMapper {
     }
 
     private fun extractPlanFeatures(response: PaymentJsResponse): List<PlanFeature> {
-        if (response.data == null || !response.data.isJsonObject) {
+        if (response.data == null || response.data !is JsonObject) {
             Log.e(TAG, "Cannot extract features: Data is null or not a JSON object")
             return emptyList()
         }
 
-        val dataObject = response.data.asJsonObject
-
-        if (dataObject.has("Plans") && dataObject.get("Plans").isJsonArray) {
-            val plansArray = dataObject.getAsJsonArray("Plans")
-            if (plansArray.size() > 0) {
-                val firstPlanObject = plansArray[0].asJsonObject
-                return FeatureExtractor.extractPlanFeatures(firstPlanObject)
+        val plans = response.data["Plans"] as? JsonArray
+        if (plans != null && plans.isNotEmpty()) {
+            (plans[0] as? JsonObject)?.let {
+                return FeatureExtractor.extractPlanFeatures(it)
             }
         }
 
@@ -66,11 +64,11 @@ object PlanMapper {
     }
 
     private fun extractPlans(response: PaymentJsResponse): List<JsPlanInfo> {
-        if (response.data == null || !response.data.isJsonObject) {
+        if (response.data == null || response.data !is JsonObject) {
             Log.e(TAG, "Cannot extract plans: Data is null or not a JSON object")
             return emptyList()
         }
 
-        return PlanExtractor.extractPlans(dataObject = response.data.asJsonObject)
+        return PlanExtractor.extractPlans(dataObject = response.data)
     }
 }

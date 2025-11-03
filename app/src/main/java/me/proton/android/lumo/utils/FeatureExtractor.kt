@@ -1,15 +1,16 @@
 package me.proton.android.lumo.utils
 
 import android.util.Log
-import com.google.gson.JsonObject
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import me.proton.android.lumo.models.PlanFeature
 
-private const val TAG = "FeatureExtractor"
-
-/**
- * Helper for extracting feature information from the API response
- */
 object FeatureExtractor {
+
+    private const val TAG = "FeatureExtractor"
 
     /**
      * Extracts plan features from the API response
@@ -20,31 +21,35 @@ object FeatureExtractor {
     fun extractPlanFeatures(planObject: JsonObject): List<PlanFeature> {
         val features = mutableListOf<PlanFeature>()
 
-        if (planObject.has("Entitlements") && planObject.get("Entitlements").isJsonArray) {
-            val entitlementsArray = planObject.getAsJsonArray("Entitlements")
+        val entitlementsArray = planObject["Entitlements"]?.jsonArray ?: return emptyList()
 
-            for (i in 0 until entitlementsArray.size()) {
-                try {
-                    val entitlement = entitlementsArray[i].asJsonObject
-                    if (entitlement.get("Type")?.asString == "description") {
-                        val textParts = entitlement.get("Text")?.asString?.split("::")
-                        if (textParts != null && textParts.size >= 3) {
-                            val feature = PlanFeature(
-                                name = textParts[0],
-                                freeText = textParts[1],
-                                paidText = textParts[2],
-                                iconName = entitlement.get("IconName")?.asString ?: "checkmark"
-                            )
-                            features.add(feature)
-                            Log.d(TAG, "Added feature: ${feature.name}")
-                        }
+        for (entitlementElement in entitlementsArray) {
+            runCatching {
+                val entitlement = entitlementElement.jsonObject
+
+                // Only process "description" type entitlements
+                if (entitlement["Type"]?.jsonPrimitive?.contentOrNull == "description") {
+                    val text =
+                        entitlement["Text"]?.jsonPrimitive?.contentOrNull ?: return@runCatching
+                    val textParts = text.split("::")
+
+                    if (textParts.size >= 3) {
+                        val feature = PlanFeature(
+                            name = textParts[0],
+                            freeText = textParts[1],
+                            paidText = textParts[2],
+                            iconName = entitlement["IconName"]?.jsonPrimitive?.contentOrNull
+                                ?: "checkmark"
+                        )
+                        features.add(feature)
+                        Log.d(TAG, "Added feature: ${feature.name}")
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error parsing entitlement", e)
                 }
+            }.onFailure { e ->
+                Log.e(TAG, "Error parsing entitlement", e)
             }
         }
 
         return features
     }
-} 
+}

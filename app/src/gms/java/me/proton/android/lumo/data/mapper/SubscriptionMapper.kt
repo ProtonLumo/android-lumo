@@ -1,7 +1,9 @@
 package me.proton.android.lumo.data.mapper
 
 import android.util.Log
-import com.google.gson.Gson
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 import me.proton.android.lumo.R
 import me.proton.android.lumo.data.SubscriptionResult
 import me.proton.android.lumo.models.PaymentJsResponse
@@ -18,7 +20,7 @@ object SubscriptionMapper {
         try {
             jsResult.onSuccess { response ->
                 // Parse subscriptions from response
-                if (response.data != null && response.data.isJsonObject) {
+                if (response.data != null && response.data is JsonObject) {
                     val parsedSubscriptions = parseSubscriptions(response)
                     val hasValidSubscription = hasValidSubscription(parsedSubscriptions)
                     subscriptionResult = subscriptionResult.copy(
@@ -54,37 +56,32 @@ object SubscriptionMapper {
      * Parse subscriptions from API response
      */
     private fun parseSubscriptions(response: PaymentJsResponse): List<SubscriptionItemResponse> {
-        if (response.data == null || !response.data.isJsonObject) {
+        if (response.data == null || response.data !is JsonObject) {
             Log.e(TAG, "Cannot parse subscriptions: Data is null or not a JSON object")
             return emptyList()
         }
 
-        val gson = Gson()
-        val dataObject = response.data.asJsonObject
 
         try {
             // Try parsing as SubscriptionsResponse (multiple subscriptions)
-            if (dataObject.has("Subscriptions")) {
-                val subscriptionsResponse = gson.fromJson(
-                    response.data,
-                    SubscriptionsResponse::class.java
-                )
-
+            val subscriptions = response.data["Subscriptions"]
+            val subscription = response.data["Subscription"] // notice, SINGULAR
+            if (subscriptions != null) {
+                val subscriptionsResponse =
+                    Json.decodeFromJsonElement<SubscriptionsResponse>(response.data)
                 Log.d(
                     TAG,
-                    "Parsed multiple subscriptions: ${subscriptionsResponse.Subscriptions.size}"
+                    "Parsed multiple subscriptions: ${subscriptionsResponse.subscriptions.size}"
                 )
-                return subscriptionsResponse.Subscriptions
+                return subscriptionsResponse.subscriptions
             }
             // Try parsing as SubscriptionResponse (single subscription)
-            else if (dataObject.has("Subscription")) {
-                val subscriptionResponse = gson.fromJson(
-                    response.data,
-                    SubscriptionsResponse::class.java
-                )
+            else if (subscription != null) {
+                val subscriptionResponse =
+                    Json.decodeFromJsonElement<SubscriptionsResponse>(response.data)
 
                 Log.d(TAG, "Parsed single subscription response")
-                return subscriptionResponse.Subscriptions
+                return subscriptionResponse.subscriptions
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing subscriptions: ${e.message}", e)
@@ -97,9 +94,9 @@ object SubscriptionMapper {
         Log.e(TAG, "$subscriptions")
         return subscriptions.any { subscription ->
             // Check for Lumo or Visionary plans
-            subscription.Name != null &&
-                    (subscription.Name.contains("lumo", ignoreCase = true) ||
-                            subscription.Name.contains("visionary", ignoreCase = true))
+            subscription.name != null &&
+                    (subscription.name.contains("lumo", ignoreCase = true) ||
+                            subscription.name.contains("visionary", ignoreCase = true))
         }
     }
 }

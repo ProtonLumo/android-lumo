@@ -52,13 +52,13 @@ fun SubscriptionComponent(
     onManageSubscription: (Context) -> Unit
 ) {
     // Check if this is a mobile plan (External == 2 indicates a Google Play Store subscription)
-    val isMobilePlan = subscription.External == 2
+    val isMobilePlan = subscription.external == 2
 
     // Log to verify the values
     if (isMobilePlan) {
         Log.d(
             "SubscriptionComponent",
-            "Mobile plan detected: ${subscription.Title}, External=${subscription.External}"
+            "Mobile plan detected: ${subscription.title}, External=${subscription.external}"
         )
         if (googlePlayRenewalStatus != null) {
             val (isActive, isAutoRenewing, expiryTime) = googlePlayRenewalStatus
@@ -90,10 +90,10 @@ fun SubscriptionComponent(
         cancelled
     } else {
         // For web plans, check the API Renew value
-        val cancelled = subscription.Renew == 0
+        val cancelled = subscription.renew == 0
         Log.d(
             "SubscriptionComponent",
-            "Web plan cancellation check: isCancelled=$cancelled (Renew=${subscription.Renew})"
+            "Web plan cancellation check: isCancelled=$cancelled (Renew=${subscription.renew})"
         )
         cancelled
     }
@@ -106,7 +106,7 @@ fun SubscriptionComponent(
 
         // Try to find matching product by checking the subscription name/plan
         // Look for products that match the cycle pattern
-        val expectedPeriod = when (subscription.Cycle) {
+        val expectedPeriod = when (subscription.cycle) {
             1 -> "P1M" // Monthly
             12 -> "P1Y" // Yearly
             else -> null
@@ -124,7 +124,7 @@ fun SubscriptionComponent(
 
             // Check if this product matches the subscription cycle
             val isLumoProduct = product.productId.contains("lumo", ignoreCase = true)
-            val isCycleMatch = when (subscription.Cycle) {
+            val isCycleMatch = when (subscription.cycle) {
                 1 -> product.productId.contains("_1_")
                 12 -> product.productId.contains("_12_")
                 else -> false
@@ -142,7 +142,7 @@ fun SubscriptionComponent(
                 val periodText = when (pricingPhase.billingPeriod) {
                     "P1M" -> "month"
                     "P1Y" -> "year"
-                    else -> if (subscription.Cycle == 1) "month" else "year"
+                    else -> if (subscription.cycle == 1) "month" else "year"
                 }
 
                 Log.d(
@@ -155,7 +155,7 @@ fun SubscriptionComponent(
 
         Log.d(
             "SubscriptionComponent",
-            "No matching Google Play product found for subscription cycle ${subscription.Cycle}"
+            "No matching Google Play product found for subscription cycle ${subscription.cycle}"
         )
         return null
     }
@@ -189,7 +189,7 @@ fun SubscriptionComponent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Get plan title from either direct Title field or from Plans array
-                        val planTitle = subscription.Title ?: subscription.Name
+                        val planTitle = subscription.title ?: subscription.name
 
                         planTitle?.let {
                             Text(
@@ -234,18 +234,18 @@ fun SubscriptionComponent(
                         } else {
                             // Fallback to API data if Google Play doesn't provide expiry
                             val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-                            dateFormat.format(Date(subscription.PeriodEnd * 1000))
+                            dateFormat.format(Date(subscription.periodEnd * 1000))
                         }
 
                         Pair(date, isAutoRenewing)
                     } else {
                         // Use API subscription info for web plans
                         val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-                        val date = if (subscription.PeriodEnd > 0) {
-                            dateFormat.format(Date(subscription.PeriodEnd * 1000))
+                        val date = if (subscription.periodEnd > 0) {
+                            dateFormat.format(Date(subscription.periodEnd * 1000))
                         } else "Unknown"
 
-                        Pair(date, subscription.Renew == 1)
+                        Pair(date, subscription.renew == 1)
                     }
 
                     val message = if (isRenewing) {
@@ -262,7 +262,7 @@ fun SubscriptionComponent(
                     )
 
                     // Show cycle description if available
-                    subscription.CycleDescription?.let {
+                    subscription.cycleDescription?.let {
                         Text(
                             text = it,
                             fontSize = 14.sp,
@@ -292,17 +292,17 @@ fun SubscriptionComponent(
                                 "Falling back to API pricing for mobile plan"
                             )
                             val formattedPrice = PriceFormatter.formatPrice(
-                                subscription.Amount,
-                                subscription.Currency
+                                subscription.amount,
+                                subscription.currency
                             )
-                            val period = if (subscription.Cycle == 1) "month" else "year"
+                            val period = if (subscription.cycle == 1) "month" else "year"
                             Pair(formattedPrice, period)
                         }
                     } else {
                         // For web plans, always use API pricing
                         val formattedPrice =
-                            PriceFormatter.formatPrice(subscription.Amount, subscription.Currency)
-                        val period = if (subscription.Cycle == 1) "month" else "year"
+                            PriceFormatter.formatPrice(subscription.amount, subscription.currency)
+                        val period = if (subscription.cycle == 1) "month" else "year"
                         Pair(formattedPrice, period)
                     }
 
@@ -320,7 +320,7 @@ fun SubscriptionComponent(
             }
 
             // Show entitlements if available
-            subscription.Entitlements?.let { entitlements ->
+            subscription.entitlements?.let { entitlements ->
                 if (entitlements.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Column {
@@ -393,63 +393,63 @@ fun SubscriptionComponentPreview() {
     val previewSubscriptions = listOf(
         // Web subscription (Mail Plus)
         SubscriptionItemResponse(
-            ID = "aaa==",
-            InvoiceID = "-aaa-7gm5YLf215MEgZCdzOtLW5psxgB8oNc8OnoFRykab4Z23EGEW1ka3GtQPF9xwx9-VUA==",
-            Title = "Mail Plus",
-            Description = "Current plan",
-            Name = "mail2022",
-            Cycle = 12,
-            CycleDescription = "For 1 year",
-            Currency = "CHF",
-            Amount = 4788,
-            Offer = "default",
-            PeriodStart = System.currentTimeMillis() / 1000,
-            PeriodEnd = (System.currentTimeMillis() + 365 * 24 * 60 * 60) / 1000,
-            CreateTime = System.currentTimeMillis() / 1000,
-            CouponCode = null,
-            Discount = 0,
-            RenewDiscount = 0,
-            RenewAmount = 4788,
-            Renew = 0,
-            External = 0,
-            BillingPlatform = 1,
-            Entitlements = listOf(
+            id = "aaa==",
+            invoiceId = "-aaa-7gm5YLf215MEgZCdzOtLW5psxgB8oNc8OnoFRykab4Z23EGEW1ka3GtQPF9xwx9-VUA==",
+            title = "Mail Plus",
+            description = "Current plan",
+            name = "mail2022",
+            cycle = 12,
+            cycleDescription = "For 1 year",
+            currency = "CHF",
+            amount = 4788,
+            offer = "default",
+            periodStart = System.currentTimeMillis() / 1000,
+            periodEnd = (System.currentTimeMillis() + 365 * 24 * 60 * 60) / 1000,
+            createTime = System.currentTimeMillis() / 1000,
+            couponCode = null,
+            discount = 0,
+            renewDiscount = 0,
+            renewAmount = 4788,
+            renew = 0,
+            external = 0,
+            billingPlatform = 1,
+            entitlements = listOf(
                 SubscriptionEntitlement(
                     type = "description",
                     iconName = "checkmark",
                     text = "And the free features of all other Proton products!"
                 )
             ),
-            Decorations = emptyList(),
-            IsTrial = false,
-            CustomerID = null
+            decorations = emptyList(),
+            isTrial = false,
+            customerID = null
         ),
         // Mobile subscription (Lumo Plus)
         SubscriptionItemResponse(
-            ID = "nNTtf0H8g-aaa==",
-            InvoiceID = "aaa-ZTD8H8F6LvNaSjMaPxB5ecFkA7y-5kc3q38cGumJENGHjtSoUndkYFUx0_xlJeg==",
-            Title = "Lumo Plus",
-            Description = "Current plan",
-            Name = "lumo2024",
-            Cycle = 1,
-            CycleDescription = "For 1 month",
-            Currency = "CHF",
-            Amount = 1299,
-            Offer = "default",
-            PeriodStart = System.currentTimeMillis() / 1000,
-            PeriodEnd = (System.currentTimeMillis() + 30 * 24 * 60 * 60) / 1000,
-            CreateTime = System.currentTimeMillis() / 1000,
-            CouponCode = null,
-            Discount = 0,
-            RenewDiscount = 0,
-            RenewAmount = 1299,
-            Renew = 1,
-            External = 2,
-            BillingPlatform = 1,
-            Entitlements = emptyList(),
-            Decorations = emptyList(),
-            IsTrial = false,
-            CustomerID = null
+            id = "nNTtf0H8g-aaa==",
+            invoiceId = "aaa-ZTD8H8F6LvNaSjMaPxB5ecFkA7y-5kc3q38cGumJENGHjtSoUndkYFUx0_xlJeg==",
+            title = "Lumo Plus",
+            description = "Current plan",
+            name = "lumo2024",
+            cycle = 1,
+            cycleDescription = "For 1 month",
+            currency = "CHF",
+            amount = 1299,
+            offer = "default",
+            periodStart = System.currentTimeMillis() / 1000,
+            periodEnd = (System.currentTimeMillis() + 30 * 24 * 60 * 60) / 1000,
+            createTime = System.currentTimeMillis() / 1000,
+            couponCode = null,
+            discount = 0,
+            renewDiscount = 0,
+            renewAmount = 1299,
+            renew = 1,
+            external = 2,
+            billingPlatform = 1,
+            entitlements = emptyList(),
+            decorations = emptyList(),
+            isTrial = false,
+            customerID = null
         )
     )
 
@@ -469,7 +469,7 @@ fun SubscriptionComponentPreview() {
                 previewSubscriptions.forEach { subscription ->
                     SubscriptionComponent(
                         subscription = subscription,
-                        googlePlayRenewalStatus = if (subscription.External == 2) mockGooglePlayStatus else null,
+                        googlePlayRenewalStatus = if (subscription.external == 2) mockGooglePlayStatus else null,
                         googlePlayProductDetails = null, // No product details in preview
                         onManageSubscription = {}
                     )

@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+# Keep the PaymentEvent enum and all its constants
+-keepclassmembers enum me.proton.android.lumo.MainActivityViewModel$PaymentEvent { *; }
+
+# Also keep the class itself (important for reflection)
+-keep class me.proton.android.lumo.MainActivityViewModel$PaymentEvent { *; }
+-keep class me.proton.android.lumo.models.PaymentJsResponse { *; }
