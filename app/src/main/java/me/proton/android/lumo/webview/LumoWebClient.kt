@@ -10,6 +10,7 @@ import android.webkit.WebViewClient
 import me.proton.android.lumo.config.LumoConfig
 
 class LumoWebClient(
+    private val isDarkThemeProvider: () -> Boolean,
     private val isLoading: () -> Boolean,
     private val showLoading: () -> Unit,
     private val hideLoading: (Boolean) -> Unit,
@@ -181,6 +182,14 @@ class LumoWebClient(
 
         // Only allow configured Lumo and Account domains in the WebView
         if (LumoConfig.isKnownDomain(url)) {
+            if (isAccountDomain(url)) {
+                request.url.buildUpon()
+                    .appendQueryParameter("theme", if (isDarkThemeProvider()) "dark" else "light")
+                    .appendQueryParameter("remember", "3")?.let {
+                    view?.loadUrl(it.toString())
+                    return true
+                }
+            }
             return false // Let WebView handle it
         } else {
             // Open all other domains externally

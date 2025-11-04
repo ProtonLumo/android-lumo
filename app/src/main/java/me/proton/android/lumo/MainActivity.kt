@@ -19,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -98,11 +99,27 @@ class MainActivity : ComponentActivity() {
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val initialUrl by viewModel.initialUrl.collectAsStateWithLifecycle()
-            val lumoWebClient = LumoWebClient(
-                isLoading = { uiState.isLoading },
-                showLoading = { viewModel.showLoading() },
-                hideLoading = { viewModel.hideLoading(it) }
-            )
+            val isSystemInDarkTheme = isSystemInDarkTheme()
+            val isDarkTheme by remember {
+                derivedStateOf {
+                    uiState.theme?.let { theme ->
+                        when (theme) {
+                            is AppStyle.System -> isSystemInDarkTheme
+                            is AppStyle.Dark -> true
+                            is AppStyle.Light -> false
+                        }
+                    } ?: isSystemInDarkTheme
+                }
+            }
+
+            val lumoWebClient = remember {
+                LumoWebClient(
+                    isDarkThemeProvider = { isDarkTheme },
+                    isLoading = { uiState.isLoading },
+                    showLoading = { viewModel.showLoading() },
+                    hideLoading = { viewModel.hideLoading(it) }
+                )
+            }
 
             val webView = remember {
                 createWebView(
@@ -140,15 +157,6 @@ class MainActivity : ComponentActivity() {
                     viewModel.detachPermissionContract()
                 }
             }
-
-            val isDarkTheme = uiState.theme?.let { theme ->
-                when (theme) {
-                    is AppStyle.System -> isSystemInDarkTheme()
-                    is AppStyle.Dark -> true
-                    is AppStyle.Light -> false
-                }
-            } ?: isSystemInDarkTheme()
-
 
             LaunchedEffect(isDarkTheme) {
                 enableEdgeToEdge(
