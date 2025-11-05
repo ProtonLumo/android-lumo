@@ -15,3 +15,6 @@ app/production/
 
 # Environment variables (contains sensitive data)
 .env
+
+# Sentry Config File
+sentry.properties

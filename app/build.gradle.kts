@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 import java.util.UUID
 
 plugins {
@@ -6,6 +8,14 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.baselineprofile)
+    alias(libs.plugins.sentry.android.gradle)
+}
+
+val propsFile = rootProject.file("sentry.properties")
+val props = Properties()
+
+if (propsFile.exists()) {
+    props.load(propsFile.inputStream())
 }
 
 android {
@@ -26,6 +36,7 @@ android {
 
         // Default production environment
         buildConfigField("String", "ENV_NAME", "\"\"")
+        buildConfigField("String", "SENTRY_DSN", "\"${props["dsn"] ?: ""}\"")
     }
 
     signingConfigs {
@@ -82,8 +93,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
+
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
     buildFeatures {
         compose = true
@@ -141,6 +155,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.profileinstaller)
+    implementation(libs.android.startup.runtime)
 
     implementation("com.alphacephei:vosk-android:0.3.70@aar")
     implementation("net.java.dev.jna:jna:5.13.0@aar")
@@ -181,4 +196,22 @@ tasks.register("genUUID") {
 
 tasks.named("preBuild") {
     dependsOn("genUUID")
+}
+
+sentry {
+    org.set("proton")
+    projectName.set("android-lumo")
+
+    autoInstallation {
+        autoUploadProguardMapping = isSentryAutoUploadEnabled()
+        uploadNativeSymbols = isSentryAutoUploadEnabled()
+    }
+
+    tracingInstrumentation {
+        enabled = false
+    }
+}
+
+fun isSentryAutoUploadEnabled(): Boolean = gradle.startParameter.taskNames.any {
+    it.contains("release", true)
 }

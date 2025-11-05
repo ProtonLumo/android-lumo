@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="com.android.vending.BILLING" />
+
+    <application>
+        <provider
+            android:name="io.sentry.android.core.SentryInitProvider"
+            android:authorities="io.sentry.android.core"
+            tools:node="remove" />
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- This entry makes ExampleLoggerInitializer discoverable. -->
+            <meta-data
+                android:name="me.proton.android.lumo.sentry.SentryInitializer"
+                android:value="androidx.startup" />
+        </provider>
+
+    </application>
 </manifest>
