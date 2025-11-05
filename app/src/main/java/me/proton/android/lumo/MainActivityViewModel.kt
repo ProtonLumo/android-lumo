@@ -18,6 +18,7 @@ import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.data.repository.WebAppRepository
 import me.proton.android.lumo.permission.PermissionContract
+import me.proton.android.lumo.sentry.tracer.Tracer
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.usecase.HasOfferUseCase
@@ -41,6 +42,7 @@ class MainActivityViewModel(
     private val themeRepository: ThemeRepository,
     private val webAppRepository: WebAppRepository,
     private val hasOfferUseCase: HasOfferUseCase,
+    private val measureMainScreenReady: Tracer
 ) : ViewModel() {
 
     sealed class UiEvent {
@@ -85,6 +87,12 @@ class MainActivityViewModel(
     private var audioPermissionContract: PermissionContract? = null
 
     init {
+        measureMainScreenReady.startTransaction(name = "MainReady")
+        measureMainScreenReady.measureSpan(
+            operation = Tracer.Operation.MainReady,
+            description = "Measure the time it took to load the main chat screen"
+        )
+
         viewModelScope.launch {
             combine(
                 hasOfferUseCase.hasOffer(),
@@ -141,6 +149,9 @@ class MainActivityViewModel(
                     }
 
                     is WebEvent.LumoContainerVisible -> {
+                        measureMainScreenReady.stopSpan(operation = Tracer.Operation.MainReady)
+                        measureMainScreenReady.finishTransaction()
+
                         _uiState.update {
                             it.copy(
                                 isLoading = false,

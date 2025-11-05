@@ -15,7 +15,8 @@ class SentryInitializer : Initializer<Unit> {
             options.release = BuildConfig.VERSION_NAME
             options.isDebug = true
             options.isEnableUncaughtExceptionHandler = true
-            options.setDiagnosticLevel(SentryLevel.WARNING)
+            options.setDiagnosticLevel(SentryLevel.DEBUG)
+            options.tracesSampleRate = 1.0
         }
     }
 
