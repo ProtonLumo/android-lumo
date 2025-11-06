@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Lumo</string>
     <string name="back_to_lumo">Back to Lumo</string>
     <string name="loading">Loading Lumo</string>
@@ -24,7 +24,7 @@
 
     <!-- MainActivity Status/Errors -->
     <string name="speech_status_network">Recognition processed by Google</string>
-    <string name="speech_status_vosk">Recognition processed by Vosk • On-device • Private</string>
+    <string name="speech_status_vosk" tools:ignore="MissingTranslation">Recognition processed by Vosk • On-device • Private</string>
     <string name="speech_status_on_device">On-device • Private</string>
     <string name="permission_mic_rationale">Microphone permission needed for speech input</string>
     <string name="speech_not_available">Speech recognition not available</string>

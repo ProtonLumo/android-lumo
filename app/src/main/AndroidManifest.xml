@@ -16,12 +16,29 @@
         android:theme="@style/Theme.Lumo"
         android:usesCleartextTraffic="false"
         tools:targetApi="31">
+
+        <provider
+            android:name="io.sentry.android.core.SentryInitProvider"
+            android:authorities="io.sentry.android.core"
+            tools:node="remove" />
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- This entry makes ExampleLoggerInitializer discoverable. -->
+            <meta-data
+                android:name="me.proton.android.lumo.sentry.SentryInitializer"
+                android:value="androidx.startup" />
+        </provider>
+
         <!--suppress ScreenOrientation -->
         <activity
             android:name=".MainActivity"
+            android:configChanges="screenLayout|orientation|screenSize|keyboard|keyboardHidden|smallestScreenSize"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:configChanges="screenLayout|orientation|screenSize|keyboard|keyboardHidden|smallestScreenSize"
             android:theme="@style/Theme.Lumo"
             android:windowSoftInputMode="adjustResize"
             tools:ignore="DiscouragedApi,LockedOrientationActivity">
@@ -31,6 +48,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-</application>
+    </application>
 
 </manifest>

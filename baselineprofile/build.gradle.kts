@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.ManagedVirtualDevice
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.test)
@@ -11,12 +12,14 @@ android {
     compileSdk = 36
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget("17")
+        }
     }
 
     defaultConfig {
@@ -28,11 +31,9 @@ android {
 
     targetProjectPath = ":app"
 
-    flavorDimensions += listOf("env", "debugging", "services")
+    flavorDimensions += listOf("env", "services")
     productFlavors {
         create("production") { dimension = "env" }
-        create("standard") { dimension = "debugging" }
-        create("noWebViewDebug") { dimension = "debugging" }
         create("gms") { dimension = "services" }
         create("noGms") { dimension = "services" }
     }

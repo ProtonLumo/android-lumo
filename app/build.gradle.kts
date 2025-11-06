@@ -1,6 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
-import java.util.UUID
 
 plugins {
     alias(libs.plugins.android.application)
@@ -19,10 +18,6 @@ if (propsFile.exists()) {
 }
 
 android {
-    sourceSets.named("main") {
-        assets.srcDir(layout.buildDirectory.dir("generated/assets"))
-    }
-
     namespace = "me.proton.android.lumo"
     compileSdk = 36
 
@@ -99,6 +94,7 @@ android {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
+
     buildFeatures {
         compose = true
         buildConfig = true
@@ -160,6 +156,8 @@ dependencies {
     implementation("com.alphacephei:vosk-android:0.3.70@aar")
     implementation("net.java.dev.jna:jna:5.13.0@aar")
 
+    implementation(project(":vosk-model"))
+
     "baselineProfile"(project(":baselineprofile"))
 
     "gmsImplementation"(libs.billing.ktx)
@@ -178,24 +176,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-}
-
-tasks.register("genUUID") {
-    val odir = layout.buildDirectory.dir("generated/assets/model-en-us")
-    val ofile = odir.map { it.file("uuid") }
-
-    outputs.file(ofile)
-
-    doLast {
-        val uuid = UUID.randomUUID().toString()
-        val outputFile = ofile.get().asFile
-        outputFile.parentFile.mkdirs()
-        outputFile.writeText(uuid)
-    }
-}
-
-tasks.named("preBuild") {
-    dependsOn("genUUID")
 }
 
 sentry {
