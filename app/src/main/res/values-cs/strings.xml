@@ -23,6 +23,7 @@
   <string name="loading_message_11">Protahuji se před velkým skokem…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Rozpoznávání zpracováno společností Google</string>
+  <string name="speech_status_vosk">Rozpoznávání zpracované pomocí Vosk • Na zařízení • Soukromé</string>
   <string name="speech_status_on_device">Na zařízení • Soukromé</string>
   <string name="permission_mic_rationale">Pro hlasový vstup je vyžadováno oprávnění k mikrofonu</string>
   <string name="speech_not_available">Rozpoznávání řeči není k dispozici</string>

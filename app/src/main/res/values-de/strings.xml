@@ -23,6 +23,7 @@
   <string name="loading_message_11">Dehnt sich vor dem großen Sprung …</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Erkennung verarbeitet durch Google</string>
+  <string name="speech_status_vosk">Erkennung verarbeitet durch Vosk • Auf dem Gerät • Privat</string>
   <string name="speech_status_on_device">Auf dem Gerät • Privat</string>
   <string name="permission_mic_rationale">Mikrofonberechtigung für Spracheingabe benötigt</string>
   <string name="speech_not_available">Spracherkennung nicht verfügbar</string>
