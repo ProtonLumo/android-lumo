@@ -10,6 +10,7 @@ local.properties
 app/release/
 app/debug/
 app/production/
+vosk-model/build
 .kotlin/
 .idea/
 
