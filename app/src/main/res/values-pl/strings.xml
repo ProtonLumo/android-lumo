@@ -23,6 +23,7 @@
   <string name="loading_message_11">Stretching before the big jump…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Rozpoznawanie przetwarzane przez Google</string>
+  <string name="speech_status_vosk">Recognition processed by Vosk • On-device • Private</string>
   <string name="speech_status_on_device">Na urządzeniu • Prywatne</string>
   <string name="permission_mic_rationale">Wymagane pozwolenie na dostęp do mikrofonu dla wprowadzania mowy</string>
   <string name="speech_not_available">Rozpoznawanie mowy niedostępne</string>

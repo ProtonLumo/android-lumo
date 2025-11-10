@@ -23,6 +23,7 @@
   <string name="loading_message_11">Un petit étirement avant le grand saut…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Reconnaissance traitée par Google</string>
+  <string name="speech_status_vosk">Reconnaissance traitée par Vosk • Sur l\'appareil • confidentiel</string>
   <string name="speech_status_on_device">Sur l\'appareil • Privé</string>
   <string name="permission_mic_rationale">Autorisation du microphone nécessaire pour la saisie vocale</string>
   <string name="speech_not_available">La reconnaissance vocale n\'est pas disponible.</string>

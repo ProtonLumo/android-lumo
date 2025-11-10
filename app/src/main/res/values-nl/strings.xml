@@ -23,6 +23,7 @@
   <string name="loading_message_11">Stretching before the big jump…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Herkenning verwerkt door Google</string>
+  <string name="speech_status_vosk">Recognition processed by Vosk • On-device • Private</string>
   <string name="speech_status_on_device">Op apparaat • Privé</string>
   <string name="permission_mic_rationale">Microfoontoestemming nodig voor spraakinvoer</string>
   <string name="speech_not_available">Spraakherkenning niet beschikbaar</string>

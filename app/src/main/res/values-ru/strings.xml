@@ -23,6 +23,7 @@
   <string name="loading_message_11">Stretching before the big jump…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Распознавание обработано Google</string>
+  <string name="speech_status_vosk">Recognition processed by Vosk • On-device • Private</string>
   <string name="speech_status_on_device">На устройстве • Конфиденциально</string>
   <string name="permission_mic_rationale">Для голосового ввода требуется разрешение на доступ к микрофону</string>
   <string name="speech_not_available">Распознавание речи недоступно</string>

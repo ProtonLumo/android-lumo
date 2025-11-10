@@ -23,6 +23,7 @@
   <string name="loading_message_11">Mi stiro prima del grande salto</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Riconoscimento elaborato da Google</string>
+  <string name="speech_status_vosk">Riconoscimento elaborato da Vosk • Sul dispositivo • Privato</string>
   <string name="speech_status_on_device">Nel dispositivo • Privato</string>
   <string name="permission_mic_rationale">Accesso al microfono necessario per l\'inserimento vocale</string>
   <string name="speech_not_available">Riconoscimento vocale non disponibile</string>

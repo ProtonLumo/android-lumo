@@ -23,6 +23,7 @@
   <string name="loading_message_11">Büyük atlayıştan önce geriliyor…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Tanıma Google tarafından işlendi</string>
+  <string name="speech_status_vosk">Vosk ile işlenen tanıma • Aygıt üzerinde • Gizli</string>
   <string name="speech_status_on_device">Aygıt üzerinde • Gizli</string>
   <string name="permission_mic_rationale">Konuşma tanıma için mikrofona erişme izni gerekli</string>
   <string name="speech_not_available">Konuşma tanıma kullanılamıyor</string>
