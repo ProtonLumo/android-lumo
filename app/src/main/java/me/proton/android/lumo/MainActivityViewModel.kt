@@ -206,14 +206,6 @@ class MainActivityViewModel(
         }
         _uiState.update { it.copy(isLoading = true, initialLoadError = null) } // Show loading
 
-        // Add safety timeout to ensure loading state is cleared even if network check takes too long
-        viewModelScope.launch {
-            delay(3000) // 5 second timeout
-            if (_uiState.value.isLoading) {
-                _uiState.update { it.copy(isLoading = false) }
-            }
-        }
-
         viewModelScope.launch {
             val host = LumoConfig.LUMO_DOMAIN
             val port = 443
@@ -225,19 +217,29 @@ class MainActivityViewModel(
             if (reachable) {
                 Log.d(TAG, "Initial network check: Host $host is reachable.")
                 _initialUrl.value = LumoConfig.LUMO_URL
-                _uiState.update { it.copy(initialLoadError = null) }
+                _uiState.update {
+                    it.copy(
+                        initialLoadError = null,
+                        isLoading = false
+                    )
+                }
             } else {
                 Log.w(TAG, "Initial network check: Host $host is NOT reachable within $timeout ms.")
                 _initialUrl.value = "file:///android_asset/network_error.html"
-                _uiState.update { it.copy(initialLoadError = "Host not reachable") } // Set error state
+                _uiState.update {
+                    it.copy(
+                        initialLoadError = "Host not reachable",
+                        isLoading = false
+                    )
+                } // Set error state
             }
-            _uiState.update { it.copy(isLoading = false) } // Hide loading
             checkCompleted = true
             Log.d(TAG, "Initial network check finished. Initial URL set to: ${_initialUrl.value}")
         }
+        forceHideLoadingAfterDelay()
     }
 
-    fun forceHideLoadingAfterDelay() {
+    private fun forceHideLoadingAfterDelay() {
         viewModelScope.launch {
             delay(5000)
             val currentState = _uiState.value
@@ -283,8 +285,10 @@ class MainActivityViewModel(
     }
 
     fun showLoading() {
-        _uiState.update {
-            it.copy(isLoading = true, hasSeenLumoContainer = false)
+        if (!_uiState.value.isLoading) {
+            _uiState.update {
+                it.copy(isLoading = true, hasSeenLumoContainer = false)
+            }
         }
     }
 

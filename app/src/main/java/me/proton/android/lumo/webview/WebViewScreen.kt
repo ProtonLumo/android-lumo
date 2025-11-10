@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import me.proton.android.lumo.BuildConfig
 import me.proton.android.lumo.MainActivity
+import me.proton.android.lumo.utils.isNetworkStable
 
 private const val TAG = "WebViewScreen"
 
@@ -44,7 +45,11 @@ fun createWebView(
             displayZoomControls = false
 
             // Enable caching for faster subsequent loads
-            cacheMode = WebSettings.LOAD_DEFAULT
+            cacheMode = if (context.isNetworkStable()) {
+                WebSettings.LOAD_DEFAULT
+            } else {
+                WebSettings.LOAD_CACHE_ELSE_NETWORK
+            }
             val customUserAgent = generateCustomUserAgent()
             userAgentString = customUserAgent
             Log.d(TAG, "Custom User Agent set: $customUserAgent")

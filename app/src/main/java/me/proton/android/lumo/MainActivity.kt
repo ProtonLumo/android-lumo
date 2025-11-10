@@ -94,7 +94,6 @@ class MainActivity : ComponentActivity() {
 
         // Trigger the initial network connectivity check (independent of billing)
         viewModel.performInitialNetworkCheck()
-        viewModel.forceHideLoadingAfterDelay()
 
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
