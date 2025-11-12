@@ -1,0 +1,30 @@
+FROM eclipse-temurin:17-jdk-jammy
+
+ENV ANDROID_SDK_ROOT=/sdk
+ENV GRADLE_USER_HOME=/root/.gradle
+ENV PATH=$PATH:/sdk/cmdline-tools/latest/bin:/sdk/platform-tools
+
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends wget unzip git ruby-full build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# Android SDK setup
+RUN mkdir -p /sdk/cmdline-tools && cd /sdk/cmdline-tools && \
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip && \
+    unzip -qq tools.zip && rm tools.zip && \
+    mkdir -p /sdk/cmdline-tools/latest && \
+    mv cmdline-tools/* /sdk/cmdline-tools/latest/ && \
+    yes | bash -c "/sdk/cmdline-tools/latest/bin/sdkmanager --licenses" > /dev/null && \
+    bash -c "/sdk/cmdline-tools/latest/bin/sdkmanager \
+        'platform-tools' \
+        'platforms;android-36' \
+        'build-tools;36.0.0'"
+
+# Fastlane
+RUN gem install fastlane -NV
+
+WORKDIR /project
+COPY . .
+
+# Force wrapper to download Gradle now (cached into the image)
+RUN ./gradlew --version || true

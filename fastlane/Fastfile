@@ -1,0 +1,34 @@
+default_platform(:android)
+
+platform :android do
+
+  desc "Assemble debug variants for MR builds"
+  lane :assemble_debugs do
+    gradle(task: "assembleNobleGmsDebug")
+    gradle(task: "assembleNobleNoGmsDebug")
+  end
+
+  desc "Assemble and sign Google Play Store release AAB + APK"
+  lane :assemble_releases do
+    gradle(task: "bundleProductionGmsRelease")
+  end
+
+  desc "Pre release testing APKs"
+    lane :assemble_alphas do
+      gradle(task: "bundleProductionGmsAlpha")
+      gradle(task: "assembleProductionGmsAlpha")
+    end
+
+  desc "Run unit tests"
+  lane :unit_tests do
+    gradle(task: "testDebugUnitTest")
+  end
+
+  desc "Update version name and code for new releases"
+  lane :set_version_from_branch do
+    branch = sh("echo $CI_COMMIT_BRANCH")
+    version = branch.split('/').last
+    gradle(task: "setVersionName", properties: { "versionName" => version })
+    sh("fastlane run increment_version_code")
+  end
+end
