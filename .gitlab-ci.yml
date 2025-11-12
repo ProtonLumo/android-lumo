@@ -115,6 +115,7 @@ build_alpha:
 # ---------------------------------------------------------
 build_release:
   stage: release
+  allow_failure: true
   cache:
     - <<: *ruby-cache
       policy: !reference [ .cache-policy, cache, policy ]
@@ -194,6 +195,7 @@ i18n-commit-locales:
 # ---------------------------------------------------------
 release-publish-github:
   stage: publish
+  allow_failure: true
   extends: .release-publish-github-shared
   variables:
     OAUTH_URL: "https://oauth2:${GITHUB_PAT}@github.com/ProtonLumo/android-lumo.git"
