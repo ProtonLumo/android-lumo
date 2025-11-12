@@ -115,7 +115,6 @@ build_alpha:
 # ---------------------------------------------------------
 build_release:
   stage: release
-  allow_failure: true
   cache:
     - <<: *ruby-cache
       policy: !reference [ .cache-policy, cache, policy ]
@@ -124,16 +123,6 @@ build_release:
   variables:
     SECURE_FILES_DOWNLOAD_PATH: './.secrets'
   script:
-    - |
-    - VERSION_NAME=$(grep VERSION_NAME version.properties | cut -d'=' -f2 | tr -d ' ')
-    - echo "Detected version $VERSION_NAME"
-
-    - if [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
-    - git tag "$VERSION_NAME"
-    - git push origin "$VERSION_NAME"
-    - echo "Tagged commit with version $VERSION_NAME"
-    - fi
-
     - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - cp "$(pwd)/.secrets/sentry.properties" "$(pwd)/sentry.properties"
     - export LUMO_KEYSTORE_PATH="$(pwd)/.secrets/$LUMO_KEY"
@@ -145,13 +134,9 @@ build_release:
       - app/build/outputs/apk/productionGms/release/
     expire_in: 7 days
   rules:
-    # Auto when release MR merged to main
-    - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_MESSAGE =~ /Merge.*release\//'
+    # Run automatically when a release branch is created or updated
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
       when: on_success
-    # Allow manual trigger on main
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      when: manual
-      allow_failure: true
     - when: never
 
 # ---------------------------------------------------------
@@ -203,5 +188,5 @@ release-publish-github:
     RELEASE_SYNC_FROM_BRANCH: main
     RELEASE_SYNC_TO_BRANCH: main
   rules:
-    - when: manual
-      allow_failure: true
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
