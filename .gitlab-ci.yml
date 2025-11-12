@@ -146,11 +146,12 @@ build_release:
     expire_in: 7 days
   rules:
     # Auto when release MR merged to main
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^release\//'
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_MESSAGE =~ /Merge.*release\//'
       when: on_success
     # Allow manual trigger on main
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: manual
+      allow_failure: true
     - when: never
 
 # ---------------------------------------------------------
@@ -187,7 +188,7 @@ i18n-commit-locales:
   variables:
     I18N_COMMIT_CROWDIN_PROJECT: android-lumo
     I18N_COMMIT_BRANCH_PUSH: main
-    I18N_COMMIT_BRANCH_ALLOWED: main
+    I18N_COMMIT_BRANCH_ALLOWEDK: main
   extends: .i18n-commit-locales-shared
 
 # ---------------------------------------------------------
@@ -203,3 +204,4 @@ release-publish-github:
     RELEASE_SYNC_TO_BRANCH: main
   rules:
     - when: manual
+      allow_failure: true
