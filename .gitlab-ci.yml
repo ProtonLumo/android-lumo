@@ -135,8 +135,8 @@ build_release:
     expire_in: 7 days
   rules:
     # Run automatically when a release branch is created or updated
-    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
-      when: on_success
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^release\//'
+      when: always
     - when: never
 
 # ---------------------------------------------------------
