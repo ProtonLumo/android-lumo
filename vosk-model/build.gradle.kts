@@ -18,7 +18,7 @@ android {
 
     buildTypes {
         create("alpha") {
-            matchingFallbacks += listOf("debug")
+            initWith(getByName("release"))
         }
     }
 }
