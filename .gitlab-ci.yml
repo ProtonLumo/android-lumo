@@ -1,56 +1,203 @@
 default:
-  image: 
-    name: ${BASE_IMAGE}
+  image: ${DOCKER_IMAGE}
   interruptible: true
   tags:
-    - shared-small
+    - shared-large
+
+before_script:
+  - if [[ -f /load-env.sh ]]; then source /load-env.sh; fi
+  - mkdir -p .gradle-cache && export GRADLE_USER_HOME="$(pwd)/.gradle-cache"
+  - bundle config set path ${BUNDLE_GEM_PATH}
+  - bundle config set without 'production'
+  - bundle install
+  - echo -e "\norg.gradle.daemon=false" >> gradle.properties # Disables gradle daemon
+
+variables:
+  DOCKER_IMAGE_VERSION: v2.2.1
+  DOCKER_IMAGE: ${PROTON_CI_REGISTRY}/android-shared/docker-android/api35-ndk:${DOCKER_IMAGE_VERSION}
+  GRADLE_USER_HOME: "/root/.gradle"
+  FF_CLEAN_UP_FAILED_CACHE_EXTRACT: "true"
+  # Output upload and download progress every 5 seconds
+  TRANSFER_METER_FREQUENCY: "5s"
+  # Use no compression for artifacts
+  ARTIFACT_COMPRESSION_LEVEL: "fastest"
+  # Use low compression for caches
+  CACHE_COMPRESSION_LEVEL: "fast"
+  # Gem path
+  BUNDLE_GEM_PATH: 'vendor/ruby'
+
+# Makes sure we do not create separate merge request and branch pipelines.
+# See https://docs.gitlab.com/ee/ci/yaml/workflow.html#switch-between-branch-pipelines-and-merge-request-pipelines
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: '$CI_COMMIT_TAG != null'
+      when: never
+
+.ruby-cache: &ruby-cache
+  key:
+    prefix: ruby-cache
+    files:
+      - Gemfile.lock
+  paths:
+    - ${BUNDLE_GEM_PATH}
+  policy: pull
+
+.gradle-cache: &gradle-cache
+  key:
+    prefix: gradle-cache
+    files:
+      - gradle/wrapper/gradle-wrapper.properties
+      - gradle/libs.versions.toml
+  paths:
+    - .gradle-cache/caches/modules-2/
+    - .gradle-cache/caches/jars-3/
+    - .gradle-cache/wrapper/dists/
+  policy: pull
 
 stages:
-  - i18n
+  - build
+  - release
   - publish
+  - i18n
 
+# ---------------------------------------------------------
+# Debug build — Feature branches
+# ---------------------------------------------------------
+build_debug:
+  stage: build
+  cache:
+    - <<: *ruby-cache
+      policy: !reference [ .cache-policy, cache, policy ]
+    - <<: *gradle-cache
+      policy: !reference [ .cache-policy, cache, policy ]
+  script:
+    - bundle exec fastlane assemble_debugs
+  artifacts:
+    paths:
+      - app/build/outputs/apk/nobleGms/debug/
+      - app/build/outputs/apk/nobleNoGms/debug/
+    expire_in: 7 days
+  rules:
+    # Run on MRs from non-release branches
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^release\//'
+      when: always
+    - when: never
+
+# ---------------------------------------------------------
+# Alpha build — Release branches on MR
+# ---------------------------------------------------------
+build_alpha:
+  stage: build
+  cache:
+    - <<: *ruby-cache
+      policy: !reference [ .cache-policy, cache, policy ]
+    - <<: *gradle-cache
+      policy: !reference [ .cache-policy, cache, policy ]
+  script:
+    - bundle exec fastlane assemble_alphas
+  artifacts:
+    paths:
+      - app/build/outputs/apk/productionGms/alpha/
+      - app/build/outputs/apk/productionNoGms/alpha/
+    expire_in: 7 days
+  rules:
+    # Only run when MR source is a release/* branch
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^release\//'
+      when: always
+    - when: never
+
+# ---------------------------------------------------------
+# Release build — auto after merge to main or manual
+# ---------------------------------------------------------
+build_release:
+  stage: release
+  cache:
+    - <<: *ruby-cache
+      policy: !reference [ .cache-policy, cache, policy ]
+    - <<: *gradle-cache
+      policy: !reference [ .cache-policy, cache, policy ]
+  variables:
+    SECURE_FILES_DOWNLOAD_PATH: './.secrets'
+  script:
+    - |
+    - VERSION_NAME=$(grep VERSION_NAME gradle.properties | cut -d'=' -f2 | tr -d ' ')
+    - echo "Detected version $VERSION_NAME"
+
+    - if [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
+    - git tag "$VERSION_NAME"
+    - git push origin "$VERSION_NAME"
+    - echo "Tagged commit with version $VERSION_NAME"
+    - fi
+
+    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
+    - cp "$(pwd)/.secrets/sentry.properties" "$(pwd)/sentry.properties"
+    - export LUMO_KEYSTORE_PATH="$(pwd)/.secrets/$LUMO_KEY"
+    - export LUMO_STORE_PASSWORD=$(echo "$LUMO_STORE_PASSWORD_64" | base64 --decode)
+    - export LUMO_KEY_PASSWORD=$(echo "$LUMO_KEY_PASSWORD_64" | base64 --decode)
+    - bundle exec fastlane assemble_releases
+  artifacts:
+    paths:
+      - app/build/outputs/apk/productionGms/release/
+    expire_in: 7 days
+  rules:
+    # Auto when release MR merged to main
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^release\//'
+      when: on_success
+    # Allow manual trigger on main
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
+    - when: never
+
+# ---------------------------------------------------------
+# TRANSLATIONS — Pull/push via Crowdin
+# ---------------------------------------------------------
 include:
+  # Push the cache if it's the default branch
+  - rules:
+      - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    local: /ci/cache-policy-push-pull.yml
+
+  # Do not push the cache if it's not the default branch (e.g. MRs)
+  - rules:
+      - if: '$CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH'
+    local: /ci/cache-policy-pull.yml
+
   - project: 'translations/generator'
     ref: master
     file: '/jobs/sync-crowdin.gitlab-ci.yml'
-
   - project: 'translations/generator'
     ref: master
     file: '/jobs/commit-locales.gitlab-ci.yml'
-  
   - local: /ci/github-sync.yml
 
+i18n-sync-crowdin:
+  stage: i18n
+  variables:
+    I18N_SYNC_CROWDIN_PROJECT: android-lumo
+    I18N_SYNC_BRANCH: main
+  extends: .i18n-sync-crowdin-common-rules
+
+i18n-commit-locales:
+  stage: i18n
+  variables:
+    I18N_COMMIT_CROWDIN_PROJECT: android-lumo
+    I18N_COMMIT_BRANCH_PUSH: main
+    I18N_COMMIT_BRANCH_ALLOWED: main
+  extends: .i18n-commit-locales-shared
+
+# ---------------------------------------------------------
+# PUBLISH — Manual GitHub sync
+# ---------------------------------------------------------
 release-publish-github:
   stage: publish
   extends: .release-publish-github-shared
   variables:
     OAUTH_URL: "https://oauth2:${GITHUB_PAT}@github.com/ProtonLumo/android-lumo.git"
-    RELEASE_SYNC_TO_BRANCH: "main"
-    RELEASE_SYNC_FROM_BRANCH: "main"
+    RELEASE_SYNC_FROM_BRANCH: main
+    RELEASE_SYNC_TO_BRANCH: main
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-    # OR
     - when: manual
-
-##
-## ---- Translations
-##
-
-# Send translations from your main branch -> won't run inside schedule
-i18n-sync-crowdin:
-  stage: i18n
-  variables:
-      I18N_SYNC_CROWDIN_PROJECT: 'android-lumo'
-      I18N_SYNC_BRANCH: main
-  extends: .i18n-sync-crowdin-common-rules
-
-# Will generate a MR via a schedule pipeline
-i18n-commit-locales:
-  stage: i18n
-  variables:
-      I18N_COMMIT_CROWDIN_PROJECT: 'android-lumo'
-      I18N_COMMIT_BRANCH_PUSH: main
-      I18N_COMMIT_BRANCH_ALLOWED: main
-  extends: .i18n-commit-locales-shared
-
-

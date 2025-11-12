@@ -8,13 +8,30 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.baselineprofile)
     alias(libs.plugins.sentry.android.gradle)
+    id("version-tasks")
 }
 
-val propsFile = rootProject.file("sentry.properties")
-val props = Properties()
+val versionPropsFile = rootProject.file("version.properties")
+val versionProps = Properties().apply { load(versionPropsFile.inputStream()) }
 
-if (propsFile.exists()) {
-    props.load(propsFile.inputStream())
+val localPropsFile = rootProject.file("local.properties")
+    .takeIf { it.exists() }
+    ?.inputStream()
+    ?.use { Properties().apply { load(it) } }
+
+fun prop(name: String, default: String): String {
+    return System.getenv(name)
+        ?: localPropsFile?.getProperty(name)
+        ?: default
+}
+
+val sentryPropsFile = rootProject.file("sentry.properties")
+val sentryProps = Properties()
+if (sentryPropsFile.exists()) {
+    sentryProps.load(sentryPropsFile.inputStream())
+}
+fun sentryProp(name: String): String {
+    return sentryProps.getProperty(name) ?: ""
 }
 
 android {
@@ -24,19 +41,19 @@ android {
     defaultConfig {
         minSdk = 29
         targetSdk = 36
-        versionCode = 37
-        versionName = "1.2.6"
+        versionName = versionProps["VERSION_NAME"] as String
+        versionCode = (versionProps["VERSION_CODE"] as String).toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Default production environment
         buildConfigField("String", "ENV_NAME", "\"\"")
-        buildConfigField("String", "SENTRY_DSN", "\"${props["dsn"] ?: ""}\"")
+        buildConfigField("String", "SENTRY_DSN", "\"${sentryProp("dsn")}\"")
     }
 
     signingConfigs {
         create("release") {
-            keyAlias = System.getenv("LUMO_KEY_ALIAS") ?: "lumo"
+            keyAlias = System.getenv("LUMO_KEY_ALIAS") ?: ""
             keyPassword = System.getenv("LUMO_KEY_PASSWORD")
             storeFile = System.getenv("LUMO_KEYSTORE_PATH")?.let { file(it) }
             storePassword = System.getenv("LUMO_STORE_PASSWORD")
@@ -49,6 +66,15 @@ android {
         }
         release {
             signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        create("alpha") {
+            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -72,14 +98,15 @@ android {
         create("production") {
             dimension = "env"
             applicationId = "me.proton.android.lumo"
-            buildConfigField("String", "BASE_DOMAIN", "\"proton.me\"")
-            buildConfigField("String", "OFFER_ID", "\"introductory-799\"")
+            buildConfigField("String", "BASE_DOMAIN", "\"${prop("BASE_DOMAIN_PRODUCTION", "")}\"")
+            buildConfigField("String", "OFFER_ID", "\"${prop("OFFER_ID_PRODUCTION", "")}\"")
         }
 
-        try {
-            configurePrivateFlavors()
-        } catch (e: Throwable) {
-            // Private flavors not available (public repo)
+        create("noble") {
+            dimension = "env"
+            applicationId = "me.proton.lumo"
+            buildConfigField("String", "BASE_DOMAIN", "\"${prop("BASE_DOMAIN_NOBLE", "")}\"")
+            buildConfigField("String", "OFFER_ID", "\"${prop("OFFER_ID_NOBLE", "")}\"")
         }
     }
 
@@ -179,10 +206,8 @@ dependencies {
 }
 
 sentry {
-    org.set("proton")
-    projectName.set("android-lumo")
-
     autoInstallation {
+        sentryVersion = libs.versions.sentry.asProvider()
         autoUploadProguardMapping = isSentryAutoUploadEnabled()
         uploadNativeSymbols = isSentryAutoUploadEnabled()
     }
