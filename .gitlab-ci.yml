@@ -124,7 +124,7 @@ build_release:
     SECURE_FILES_DOWNLOAD_PATH: './.secrets'
   script:
     - |
-    - VERSION_NAME=$(grep VERSION_NAME gradle.properties | cut -d'=' -f2 | tr -d ' ')
+    - VERSION_NAME=$(grep VERSION_NAME version.properties | cut -d'=' -f2 | tr -d ' ')
     - echo "Detected version $VERSION_NAME"
 
     - if [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
