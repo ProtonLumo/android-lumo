@@ -15,6 +15,12 @@ android {
     sourceSets.named("main") {
         assets.srcDir(layout.buildDirectory.dir("generated/assets"))
     }
+
+    buildTypes {
+        create("alpha") {
+            initWith(getByName("release"))
+        }
+    }
 }
 
 tasks.register("genUUID") {
