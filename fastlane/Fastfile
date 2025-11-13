@@ -15,7 +15,7 @@ platform :android do
 
   desc "Pre release testing APKs"
     lane :assemble_alphas do
-      gradle(task: "bundleProductionGmsAlpha")
+      gradle(task: "assembleProductionNoGmsAlpha")
       gradle(task: "assembleProductionGmsAlpha")
     end
 
