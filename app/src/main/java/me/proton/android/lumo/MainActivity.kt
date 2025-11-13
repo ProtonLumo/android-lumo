@@ -127,12 +127,6 @@ class MainActivity : ComponentActivity() {
                     lumoWebClient = lumoWebClient,
                     lumoChromeClient = lumoChromeClient,
                     onAttach = { webBridge.attachWebView(it) },
-                    keyboardVisibilityChanged = { isVisible, keyboardHeight ->
-                        viewModel.onKeyboardVisibilityChanged(
-                            isVisible = isVisible,
-                            keyboardHeightPx = keyboardHeight
-                        )
-                    }
                 )
             }
             webViewManager.setWebView(webView)

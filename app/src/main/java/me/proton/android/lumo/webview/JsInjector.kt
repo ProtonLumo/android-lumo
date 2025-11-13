@@ -597,77 +597,6 @@ fun injectKeyboardHandling(webView: WebView) {
                 return composerElement;
             }
             
-            // Show composer above keyboard
-            function forceComposerAboveKeyboard() {
-                const composer = findComposerElement();
-                if (!composer) {
-                    return false;
-                }
-                
-                // Calculate safe positioning with bounds checking
-                const windowHeight = window.innerHeight;
-                const maxAllowedPosition = windowHeight * 0.7; // Don't go higher than 50% of window height
-                const minBottomPosition = 250; // Minimum distance from bottom
-                
-                // Validate keyboard offset
-                let safeKeyboardOffset = keyboardOffset;
-                if (safeKeyboardOffset > maxAllowedPosition) {
-                    console.warn('🚨 Keyboard offset too high:', safeKeyboardOffset, 'px. Capping to:', maxAllowedPosition, 'px');
-                    safeKeyboardOffset = maxAllowedPosition;
-                }
-                
-                // Ensure minimum positioning
-                safeKeyboardOffset = Math.max(safeKeyboardOffset, minBottomPosition);
-                
-                const finalBottomPosition = safeKeyboardOffset + 0; // Add 8px padding above keyboard
-                
-                console.log('📱 Composer positioning:');
-                console.log('  - Original keyboard offset: ' + keyboardOffset + 'px');
-                console.log('  - Safe keyboard offset: ' + safeKeyboardOffset + 'px');
-                console.log('  - Final bottom position: ' + finalBottomPosition + 'px');
-                console.log('  - Window height: ' + windowHeight + 'px');
-                console.log('  - Position ratio: ' + (finalBottomPosition / windowHeight * 100).toFixed(1) + '%');
-                 
-                composer.style.position = 'fixed';
-                composer.style.bottom = finalBottomPosition + 'px';
-                composer.style.left = '0';
-                composer.style.right = '0';
-                composer.style.width = '100%';
-                composer.style.zIndex = '99999';
-                composer.style.transform = 'translateY(0)';
-                composer.style.transition = 'bottom 0.2s cubic-bezier(0.4, 0.0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
-                composer.style.boxShadow = '0 -2px 10px rgba(0,0,0,0.2)';
-                composer.classList.add('keyboard-forced-visible');
-                
-                return true;
-            }
-            
-            // Hide composer
-            function resetComposerPosition() {
-                const composer = findComposerElement();
-                if (!composer) return;
-                
-                console.log('🔄 Resetting composer position');
-                
-                composer.style.transition = 'bottom 0.15s cubic-bezier(0.4, 0.0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0.0, 0.2, 1)';
-                composer.style.position = '';
-                composer.style.bottom = '';
-                composer.style.left = '';
-                composer.style.right = '';
-                composer.style.width = '';
-                composer.style.zIndex = '';
-                composer.style.transform = '';
-                composer.style.backgroundColor = '';
-                composer.style.boxShadow = '';
-                
-                setTimeout(() => {
-                    if (composer) {
-                        composer.style.transition = '';
-                        composer.classList.remove('keyboard-forced-visible');
-                    }
-                }, 150);
-            }
-            
             // Initialize everything
             function initKeyboardHandling() {
                 
@@ -748,7 +677,6 @@ fun injectKeyboardHandling(webView: WebView) {
                                 if (isComposerInput(document.activeElement)) {
                                     console.log('📱 Focus sustained - positioning composer');
                                     isKeyboardVisible = true;
-                                    forceComposerAboveKeyboard();
                                 } else {
                                     console.log('📱 Focus lost quickly - ignoring brief focus event');
                                 }
@@ -759,7 +687,6 @@ fun injectKeyboardHandling(webView: WebView) {
                     } else {
                         console.log('📱 Keyboard is hidden - resetting composer position');
                         isKeyboardVisible = false;
-                        resetComposerPosition();
                         // Show welcome section when keyboard is hidden
                         handleWelcomeSectionVisibility(false);
                     }
@@ -775,7 +702,6 @@ fun injectKeyboardHandling(webView: WebView) {
                     // Force reset composer position in case it got stuck
                     if (isKeyboardVisible) {
                         isKeyboardVisible = false;
-                        resetComposerPosition();
                     }
                 };
                 
@@ -846,7 +772,6 @@ fun injectKeyboardHandling(webView: WebView) {
                                 setTimeout(() => {
                                     if (isComposerInput(document.activeElement) && !isKeyboardVisible) {
                                         isKeyboardVisible = true;
-                                        forceComposerAboveKeyboard();
                                     }
                                 }, 150);
                             }
@@ -861,7 +786,6 @@ fun injectKeyboardHandling(webView: WebView) {
                                 const stillInComposer = isComposerInput(document.activeElement);
                                 if (!stillInComposer && isKeyboardVisible) {
                                     isKeyboardVisible = false;
-                                    resetComposerPosition();
                                 }
                             }, 50);
                         });
@@ -898,9 +822,6 @@ fun injectKeyboardHandling(webView: WebView) {
                         
                         if (foundNewComposer) {
                             setupComposerListeners();
-                            if (isKeyboardVisible) {
-                                setTimeout(() => forceComposerAboveKeyboard(), 100);
-                            }
                         }
                     }, 150); // 150ms debounce for composer changes
                 });
@@ -1223,19 +1144,6 @@ fun themeChangeListener(webView: WebView) {
     """.trimIndent()
     webView.evaluateJavascript(js, null)
 }
-
-
-fun keyboardHeightChange(isVisible: Boolean, keyboardHeight: Int): String =
-    """(function() {
-        if (window.onNativeKeyboardChange) {
-            window.onNativeKeyboardChange($isVisible, $keyboardHeight);
-            return true;
-        } else {
-            console.error('❌ window.onNativeKeyboardChange not found!');
-            return false;
-        }
-    })();
-    """.trimIndent()
 
 /**
  * Injects JavaScript to handle Black Friday 2025 promotion button clicks

@@ -24,7 +24,6 @@ import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.usecase.HasOfferUseCase
 import me.proton.android.lumo.utils.isHostReachable
 import me.proton.android.lumo.webview.hideBfButton
-import me.proton.android.lumo.webview.keyboardHeightChange
 
 private const val TAG = "MainActivityViewModel"
 
@@ -269,19 +268,6 @@ class MainActivityViewModel(
         } else {
             Log.d(TAG, "JavaScript insertPromptAndSubmit executed successfully.")
         }
-    }
-
-    fun onKeyboardVisibilityChanged(
-        isVisible: Boolean,
-        keyboardHeightPx: Int,
-    ) {
-        _eventChannel.trySend(
-            UiEvent.EvaluateJavascript(
-                keyboardHeightChange(
-                    isVisible, keyboardHeightPx
-                )
-            )
-        )
     }
 
     fun showLoading() {
