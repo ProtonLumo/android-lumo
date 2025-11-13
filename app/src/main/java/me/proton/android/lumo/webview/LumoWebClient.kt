@@ -186,9 +186,9 @@ class LumoWebClient(
                 request.url.buildUpon()
                     .appendQueryParameter("theme", if (isDarkThemeProvider()) "dark" else "light")
                     .appendQueryParameter("remember", "3")?.let {
-                    view?.loadUrl(it.toString())
-                    return true
-                }
+                        view?.loadUrl(it.toString())
+                        return true
+                    }
             }
             return false // Let WebView handle it
         } else {

@@ -1,5 +1,8 @@
 package me.proton.android.lumo.utils
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,4 +38,13 @@ suspend fun isHostReachable(host: String, port: Int, timeoutMs: Int): Boolean {
             false
         }
     }
-} 
+}
+
+fun Context.isNetworkStable(): Boolean {
+    val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val network = cm.activeNetwork ?: return false
+    val caps = cm.getNetworkCapabilities(network) ?: return false
+    return caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) &&
+            caps.linkDownstreamBandwidthKbps >= 6000
+}
