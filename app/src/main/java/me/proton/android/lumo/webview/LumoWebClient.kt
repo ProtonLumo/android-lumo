@@ -84,6 +84,7 @@ class LumoWebClient(
                 injectPromotionButtonHandlers(view)
                 injectUpgradeLinkHandlers(view)
                 themeChangeListener(view)
+                themeStyleChangedListener(view)
                 injectBF2025PromotionHandler(view)
                 injectUpgradeLinkHider(view)
                 Log.d(

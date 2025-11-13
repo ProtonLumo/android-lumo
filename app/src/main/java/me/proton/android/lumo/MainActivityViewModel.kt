@@ -65,7 +65,9 @@ class MainActivityViewModel(
         data object LumoContainerVisible : WebEvent
         data class ThemeResult(val mode: String) : WebEvent {
             val theme = when (mode) {
+                "lumo-dark-theme",
                 "Dark" -> 1
+                "lumo-light-theme",
                 "Light" -> 2
                 else -> 0
             }

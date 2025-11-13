@@ -105,6 +105,14 @@ open class WebAppInterface {
         _mainEventChannel.trySend(MainWebEvent.ThemeResult(mode))
     }
 
+    @JavascriptInterface
+    fun onThemeStyleChanged(themeStyle: String) {
+        if (themeStyle.isNotEmpty()) {
+            Log.d(TAG, "onThemeChanged: $themeStyle")
+            _mainEventChannel.trySend(MainWebEvent.ThemeResult(themeStyle))
+        }
+    }
+
     companion object {
         protected const val TAG = "WebAppInterface"
     }
