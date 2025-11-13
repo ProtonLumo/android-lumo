@@ -1145,6 +1145,62 @@ fun themeChangeListener(webView: WebView) {
     webView.evaluateJavascript(js, null)
 }
 
+fun themeStyleChangedListener(webView: WebView) {
+    val js = """
+        (function setupLumoThemeObserver() {
+            const IDS = ["lumo-dark-theme", "lumo-light-theme"];
+
+            function getActiveTheme() {
+                for (const id of IDS) {
+                    const el = document.getElementById(id);
+                    if (el) return id;
+                }
+                return "";
+            }
+
+            function notify(id) {
+                if (window.Android && typeof window.Android.onThemeStyleChanged === "function") {
+                    window.Android.onThemeStyleChanged(id);
+                }
+            }
+
+            const observer = new MutationObserver((mutations) => {
+                let dirty = false;
+
+                for (const m of mutations) {
+                    if (m.type === "childList") {
+                        const all = [...m.addedNodes, ...m.removedNodes];
+                        if (all.some(n => n.nodeType === 1 && IDS.includes(n.id))) {
+                            dirty = true;
+                            break;
+                        }
+                    }
+
+                    if (m.type === "attributes") {
+                        if (IDS.includes(m.target.id)) {
+                            dirty = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (dirty) notify(getActiveTheme());
+            });
+
+            observer.observe(document.documentElement, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ["id"]
+            });
+
+            // initial fire
+            notify(getActiveTheme());
+        })();
+    """.trimIndent()
+    webView.evaluateJavascript(js, null)
+}
+
 /**
  * Injects JavaScript to handle Black Friday 2025 promotion button clicks
  */
