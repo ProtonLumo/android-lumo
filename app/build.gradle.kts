@@ -107,7 +107,7 @@ android {
         create("production") {
             dimension = "env"
             applicationId = "me.proton.android.lumo"
-            buildConfigField("String", "BASE_DOMAIN", "\"${prop("BASE_DOMAIN_PRODUCTION", "")}\"")
+            buildConfigField("String", "BASE_DOMAIN", "\"${prop("BASE_DOMAIN_PRODUCTION", "proton.me")}\"")
             buildConfigField("String", "OFFER_ID", "\"${prop("OFFER_ID_PRODUCTION", "")}\"")
         }
 
