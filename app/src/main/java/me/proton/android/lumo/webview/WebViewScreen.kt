@@ -22,7 +22,6 @@ fun createWebView(
     lumoWebClient: LumoWebClient,
     lumoChromeClient: LumoChromeClient,
     onAttach: (WebView) -> Unit,
-    keyboardVisibilityChanged: (Boolean, Int) -> Unit
 ): WebView {
     return WebView(context).apply {
         layoutParams = ViewGroup.LayoutParams(
@@ -54,12 +53,6 @@ fun createWebView(
         setBackgroundColor(Color.WHITE)
 
         toggleDebug()
-
-        // Create simplified keyboard listener - much cleaner with enableEdgeToEdge!
-        val simplifiedKeyboardListener =
-            createGlobalLayoutListener(keyboardVisibilityChanged)
-
-        viewTreeObserver.addOnGlobalLayoutListener(simplifiedKeyboardListener)
 
         // Keep the window insets listener for edge-to-edge insets only
         ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
@@ -95,49 +88,6 @@ fun createWebView(
         // Load the INITIAL URL passed in
         Log.d(TAG, "WebView factory: Loading initial URL: $initialUrl")
         loadUrl(initialUrl)
-    }
-}
-
-private fun WebView.createGlobalLayoutListener(
-    keyboardVisibilityChanged: (Boolean, Int) -> Unit
-): ViewTreeObserver.OnGlobalLayoutListener {
-    var wasKeyboardVisible = false
-    return ViewTreeObserver.OnGlobalLayoutListener {
-        val insets = ViewCompat.getRootWindowInsets(this)
-        if (insets == null) {
-            Log.w(TAG, "WindowInsets is null - cannot detect keyboard")
-            return@OnGlobalLayoutListener
-        }
-
-        // With enableEdgeToEdge(), WindowInsetsCompat provides reliable keyboard detection
-        val isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
-        val keyboardHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-        val navigationBarHeight =
-            insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-
-        // Get screen density for CSS pixel conversion
-        val density = resources.displayMetrics.density
-
-        // Subtract navigation bar height from keyboard height for accurate positioning
-        val adjustedKeyboardHeight = maxOf(0, keyboardHeight - navigationBarHeight)
-        val keyboardHeightCss = (adjustedKeyboardHeight / density).toInt()
-
-        Log.d(TAG, "🎯 Keyboard detection: visible=$isKeyboardVisible")
-        Log.d(TAG, "  - Raw keyboard height: ${keyboardHeight}px physical")
-        Log.d(TAG, "  - Navigation bar height: ${navigationBarHeight}px physical")
-        Log.d(
-            TAG,
-            "  - Adjusted keyboard height: ${adjustedKeyboardHeight}px physical"
-        )
-        Log.d(TAG, "  - Final CSS height: ${keyboardHeightCss}px CSS")
-
-        // Only notify if keyboard state actually changed
-        if (isKeyboardVisible != wasKeyboardVisible) {
-            wasKeyboardVisible = isKeyboardVisible
-            Log.d(TAG, ">>> KEYBOARD STATE CHANGED - Notifying JavaScript <<<")
-
-            keyboardVisibilityChanged(isKeyboardVisible, keyboardHeightCss)
-        }
     }
 }
 
