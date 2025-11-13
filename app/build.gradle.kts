@@ -49,6 +49,15 @@ android {
         // Default production environment
         buildConfigField("String", "ENV_NAME", "\"\"")
         buildConfigField("String", "SENTRY_DSN", "\"${sentryProp("dsn")}\"")
+
+        ndk {
+            abiFilters += listOf(
+                "armeabi-v7a",
+                "arm64-v8a",
+                "x86",
+                "x86_64"
+            )
+        }
     }
 
     signingConfigs {
@@ -181,7 +190,7 @@ dependencies {
     implementation(libs.android.startup.runtime)
 
     implementation("com.alphacephei:vosk-android:0.3.70@aar")
-    implementation("net.java.dev.jna:jna:5.13.0@aar")
+    implementation("net.java.dev.jna:jna:5.18.1@aar")
 
     implementation(project(":vosk-model"))
 

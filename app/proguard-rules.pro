@@ -25,3 +25,9 @@
 # Also keep the class itself (important for reflection)
 -keep class me.proton.android.lumo.MainActivityViewModel$PaymentEvent { *; }
 -keep class me.proton.android.lumo.models.PaymentJsResponse { *; }
+-keep class com.sun.jna.** { *; }
+-keep class org.vosk.** { *; }
+-dontwarn java.awt.Component
+-dontwarn java.awt.GraphicsEnvironment
+-dontwarn java.awt.HeadlessException
+-dontwarn java.awt.Window
