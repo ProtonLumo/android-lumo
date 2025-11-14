@@ -1,0 +1,3 @@
+- Speech‑to‑text: We’ve got a purr‑fect setup—your device’s native voice recognizer now does the heavy lifting, meowing out your words in real time. If the built‑in kitty refuses to cooperate, we whisk you over to Vosk—another on‑device whisperer that never paws the job.
+- Keyboard: Those pesky paw‑press glitches? Gone. No more accidental cat‑naps on the wrong keys.
+- File uploads: Files now glide in smoother than a cat slipping through a narrow gap—no more tangled yarn balls of upload errors.
