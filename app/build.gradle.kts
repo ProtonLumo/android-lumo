@@ -227,5 +227,5 @@ sentry {
 }
 
 fun isSentryAutoUploadEnabled(): Boolean = gradle.startParameter.taskNames.any {
-    it.contains("release", true)
+    it.contains("productionGmsRelease", true)
 }
