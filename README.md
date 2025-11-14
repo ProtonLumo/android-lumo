@@ -10,6 +10,10 @@ This is the native Android application wrapper for the Lumo web application ([lu
     alt="Get it on Google Play"
     height="80">](https://play.google.com/store/apps/details?id=me.proton.android.lumo)
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+    alt="Get it on F-Droid"
+    height="80">](https://f-droid.org/en/packages/me.proton.android.lumo/)
+
 ## 🏗️ Architecture Overview
 
 The Lumo Android app follows a clean, modular architecture with clear separation of concerns:
