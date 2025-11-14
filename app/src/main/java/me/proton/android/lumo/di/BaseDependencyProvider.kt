@@ -7,6 +7,7 @@ import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.data.repository.ThemeRepositoryImpl
 import me.proton.android.lumo.data.repository.WebAppRepository
 import me.proton.android.lumo.data.repository.WebAppRepositoryImpl
+import me.proton.android.lumo.tracer.LumoTracer
 import me.proton.android.lumo.usecase.HasOfferUseCase
 
 abstract class BaseDependencyProvider {
@@ -24,6 +25,8 @@ abstract class BaseDependencyProvider {
     abstract fun isPaymentAvailable(): Boolean
 
     abstract fun hasOfferUseCase(): HasOfferUseCase
+
+    abstract fun getMainScreenTracer(): LumoTracer
 
     fun webAppRepository(): WebAppRepository =
         webAppRepository ?: WebAppRepositoryImpl(

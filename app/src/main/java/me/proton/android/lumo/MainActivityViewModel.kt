@@ -18,7 +18,7 @@ import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.data.repository.WebAppRepository
 import me.proton.android.lumo.permission.PermissionContract
-import me.proton.android.lumo.sentry.tracer.Tracer
+import me.proton.android.lumo.tracer.LumoTracer
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.usecase.HasOfferUseCase
@@ -41,7 +41,7 @@ class MainActivityViewModel(
     private val themeRepository: ThemeRepository,
     private val webAppRepository: WebAppRepository,
     private val hasOfferUseCase: HasOfferUseCase,
-    private val measureMainScreenReady: Tracer
+    private val measureMainScreenReady: LumoTracer
 ) : ViewModel() {
 
     sealed class UiEvent {
@@ -67,8 +67,10 @@ class MainActivityViewModel(
             val theme = when (mode) {
                 "lumo-dark-theme",
                 "Dark" -> 1
+
                 "lumo-light-theme",
                 "Light" -> 2
+
                 else -> 0
             }
         }
@@ -90,7 +92,7 @@ class MainActivityViewModel(
     init {
         measureMainScreenReady.startTransaction(name = "MainReady")
         measureMainScreenReady.measureSpan(
-            operation = Tracer.Operation.MainReady,
+            operation = LumoTracer.Operation.MainReady,
             description = "Measure the time it took to load the main chat screen"
         )
 
@@ -150,7 +152,7 @@ class MainActivityViewModel(
                     }
 
                     is WebEvent.LumoContainerVisible -> {
-                        measureMainScreenReady.stopSpan(operation = Tracer.Operation.MainReady)
+                        measureMainScreenReady.stopSpan(operation = LumoTracer.Operation.MainReady)
                         measureMainScreenReady.finishTransaction()
 
                         _uiState.update {
