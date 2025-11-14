@@ -5,6 +5,8 @@ import android.app.Application
 import me.proton.android.lumo.billing.BillingManagerWrapper
 import me.proton.android.lumo.data.repository.SubscriptionRepository
 import me.proton.android.lumo.data.repository.SubscriptionRepositoryImpl
+import me.proton.android.lumo.sentry.tracer.Tracer
+import me.proton.android.lumo.tracer.LumoTracer
 import me.proton.android.lumo.usecase.HasOffer
 import me.proton.android.lumo.usecase.HasOfferUseCase
 import me.proton.android.lumo.webview.WebAppWithPaymentsInterface
@@ -52,4 +54,7 @@ object DependencyProvider : BaseDependencyProvider() {
         hasOfferUseCase ?: HasOffer(
             subscriptionRepository = getSubscriptionRepository()
         ).also { hasOfferUseCase = it }
+
+    override fun getMainScreenTracer(): LumoTracer =
+        Tracer(LumoTracer.Operation.LoadUi)
 }

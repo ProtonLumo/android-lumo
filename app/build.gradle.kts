@@ -222,6 +222,7 @@ dependencies {
 
 sentry {
     autoInstallation {
+        enabled = !isNoGms()
         sentryVersion = libs.versions.sentry.asProvider()
         autoUploadProguardMapping = isSentryAutoUploadEnabled()
         uploadNativeSymbols = isSentryAutoUploadEnabled()
@@ -230,6 +231,10 @@ sentry {
     tracingInstrumentation {
         enabled = false
     }
+}
+
+fun isNoGms(): Boolean = gradle.startParameter.taskNames.any {
+    it.contains("noGms", true)
 }
 
 fun isSentryAutoUploadEnabled(): Boolean = gradle.startParameter.taskNames.any {
