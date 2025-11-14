@@ -91,6 +91,12 @@ android {
                 "proguard-rules.pro"
             )
         }
+        create("benchmarkRelease") {
+            signingConfig = signingConfigs.getByName("debug")
+        }
+        create("nonMinifiedRelease") {
+            signingConfig = signingConfigs.getByName("debug")
+        }
     }
 
     flavorDimensions += listOf("env", "services")

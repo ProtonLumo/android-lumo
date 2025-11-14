@@ -31,6 +31,10 @@ android {
 
     targetProjectPath = ":app"
 
+    buildTypes {
+        create("alpha")
+    }
+
     flavorDimensions += listOf("env", "services")
     productFlavors {
         create("production") { dimension = "env" }
@@ -69,7 +73,7 @@ androidComponents {
         val artifactsLoader = v.artifacts.getBuiltArtifactsLoader()
         v.instrumentationRunnerArguments.put(
             "targetAppId",
-            v.testedApks.map { artifactsLoader.load(it)?.applicationId }
+            v.testedApks.map { artifactsLoader.load(it)?.applicationId ?: "" }
         )
     }
 }
