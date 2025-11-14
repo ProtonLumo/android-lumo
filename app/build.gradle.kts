@@ -222,9 +222,10 @@ dependencies {
 
 sentry {
     autoInstallation {
+        enabled = isSentryEnabled()
         sentryVersion = libs.versions.sentry.asProvider()
-        autoUploadProguardMapping = isSentryAutoUploadEnabled()
-        uploadNativeSymbols = isSentryAutoUploadEnabled()
+        autoUploadProguardMapping = isSentryEnabled()
+        uploadNativeSymbols = isSentryEnabled()
     }
 
     tracingInstrumentation {
@@ -232,6 +233,6 @@ sentry {
     }
 }
 
-fun isSentryAutoUploadEnabled(): Boolean = gradle.startParameter.taskNames.any {
+fun isSentryEnabled(): Boolean = gradle.startParameter.taskNames.any {
     it.contains("productionGmsRelease", true)
 }
