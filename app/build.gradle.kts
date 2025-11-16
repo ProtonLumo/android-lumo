@@ -113,7 +113,11 @@ android {
         create("production") {
             dimension = "env"
             applicationId = "me.proton.android.lumo"
-            buildConfigField("String", "BASE_DOMAIN", "\"${prop("BASE_DOMAIN_PRODUCTION", "proton.me")}\"")
+            buildConfigField(
+                "String",
+                "BASE_DOMAIN",
+                "\"${prop("BASE_DOMAIN_PRODUCTION", "proton.me")}\""
+            )
             buildConfigField("String", "OFFER_ID", "\"${prop("OFFER_ID_PRODUCTION", "")}\"")
         }
 
@@ -173,6 +177,19 @@ android {
     }
 }
 
+androidComponents {
+    onVariants { variant ->
+        val name = variant.name
+
+        if (name == "productionGmsRelease" || name == "productionNoGmsRelease") {
+            project.dependencies.add(
+                "${name}BaselineProfile",
+                project(":baselineprofile")
+            )
+        }
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -200,9 +217,11 @@ dependencies {
 
     implementation(project(":vosk-model"))
 
-    "baselineProfile"(project(":baselineprofile"))
+//    "baselineProfile"(project(":baselineprofile"))
 
     "gmsImplementation"(libs.billing.ktx)
+    "gmsImplementation"(libs.sentry)
+    "gmsImplementation"(libs.sentry.android)
 
     // Hilt removed - using lightweight DependencyProvider instead
 
@@ -231,6 +250,17 @@ sentry {
     tracingInstrumentation {
         enabled = false
     }
+
+    ignoredVariants.set(
+        listOf(
+            "productionNoGmsDebug",
+            "nobleNoGmsDebug",
+            "productionNoGmsAlpha",
+            "nobleNoGmsAlpha",
+            "productionNoGmsRelease",
+            "nobleNoGmsRelease",
+        )
+    )
 }
 
 fun isNoGms(): Boolean = gradle.startParameter.taskNames.any {
