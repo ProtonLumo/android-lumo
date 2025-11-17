@@ -10,7 +10,7 @@ platform :android do
 
   desc "Assemble and sign Google Play Store release AAB + APK"
   lane :assemble_releases do
-    gradle(task: "bundleProductionGmsRelease")
+    gradle(task: "assembleProductionGmsRelease")
   end
 
   desc "Pre release testing APKs"

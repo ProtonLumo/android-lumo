@@ -38,10 +38,16 @@ class SubscriptionRepositoryImpl(
     private val webBridge: WebAppWithPaymentsInterface,
     private val subscriptionMapper: SubscriptionMapper = SubscriptionMapper,
     private val planMapper: PlanMapper = PlanMapper,
-    private val paymentTokenMapper: PaymentTokenMapper = PaymentTokenMapper(billingManager = billingManager!!),
-    private val subscriptionPurchaseHandler: SubscriptionPurchaseHandler = SubscriptionPurchaseHandler(
-        billingManager = billingManager!!
-    )
+    private val paymentTokenMapper: PaymentTokenMapper? = billingManager?.let {
+        PaymentTokenMapper(
+            billingManager = it
+        )
+    },
+    private val subscriptionPurchaseHandler: SubscriptionPurchaseHandler? = billingManager?.let {
+        SubscriptionPurchaseHandler(
+            billingManager = it
+        )
+    }
 ) : SubscriptionRepository {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -50,13 +56,13 @@ class SubscriptionRepositoryImpl(
         coroutineScope.launch {
             billingManager?.purchaseChannel?.collect {
                 var result = sendPaymentToken(payload = it)
-                val subscription = paymentTokenMapper.parsePaymentToken(
+                val subscription = paymentTokenMapper?.parsePaymentToken(
                     jsResult = result,
                     currencyCode = it.currency
                 )
                 subscription?.let {
                     result = sendSubscriptionEvent(subscription)
-                    subscriptionPurchaseHandler.handleSubscriptionEvent(jsResult = result)
+                    subscriptionPurchaseHandler?.handleSubscriptionEvent(jsResult = result)
                 } ?: run { Log.e(TAG, "Failed to load payment token") }
             }
         }
