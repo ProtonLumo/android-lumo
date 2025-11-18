@@ -177,47 +177,36 @@ android {
     }
 }
 
-androidComponents {
-    onVariants { variant ->
-        val name = variant.name
-
-        if (name == "productionGmsRelease" || name == "productionNoGmsRelease") {
-            project.dependencies.add(
-                "${name}BaselineProfile",
-                project(":baselineprofile")
-            )
-        }
-    }
-}
-
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${libs.versions.lifecycleRuntimeKtx.get()}")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:${libs.versions.lifecycleRuntimeKtx.get()}")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:${libs.versions.lifecycleRuntimeKtx.get()}")
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("androidx.compose.material:material-icons-core")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("com.google.android.material:material:1.13.0")
-    implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("com.airbnb.android:lottie-compose:6.6.9")
+    implementation(libs.androidx.compose.material.icons.core)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.android.google.material)
+    implementation(libs.coil.compose)
+    implementation(libs.lottie)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.profileinstaller)
     implementation(libs.android.startup.runtime)
 
-    implementation("com.alphacephei:vosk-android:0.3.70@aar")
-    implementation("net.java.dev.jna:jna:5.18.1@aar")
+    implementation(libs.vosk.android) {
+        exclude(group = "net.java.dev.jna", module = "jna")
+    }
+    implementation(libs.jna)
 
     implementation(project(":vosk-model"))
 
-//    "baselineProfile"(project(":baselineprofile"))
+    "baselineProfile"(project(":baselineprofile"))
 
     "gmsImplementation"(libs.billing.ktx)
     "gmsImplementation"(libs.sentry)
@@ -226,11 +215,11 @@ dependencies {
     // Hilt removed - using lightweight DependencyProvider instead
 
     testImplementation(libs.junit)
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
-    testImplementation("app.cash.turbine:turbine:1.1.0")
-    testImplementation("io.mockk:mockk:1.13.11")
-    testImplementation("io.mockk:mockk-android:1.13.11")
-    testImplementation("androidx.arch.core:core-testing:2.2.0")
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.mockk)
+    testImplementation(libs.mockk.android)
+    testImplementation(libs.androidx.core.testing)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
