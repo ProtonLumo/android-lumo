@@ -40,35 +40,45 @@ class SpeechViewModel(application: Application) : ViewModel() {
     }
 
     private fun setupSpeechRecognition() {
-        speechRecognitionManager.setListener(object :
-            SpeechRecognitionManager.SpeechRecognitionListener {
-            override fun onReadyForSpeech() {
-                _uiState.update { it.copy(isListening = true) }
-            }
+        speechRecognitionManager.setListener(
+            object : SpeechRecognitionManager.SpeechRecognitionListener {
+                private var finalBuffer: String = ""
 
-            override fun onRmsChanged(rmsdB: Float) {
-                _uiState.update { it.copy(rmsDbValue = rmsdB) }
-            }
-
-            override fun onEndOfSpeech() {
-                _uiState.update { it.copy(isListening = false) }
-            }
-
-            override fun onError(errorMessage: UiText) {
-                _uiState.update { it.copy(isListening = false) }
-                viewModelScope.launch {
-                    _errorChannel.send(errorMessage)
+                override fun onReadyForSpeech() {
+                    _uiState.update { it.copy(isListening = true) }
                 }
-            }
 
-            override fun onPartialResults(text: String) {
-                _uiState.update { it.copy(partialSpokenText = text) }
-            }
+                override fun onRmsChanged(rmsdB: Float) {
+                    _uiState.update { it.copy(rmsDbValue = rmsdB) }
+                }
 
-            override fun onResults(text: String) {
-                _uiState.update { it.copy(partialSpokenText = text, isListening = false) }
-            }
-        })
+                override fun onEndOfSpeech() {
+                    _uiState.update { it.copy(isListening = false) }
+                }
+
+                override fun onError(errorMessage: UiText) {
+                    _uiState.update { it.copy(isListening = false) }
+                    viewModelScope.launch {
+                        _errorChannel.send(errorMessage)
+                    }
+                }
+
+                override fun onPartialResults(text: String, isFinal: Boolean) {
+                    _uiState.update {
+                        val currentText = buildString {
+                            append(finalBuffer)
+                            if (finalBuffer.isNotEmpty()) append(" ")
+                            append(text)
+                        }
+                        if (isFinal) {
+                            finalBuffer = currentText
+                        }
+                        it.copy(
+                            partialSpokenText = currentText
+                        )
+                    }
+                }
+            })
     }
 
     fun onStartVoiceEntryRequested() {

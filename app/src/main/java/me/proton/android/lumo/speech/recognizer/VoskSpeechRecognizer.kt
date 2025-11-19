@@ -82,7 +82,7 @@ class VoskSpeechRecognizer(
                             val json = Json.parseToJsonElement(hypothesis).jsonObject
                             val partial = json["partial"]?.jsonPrimitive?.contentOrNull
                             if (!partial.isNullOrEmpty()) {
-                                listener?.onPartialResults(partial)
+                                listener?.onPartialResults(partial, false)
                             }
                         }
                     }
@@ -92,8 +92,7 @@ class VoskSpeechRecognizer(
                             val json = Json.parseToJsonElement(hypothesis).jsonObject
                             val text = json["text"]?.jsonPrimitive?.contentOrNull
                             if (!text.isNullOrEmpty()) {
-                                listener?.onResults(text)
-                                cancelListening()
+                                listener?.onPartialResults(text, true)
                             }
                         } ?: {
                             listener?.onError(UiText.ResText(R.string.speech_error_no_match))
@@ -102,6 +101,7 @@ class VoskSpeechRecognizer(
 
                     override fun onFinalResult(hypothesis: String?) {
                         listener?.onEndOfSpeech()
+                        cancelListening()
                     }
 
                     override fun onError(error: Exception?) {
