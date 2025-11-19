@@ -131,7 +131,7 @@ build_release:
     - bundle exec fastlane assemble_releases
   artifacts:
     paths:
-      - app/build/outputs/apk/productionGms/release/
+      - app/build/outputs/bundle/productionGmsRelease/
     expire_in: 7 days
   rules:
     # Run automatically when a release branch is created or updated
