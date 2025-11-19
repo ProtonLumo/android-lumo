@@ -199,10 +199,8 @@ dependencies {
     implementation(libs.androidx.profileinstaller)
     implementation(libs.android.startup.runtime)
 
-    implementation(libs.vosk.android) {
-        exclude(group = "net.java.dev.jna", module = "jna")
-    }
-    implementation(libs.jna)
+    implementation("com.alphacephei:vosk-android:0.3.70@aar")
+    implementation("net.java.dev.jna:jna:5.18.1@aar")
 
     implementation(project(":vosk-model"))
 

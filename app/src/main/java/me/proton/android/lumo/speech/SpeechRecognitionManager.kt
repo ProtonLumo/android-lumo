@@ -21,8 +21,7 @@ class SpeechRecognitionManager(private val context: Context) {
         fun onRmsChanged(rmsdB: Float)
         fun onEndOfSpeech()
         fun onError(errorMessage: UiText)
-        fun onPartialResults(text: String)
-        fun onResults(text: String)
+        fun onPartialResults(text: String, isFinal: Boolean)
     }
 
     private val speechRecognizer: LumoSpeechRecognizer =

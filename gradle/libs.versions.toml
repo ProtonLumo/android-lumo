@@ -21,8 +21,6 @@ startup-runtimeVersion = "1.2.0"
 google-material = "1.13.0"
 coil = "2.7.0"
 lottie = "6.6.9"
-vosk = "0.3.70"
-jna = "5.18.1"
 kotlinCoroutinesTestVersion = "1.8.0"
 androidCoreTestingVersion = "2.2.0"
 mockk = "1.13.11"
@@ -60,8 +58,6 @@ androidx-compose-material-icons-extended = { module = "androidx.compose.material
 android-google-material = { group = "com.google.android.material", name = "material", version.ref = "google-material" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 lottie = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottie" }
-vosk-android = { module = "com.alphacephei:vosk-android", version.ref = "vosk" }
-jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutinesTestVersion" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }

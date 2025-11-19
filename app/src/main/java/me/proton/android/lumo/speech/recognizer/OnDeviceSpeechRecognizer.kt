@@ -13,6 +13,7 @@ import me.proton.android.lumo.R
 import me.proton.android.lumo.speech.SpeechRecognitionManager
 import me.proton.android.lumo.speech.SpeechRecognitionManager.SpeechRecognitionListener
 import me.proton.android.lumo.ui.text.UiText
+import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.S)
 class OnDeviceSpeechRecognizer(
@@ -53,7 +54,7 @@ class OnDeviceSpeechRecognizer(
 
             override fun onEndOfSpeech() {
                 Log.d(TAG, "SpeechRecognizer: onEndOfSpeech")
-                listener?.onEndOfSpeech()
+                // don't call end of speech here, simply ignore it
             }
 
             override fun onError(error: Int) {
@@ -67,18 +68,19 @@ class OnDeviceSpeechRecognizer(
                 val text = matches?.getOrNull(0)
                 Log.d(TAG, "SpeechRecognizer: onResults: $text")
                 if (text != null) {
-                    listener?.onResults(text)
+                    listener?.onPartialResults(text, true)
                 } else {
-                    listener?.onError(UiText.ResText(R.string.speech_error_no_match))
+                    listener?.onEndOfSpeech()
                 }
             }
 
             override fun onPartialResults(partialResults: Bundle?) {
                 val matches =
                     partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                val isFinalResult = partialResults?.getBoolean("final_result") ?: false
                 val text = matches?.getOrNull(0)
                 if (text != null) {
-                    listener?.onPartialResults(text)
+                    listener?.onPartialResults(text, isFinalResult)
                     Log.d(TAG, "SpeechRecognizer: onPartialResults: $text")
                 }
             }
@@ -102,28 +104,35 @@ class OnDeviceSpeechRecognizer(
 
     override fun startListening() {
         if (speechRecognizer == null) {
-            Log.e(TAG, "SpeechRecognizer not initialized.")
             listener?.onError(
                 UiText.ResText(R.string.speech_not_available)
             )
             return
         }
 
-        Log.d(TAG, "Explicitly calling speechRecognizer.cancel() before starting")
-        speechRecognizer?.cancel() // Explicitly cancel any previous recognition
-
-        Log.d(TAG, "Starting speech recognition listener")
+        speechRecognizer?.cancel()
 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
-            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-            val locale = java.util.Locale.getDefault()
-            Log.d(TAG, "Requesting speech recognition for locale: $locale")
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale)
-            // Don't set prefer offline, rely on system default based on availability check
+            putExtra(
+                RecognizerIntent.EXTRA_PARTIAL_RESULTS,
+                true
+            )
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE,
+                Locale.getDefault()
+            )
+            putExtra(
+                RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+                5000
+            )
+            putExtra(
+                RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
+                5000
+            )
         }
 
         try {
