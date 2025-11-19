@@ -13,10 +13,10 @@ class SentryInitializer : Initializer<Unit> {
         SentryAndroid.init(context.applicationContext) { options: SentryOptions ->
             options.dsn = BuildConfig.SENTRY_DSN
             options.release = BuildConfig.VERSION_NAME
-            options.isDebug = true
+            options.isDebug = BuildConfig.DEBUG
+            options.environment = BuildConfig.BASE_DOMAIN
             options.isEnableUncaughtExceptionHandler = true
             options.setDiagnosticLevel(SentryLevel.DEBUG)
-            options.tracesSampleRate = 1.0
         }
     }
 
