@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.webview.WebAppInterface
+import javax.inject.Inject
 
 interface ThemeRepository {
     suspend fun saveTheme(theme: AppStyle)
@@ -16,7 +17,7 @@ interface ThemeRepository {
     suspend fun observeTheme(isSystemInDarkMode: Boolean): Flow<AppStyle>
 }
 
-class ThemeRepositoryImpl(
+class ThemeRepositoryImpl @Inject constructor(
     private val prefs: SharedPreferences,
     private val webBridge: WebAppInterface,
 ) : ThemeRepository {

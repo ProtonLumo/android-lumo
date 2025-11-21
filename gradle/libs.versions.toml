@@ -25,6 +25,9 @@ kotlinCoroutinesTestVersion = "1.8.0"
 androidCoreTestingVersion = "2.2.0"
 mockk = "1.13.11"
 turbine = "1.1.0"
+hilt = "2.57.2"
+hiltExtension = "1.3.0"
+ksp = "2.2.20-2.0.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -63,6 +66,9 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "androidCoreTestingVersion" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltExtension" }
 
 
 [plugins]
@@ -74,4 +80,6 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 android-test = { id = "com.android.test", version.ref = "agp" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
 sentry-android-gradle = { id = "io.sentry.android.gradle", version.ref = "sentry-android-gradle" }
+google-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 

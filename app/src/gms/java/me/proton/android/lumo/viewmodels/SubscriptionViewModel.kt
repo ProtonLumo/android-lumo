@@ -1,12 +1,15 @@
 package me.proton.android.lumo.viewmodels
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -20,22 +23,28 @@ import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.models.SubscriptionItemResponse
+import me.proton.android.lumo.navigation.NavRoutes
 import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.usecase.HasOfferUseCase
+import javax.inject.Inject
 
 private const val TAG = "SubscriptionViewModel"
 
 /**
  * ViewModel that manages subscription data
  */
-class SubscriptionViewModel(
+@HiltViewModel
+class SubscriptionViewModel @Inject constructor(
     private val repository: SubscriptionRepository,
     private val themeRepository: ThemeRepository,
     private val hasOfferUseCase: HasOfferUseCase,
-    private val paymentEvent: PaymentEvent
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    private val paymentEvent: PaymentEvent =
+        savedStateHandle.toRoute<NavRoutes.Subscription>().paymentEvent
 
     data class UiState(
         val isLoadingSubscriptions: Boolean = false,

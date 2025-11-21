@@ -8,8 +8,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.models.JsPlanInfo
@@ -17,21 +17,17 @@ import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.viewmodels.SubscriptionViewModel
-import me.proton.android.lumo.viewmodels.SubscriptionViewModelFactory
 
 private const val TAG = "PaymentDialog"
 
 @Composable
 fun PaymentScreen(
     isReady: Boolean,
-    paymentEvent: PaymentEvent,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
     val mainActivity = context as MainActivity
-    val viewModel: SubscriptionViewModel = viewModel(
-        factory = SubscriptionViewModelFactory(paymentEvent = paymentEvent)
-    )
+    val viewModel: SubscriptionViewModel = hiltViewModel()
     val uiState by viewModel.uiStateFlow.collectAsStateWithLifecycle()
 
     LaunchedEffect(isReady) {

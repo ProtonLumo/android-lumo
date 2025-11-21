@@ -1,12 +1,7 @@
 package me.proton.android.lumo
 
 import android.app.Application
-import me.proton.android.lumo.di.DependencyProvider
+import dagger.hilt.android.HiltAndroidApp
 
-class LumoApplication : Application() {
-
-    override fun onCreate() {
-        super.onCreate()
-        DependencyProvider.initialise(this)
-    }
-}
+@HiltAndroidApp
+class LumoApplication : Application()
