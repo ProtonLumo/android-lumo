@@ -220,8 +220,6 @@ dependencies {
     "gmsImplementation"(libs.sentry)
     "gmsImplementation"(libs.sentry.android)
 
-    // Hilt removed - using lightweight DependencyProvider instead
-
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)

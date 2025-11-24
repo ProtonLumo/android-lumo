@@ -1,6 +1,5 @@
 package me.proton.android.lumo.di
 
-import android.app.Application
 import android.content.Context
 import dagger.Lazy
 import dagger.Module
@@ -15,7 +14,6 @@ import me.proton.android.lumo.data.mapper.PlanMapper
 import me.proton.android.lumo.data.mapper.SubscriptionMapper
 import me.proton.android.lumo.data.mapper.SubscriptionPurchaseHandler
 import me.proton.android.lumo.usecase.IsPaymentAvailableUseCase
-import me.proton.android.lumo.webview.WebAppInterface
 import me.proton.android.lumo.webview.WebAppWithPaymentsInterface
 import javax.inject.Singleton
 

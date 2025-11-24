@@ -8,8 +8,6 @@ import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.data.repository.ThemeRepositoryImpl
 import me.proton.android.lumo.data.repository.WebAppRepository
 import me.proton.android.lumo.data.repository.WebAppRepositoryImpl
-import me.proton.android.lumo.usecase.HasOffer
-import me.proton.android.lumo.usecase.HasOfferUseCase
 
 @Module
 @InstallIn(SingletonComponent::class)
