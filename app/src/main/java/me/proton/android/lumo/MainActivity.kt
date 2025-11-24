@@ -33,9 +33,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import me.proton.android.lumo.config.LumoConfig
-import me.proton.android.lumo.di.DependencyProvider
 import me.proton.android.lumo.managers.WebViewManager
 import me.proton.android.lumo.navigation.NavRoutes
 import me.proton.android.lumo.navigation.paymentRoutes
@@ -45,20 +45,25 @@ import me.proton.android.lumo.ui.components.PurchaseLinkDialog
 import me.proton.android.lumo.ui.components.SpeechSheet
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.ui.theme.LumoTheme
+import me.proton.android.lumo.usecase.IsPaymentAvailableUseCase
 import me.proton.android.lumo.webview.LumoChromeClient
 import me.proton.android.lumo.webview.LumoWebClient
+import me.proton.android.lumo.webview.WebAppInterface
 import me.proton.android.lumo.webview.createWebView
 import me.proton.android.lumo.webview.injectSpokenText
+import javax.inject.Inject
 import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 
 
 @OptIn(ExperimentalMaterial3Api::class)
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val viewModel: MainActivityViewModel by viewModels {
-        MainActivityViewModelFactory()
-    }
+    @Inject
+    lateinit var webBridge: WebAppInterface
+    @Inject
+    lateinit var isPaymentAvailable: IsPaymentAvailableUseCase
+    private val viewModel: MainActivityViewModel by viewModels()
     private lateinit var webViewManager: WebViewManager
-    private val webBridge = DependencyProvider.getWebBridge()
 
     @SuppressLint("StateFlowValueCalledInComposition")
     @OptIn(ExperimentalMaterial3Api::class)
@@ -131,7 +136,7 @@ class MainActivity : ComponentActivity() {
             }
             webViewManager.setWebView(webView)
 
-            viewModel.setupThemeUpdates(isSystemInDarkTheme())
+            viewModel.setupThemeUpdates(isSystemInDarkTheme)
             viewModel.attachPermissionContract(
                 permissionContract = rememberSinglePermission(
                     permission = Manifest.permission.RECORD_AUDIO,
@@ -201,7 +206,7 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 is MainUiEvent.ShowPaymentDialog -> {
-                                    if (DependencyProvider.isPaymentAvailable()) {
+                                    if (isPaymentAvailable()) {
                                         navController.navigate(
                                             NavRoutes.Subscription(
                                                 event.paymentEvent
@@ -287,6 +292,11 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.tryHideBf()
     }
 
     override fun onDestroy() {

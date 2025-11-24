@@ -1,7 +1,6 @@
 package me.proton.android.lumo.ui.components
 
 import android.Manifest
-import android.app.Application
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -43,18 +42,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
 import me.proton.android.lumo.permission.rememberSinglePermission
 import me.proton.android.lumo.speech.SpeechViewModel
-import me.proton.android.lumo.speech.SpeechViewModelFactory
 import me.proton.android.lumo.ui.text.asString
 import me.proton.android.lumo.ui.theme.LumoTheme
 
@@ -65,8 +63,7 @@ fun SpeechSheet(
     onSubmitText: (String) -> Unit,
 ) {
     val context = LocalContext.current
-    val viewModel: SpeechViewModel =
-        viewModel(factory = SpeechViewModelFactory(context.applicationContext as Application))
+    val viewModel: SpeechViewModel = hiltViewModel()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 

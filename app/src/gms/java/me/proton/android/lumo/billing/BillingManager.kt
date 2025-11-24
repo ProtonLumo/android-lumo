@@ -1,6 +1,6 @@
 package me.proton.android.lumo.billing
 
-import android.app.Application
+import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
@@ -36,7 +36,7 @@ import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.ui.text.UiText
 import java.util.Date
 
-class BillingManager(private val application: Application) {
+class BillingManager(private val context: Context) {
 
     companion object {
         private const val TAG = "BillingManager"
@@ -114,7 +114,7 @@ class BillingManager(private val application: Application) {
 
     private val billingClient by lazy {
         try {
-            BillingClient.newBuilder(application)
+            BillingClient.newBuilder(context)
                 .setListener(purchasesUpdatedListener)
                 .enablePendingPurchases(
                     PendingPurchasesParams.newBuilder()
@@ -151,7 +151,7 @@ class BillingManager(private val application: Application) {
 
         try {
             // Check if Google Play is installed before proceeding
-            val pInfo = application.packageManager.getPackageInfo("com.android.vending", 0)
+            val pInfo = context.packageManager.getPackageInfo("com.android.vending", 0)
             Log.d(TAG, "Google Play Store is installed - version: ${pInfo.versionName}")
 
             // Initialize billing with additional safety
@@ -280,7 +280,7 @@ class BillingManager(private val application: Application) {
                     // Check if Google Play Store is installed and updated
                     try {
                         val pInfo =
-                            application.packageManager.getPackageInfo("com.android.vending", 0)
+                            context.packageManager.getPackageInfo("com.android.vending", 0)
                         Log.d(TAG, "Google Play Store version: ${pInfo.versionName}")
                     } catch (e: Exception) {
                         Log.e(TAG, "Google Play Store not found", e)

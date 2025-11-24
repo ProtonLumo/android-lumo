@@ -24,6 +24,7 @@ import me.proton.android.lumo.models.Subscription
 import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.utils.PlanPricingHelper
 import me.proton.android.lumo.webview.WebAppWithPaymentsInterface
+import javax.inject.Inject
 
 
 private const val TAG = "SubscriptionRepository"
@@ -33,21 +34,13 @@ private const val TAG = "SubscriptionRepository"
  *
  * @param billingManager The BillingManager for Google Play integration
  */
-class SubscriptionRepositoryImpl(
+class SubscriptionRepositoryImpl @Inject constructor(
     private val billingManager: BillingManager?,
     private val webBridge: WebAppWithPaymentsInterface,
-    private val subscriptionMapper: SubscriptionMapper = SubscriptionMapper,
-    private val planMapper: PlanMapper = PlanMapper,
-    private val paymentTokenMapper: PaymentTokenMapper? = billingManager?.let {
-        PaymentTokenMapper(
-            billingManager = it
-        )
-    },
-    private val subscriptionPurchaseHandler: SubscriptionPurchaseHandler? = billingManager?.let {
-        SubscriptionPurchaseHandler(
-            billingManager = it
-        )
-    }
+    private val subscriptionMapper: SubscriptionMapper,
+    private val planMapper: PlanMapper,
+    private val paymentTokenMapper: PaymentTokenMapper?,
+    private val subscriptionPurchaseHandler: SubscriptionPurchaseHandler?
 ) : SubscriptionRepository {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)

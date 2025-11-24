@@ -1,6 +1,6 @@
 package me.proton.android.lumo.billing
 
-import android.app.Application
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
@@ -12,7 +12,7 @@ private const val TAG = "BillingManagerWrapper"
  * Wrapper class that handles all billing-related operations and Google Play Services integration.
  * Provides a clean interface for MainActivity while handling billing availability gracefully.
  */
-class BillingManagerWrapper(private val application: Application) {
+class BillingManagerWrapper(private val context: Context) {
 
     private var billingManager: BillingManager? = null
 
@@ -33,7 +33,7 @@ class BillingManagerWrapper(private val application: Application) {
             // 1. Check if Google Play Services is available
             val googleApiAvailability = GoogleApiAvailability.getInstance()
             val playServicesStatus = googleApiAvailability
-                .isGooglePlayServicesAvailable(application)
+                .isGooglePlayServicesAvailable(context)
 
             when (playServicesStatus) {
                 ConnectionResult.SUCCESS -> {
@@ -77,13 +77,13 @@ class BillingManagerWrapper(private val application: Application) {
     private fun initializeBillingManager() {
         // 2. Check if Google Play Store app is installed and accessible
         try {
-            val pInfo = application.packageManager.getPackageInfo("com.android.vending", 0)
+            val pInfo = context.packageManager.getPackageInfo("com.android.vending", 0)
             Log.d(TAG, "✅ Google Play Store version: ${pInfo.versionName}")
 
             // 3. Initialize BillingManager
             try {
                 Log.d(TAG, "Initializing BillingManager...")
-                val tempBillingManager = BillingManager(application)
+                val tempBillingManager = BillingManager(context)
                 // Check if BillingClient was created successfully
                 if (tempBillingManager.isBillingAvailable()) {
                     billingManager = tempBillingManager
@@ -143,7 +143,7 @@ class BillingManagerWrapper(private val application: Application) {
                 "In-app purchases are not available. All other features will work normally."
             }
         }
-        Toast.makeText(application, message, Toast.LENGTH_LONG).show()
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 
         Log.i(TAG, "✅ App will continue normally with billing features disabled")
     }

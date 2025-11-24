@@ -4,8 +4,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import me.proton.android.lumo.BuildConfig
 import me.proton.android.lumo.data.repository.SubscriptionRepository
+import javax.inject.Inject
 
-class HasOffer(
+class HasOffer @Inject constructor(
     private val subscriptionRepository: SubscriptionRepository
 ) : HasOfferUseCase {
 

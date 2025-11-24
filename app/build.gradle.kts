@@ -5,9 +5,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.baselineprofile)
     alias(libs.plugins.sentry.android.gradle)
+    alias(libs.plugins.google.hilt)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
     id("version-tasks")
 }
 
@@ -175,6 +177,10 @@ android {
         // Disables dependency metadata when building Android App Bundles.
         includeInBundle = false
     }
+
+    hilt {
+        enableAggregatingTask = true
+    }
 }
 
 dependencies {
@@ -199,6 +205,10 @@ dependencies {
     implementation(libs.androidx.profileinstaller)
     implementation(libs.android.startup.runtime)
 
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    ksp(libs.hilt.compiler)
+
     implementation("com.alphacephei:vosk-android:0.3.70@aar")
     implementation("net.java.dev.jna:jna:5.18.1@aar")
 
@@ -209,8 +219,6 @@ dependencies {
     "gmsImplementation"(libs.billing.ktx)
     "gmsImplementation"(libs.sentry)
     "gmsImplementation"(libs.sentry.android)
-
-    // Hilt removed - using lightweight DependencyProvider instead
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

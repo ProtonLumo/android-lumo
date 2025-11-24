@@ -7,4 +7,6 @@ plugins {
     alias(libs.plugins.android.test) apply false
     alias(libs.plugins.baselineprofile) apply false
     alias(libs.plugins.sentry.android.gradle) apply false
+    alias(libs.plugins.google.hilt) apply false
+    alias(libs.plugins.ksp) apply false
 }

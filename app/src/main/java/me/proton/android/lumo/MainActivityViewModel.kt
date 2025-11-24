@@ -3,6 +3,8 @@ package me.proton.android.lumo
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.Lazy
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +26,7 @@ import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.usecase.HasOfferUseCase
 import me.proton.android.lumo.utils.isHostReachable
 import me.proton.android.lumo.webview.hideBfButton
+import javax.inject.Inject
 
 private const val TAG = "MainActivityViewModel"
 
@@ -37,10 +40,11 @@ data class MainUiState(
     val theme: AppStyle? = null,
 )
 
-class MainActivityViewModel(
+@HiltViewModel
+class MainActivityViewModel @Inject constructor(
     private val themeRepository: ThemeRepository,
     private val webAppRepository: WebAppRepository,
-    private val hasOfferUseCase: HasOfferUseCase,
+    private val hasOfferUseCase: Lazy<HasOfferUseCase>,
     private val measureMainScreenReady: LumoTracer
 ) : ViewModel() {
 
@@ -96,23 +100,6 @@ class MainActivityViewModel(
             description = "Measure the time it took to load the main chat screen"
         )
 
-        viewModelScope.launch {
-            combine(
-                hasOfferUseCase.hasOffer(),
-                _uiState.map { it.hasSeenLumoContainer }.distinctUntilChanged()
-            ) { hasOffer, hasSeenLumoContainer ->
-                !hasOffer && hasSeenLumoContainer
-            }.distinctUntilChanged()
-                .collect { shouldHide ->
-                    if (shouldHide) {
-                        _eventChannel.send(
-                            UiEvent.EvaluateJavascript(
-                                hideBfButton()
-                            )
-                        )
-                    }
-                }
-        }
         // Don't call performInitialNetworkCheck here, call from Activity onCreate
         viewModelScope.launch {
             webAppRepository.listenToWebEvent().collect { event ->
@@ -181,6 +168,26 @@ class MainActivityViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun tryHideBf() {
+        viewModelScope.launch {
+            combine(
+                hasOfferUseCase.get().hasOffer(),
+                _uiState.map { it.hasSeenLumoContainer }.distinctUntilChanged()
+            ) { hasOffer, hasSeenLumoContainer ->
+                !hasOffer && hasSeenLumoContainer
+            }.distinctUntilChanged()
+                .collect { shouldHide ->
+                    if (shouldHide) {
+                        _eventChannel.send(
+                            UiEvent.EvaluateJavascript(
+                                hideBfButton()
+                            )
+                        )
+                    }
+                }
         }
     }
 
