@@ -49,16 +49,26 @@ class VoskSpeechRecognizer(
                         }
                     } catch (e: IOException) {
                         recognizer = null
+                        listener?.onError(
+                            errorMessage = UiText.StringText(
+                                text = e.message ?: "Something went wrong"
+                            ),
+                            isInitialisation = true
+                        )
                     }
                 } ?: {
                     listener?.onError(
-                        UiText.StringText("Model error")
+                        errorMessage = UiText.StringText(text = "Model error"),
+                        isInitialisation = true
                     )
                 }()
             },
             { exception: IOException? ->
                 listener?.onError(
-                    UiText.StringText(exception?.message ?: "Something went wrong")
+                    errorMessage = UiText.StringText(
+                        text = exception?.message ?: "Something went wrong"
+                    ),
+                    isInitialisation = true
                 )
             })
     }
@@ -95,7 +105,10 @@ class VoskSpeechRecognizer(
                                 listener?.onPartialResults(text, true)
                             }
                         } ?: {
-                            listener?.onError(UiText.ResText(R.string.speech_error_no_match))
+                            listener?.onError(
+                                errorMessage = UiText.ResText(res = R.string.speech_error_no_match),
+                                isInitialisation = false
+                            )
                         }()
                     }
 
@@ -106,9 +119,10 @@ class VoskSpeechRecognizer(
 
                     override fun onError(error: Exception?) {
                         listener?.onError(
-                            UiText.StringText(
-                                error?.message ?: "Something went wrong"
-                            )
+                            errorMessage = UiText.StringText(
+                                text = error?.message ?: "Something went wrong"
+                            ),
+                            isInitialisation = true
                         )
                     }
 

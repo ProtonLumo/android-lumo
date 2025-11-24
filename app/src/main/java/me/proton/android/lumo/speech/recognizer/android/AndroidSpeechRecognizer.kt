@@ -1,31 +1,35 @@
-package me.proton.android.lumo.speech.recognizer
+package me.proton.android.lumo.speech.recognizer.android
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
-import androidx.annotation.RequiresApi
 import me.proton.android.lumo.R
-import me.proton.android.lumo.speech.SpeechRecognitionManager
 import me.proton.android.lumo.speech.SpeechRecognitionManager.SpeechRecognitionListener
+import me.proton.android.lumo.speech.recognizer.LumoSpeechRecognizer
 import me.proton.android.lumo.ui.text.UiText
 import java.util.Locale
 
-@RequiresApi(Build.VERSION_CODES.S)
-class OnDeviceSpeechRecognizer(
-    private val context: Context
-) : LumoSpeechRecognizer {
+abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeechRecognizer {
+
+    open val extraErrors: Set<Int> = emptySet()
+    private val fatalErrors = setOf(
+        SpeechRecognizer.ERROR_AUDIO,
+        SpeechRecognizer.ERROR_CLIENT,
+        SpeechRecognizer.ERROR_RECOGNIZER_BUSY,
+        SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS,
+    ) + extraErrors
+    abstract fun speechRecognizer(context: Context): SpeechRecognizer
 
     private var speechRecognizer: SpeechRecognizer? = null
     private var listener: SpeechRecognitionListener? = null
 
     init {
         try {
-            speechRecognizer = SpeechRecognizer.createOnDeviceSpeechRecognizer(context)
+            speechRecognizer = speechRecognizer(context)
             setupSpeechRecognizerListener()
             Log.d(TAG, "SpeechRecognizer initialized.")
         } catch (e: Exception) {
@@ -59,8 +63,12 @@ class OnDeviceSpeechRecognizer(
 
             override fun onError(error: Int) {
                 val errorMessage = getErrorMessage(error)
+                val isInitialisationError = fatalErrors.contains(error)
                 Log.e(TAG, "SpeechRecognizer: onError: $errorMessage (code: $error)")
-                listener?.onError(UiText.StringText(errorMessage))
+                listener?.onError(
+                    errorMessage = UiText.StringText(errorMessage),
+                    isInitialisation = isInitialisationError
+                )
             }
 
             override fun onResults(results: Bundle?) {
@@ -91,7 +99,7 @@ class OnDeviceSpeechRecognizer(
         })
     }
 
-    override fun setListener(listener: SpeechRecognitionManager.SpeechRecognitionListener) {
+    override fun setListener(listener: SpeechRecognitionListener) {
         this.listener = listener
     }
 
@@ -105,7 +113,8 @@ class OnDeviceSpeechRecognizer(
     override fun startListening() {
         if (speechRecognizer == null) {
             listener?.onError(
-                UiText.ResText(R.string.speech_not_available)
+                errorMessage = UiText.ResText(R.string.speech_not_available),
+                isInitialisation = true
             )
             return
         }
@@ -142,9 +151,9 @@ class OnDeviceSpeechRecognizer(
         } catch (e: Exception) {
             Log.e(TAG, "Exception calling speechRecognizer.startListening", e)
             listener?.onError(
-                e.message?.let {
-                    UiText.StringText(it)
-                } ?: UiText.ResText(R.string.speech_error_client)
+                errorMessage = e.message?.let { UiText.StringText(it) }
+                    ?: UiText.ResText(R.string.speech_error_client),
+                isInitialisation = true
             )
         }
 
@@ -176,7 +185,7 @@ class OnDeviceSpeechRecognizer(
         }
     }
 
-    companion object {
+    companion object Companion {
         private const val TAG = "OnDeviceSpeechRecognizer"
     }
 }

@@ -72,7 +72,6 @@ fun SpeechSheet(
 
         try {
             sheetState.show()
-            Log.d(MainActivity.TAG, "Effect: sheetState.show() finished.")
         } catch (e: Exception) {
             Log.e(MainActivity.TAG, "Error showing bottom sheet", e)
         }
@@ -87,7 +86,7 @@ fun SpeechSheet(
                     error.getText(context),
                     Toast.LENGTH_SHORT
                 ).show()
-                sheetState.hide()
+                scope.launch { sheetState.hide() }
                 onDismiss()
             }
         }
@@ -100,8 +99,8 @@ fun SpeechSheet(
         if (!permission.isGranted) {
             scope.launch {
                 sheetState.hide()
-                onDismiss()
             }
+            onDismiss()
         }
     }
 
