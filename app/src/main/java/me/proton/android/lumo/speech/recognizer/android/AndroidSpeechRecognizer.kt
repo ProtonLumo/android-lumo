@@ -15,13 +15,13 @@ import java.util.Locale
 
 abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeechRecognizer {
 
-    open val extraErrors: Set<Int> = emptySet()
+    protected open fun extraErrors(): Set<Int> = emptySet()
     private val fatalErrors = setOf(
         SpeechRecognizer.ERROR_AUDIO,
         SpeechRecognizer.ERROR_CLIENT,
         SpeechRecognizer.ERROR_RECOGNIZER_BUSY,
         SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS,
-    ) + extraErrors
+    ) + extraErrors()
     abstract fun speechRecognizer(context: Context): SpeechRecognizer
 
     private var speechRecognizer: SpeechRecognizer? = null
