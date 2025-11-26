@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.R
+import me.proton.android.lumo.speech.SpeechRecognitionManager.Engine
 import me.proton.android.lumo.ui.text.UiText
 import javax.inject.Inject
 
@@ -32,11 +33,7 @@ class SpeechViewModel @Inject constructor(
     private val _errorChannel = Channel<UiText>()
     val errors = _errorChannel.receiveAsFlow()
     private val speechRecognitionManager = SpeechRecognitionManager(application)
-    private val _uiState = MutableStateFlow(
-        value = SpeechUiState(
-            isVosk = speechRecognitionManager.isVosk()
-        )
-    )
+    private val _uiState = MutableStateFlow(SpeechUiState())
     val uiState: StateFlow<SpeechUiState> = _uiState.asStateFlow()
 
     init {
@@ -58,10 +55,13 @@ class SpeechViewModel @Inject constructor(
                 }
 
                 override fun onEndOfSpeech() {
-                    _uiState.update { it.copy(isListening = false) }
+                    _uiState.update { it.copy() }
                 }
 
-                override fun onError(errorMessage: UiText) {
+                override fun onError(
+                    errorMessage: UiText,
+                    isInitialisation: Boolean
+                ) {
                     _uiState.update { it.copy(isListening = false) }
                     viewModelScope.launch {
                         _errorChannel.send(errorMessage)
@@ -79,9 +79,13 @@ class SpeechViewModel @Inject constructor(
                             finalBuffer = currentText
                         }
                         it.copy(
-                            partialSpokenText = currentText
+                            partialSpokenText = currentText,
                         )
                     }
+                }
+
+                override fun switched() {
+                    determineSpeechStatusText()
                 }
             })
     }
@@ -101,23 +105,22 @@ class SpeechViewModel @Inject constructor(
     }
 
     private fun determineSpeechStatusText() {
-        val statusText = if (speechRecognitionManager.isVosk()) {
-            Log.d(TAG, "On-device recognition NOT available, falling back to Vosk.")
-            UiText.ResText(R.string.speech_status_vosk)
-        } else {
-            Log.d(TAG, "On-device recognition IS available.")
-            UiText.ResText(R.string.speech_status_on_device)
-        }
-        _uiState.value = _uiState.value.copy(speechStatusText = statusText)
-    }
+        val statusText = when (speechRecognitionManager.engineState()) {
+            is SpeechRecognitionManager.Engine.OnDevice ->
+                UiText.ResText(R.string.speech_status_on_device)
 
-    fun onCancelListening() {
-        Log.d(TAG, "onCancelListening")
-        speechRecognitionManager.cancelListening()
-        _uiState.value = _uiState.value.copy(
-            isListening = false,
-            partialSpokenText = ""
-        )
+            is SpeechRecognitionManager.Engine.GoogleCloud ->
+                UiText.ResText(R.string.speech_status_google)
+
+            else -> UiText.ResText(R.string.speech_status_vosk)
+        }
+
+        _uiState.update {
+            it.copy(
+                speechStatusText = statusText,
+                isVosk = speechRecognitionManager.engineState() == Engine.Vosk,
+            )
+        }
     }
 
     fun onSubmitTranscription(): String {
@@ -147,6 +150,7 @@ class SpeechViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+        speechRecognitionManager.cancelListening()
         speechRecognitionManager.removeListener()
         speechRecognitionManager.destroy()
     }

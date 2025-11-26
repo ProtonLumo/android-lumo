@@ -1,4 +1,4 @@
-package me.proton.android.lumo.ui.components
+package me.proton.android.lumo.ui.components.waveform
 
 import android.annotation.SuppressLint
 import android.media.AudioFormat

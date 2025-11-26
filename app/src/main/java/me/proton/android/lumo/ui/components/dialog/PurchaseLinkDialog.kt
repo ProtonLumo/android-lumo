@@ -1,4 +1,4 @@
-package me.proton.android.lumo.ui.components
+package me.proton.android.lumo.ui.components.dialog
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api

@@ -4,7 +4,9 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.webkit.WebView
 import android.widget.Toast
@@ -41,8 +43,9 @@ import me.proton.android.lumo.navigation.NavRoutes
 import me.proton.android.lumo.navigation.paymentRoutes
 import me.proton.android.lumo.permission.rememberSinglePermission
 import me.proton.android.lumo.ui.components.ChatScreen
-import me.proton.android.lumo.ui.components.PurchaseLinkDialog
-import me.proton.android.lumo.ui.components.SpeechSheet
+import me.proton.android.lumo.ui.components.dialog.PermissionDialog
+import me.proton.android.lumo.ui.components.dialog.PurchaseLinkDialog
+import me.proton.android.lumo.ui.components.speech.SpeechSheet
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.usecase.IsPaymentAvailableUseCase
@@ -60,6 +63,7 @@ import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var webBridge: WebAppInterface
+
     @Inject
     lateinit var isPaymentAvailable: IsPaymentAvailableUseCase
     private val viewModel: MainActivityViewModel by viewModels()
@@ -141,13 +145,7 @@ class MainActivity : ComponentActivity() {
                 permissionContract = rememberSinglePermission(
                     permission = Manifest.permission.RECORD_AUDIO,
                     onGranted = { viewModel.startVoiceEntry() },
-                    onDenied = {
-                        Toast.makeText(
-                            this,
-                            R.string.permission_mic_rationale,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    onDenied = { viewModel.showMissingPermission(it) }
                 )
             )
             DisposableEffect(Unit) {
@@ -220,6 +218,14 @@ class MainActivity : ComponentActivity() {
                                 is MainUiEvent.ShowSpeechSheet -> {
                                     navController.navigate(NavRoutes.SpeechToText)
                                 }
+
+                                is MainUiEvent.MissingPermission -> {
+                                    navController.navigate(
+                                        NavRoutes.MissingPermission(
+                                            event.missingPermission
+                                        )
+                                    )
+                                }
                             }
                         }
                     }
@@ -289,6 +295,22 @@ class MainActivity : ComponentActivity() {
                 SpeechSheet(
                     onDismiss = { navController.popBackStack() },
                     onSubmitText = { injectSpokenText(webView = webView, text = it) }
+                )
+            }
+            dialog<NavRoutes.MissingPermission> {
+                PermissionDialog(
+                    openSettings = {
+                        val intent = Intent(
+                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.fromParts("package", packageName, null)
+                        ).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+
+                        startActivity(intent)
+                        navController.popBackStack()
+                    },
+                    onDismiss = { navController.popBackStack() }
                 )
             }
         }
