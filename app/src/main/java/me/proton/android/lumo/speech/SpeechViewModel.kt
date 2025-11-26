@@ -128,7 +128,7 @@ class SpeechViewModel @Inject constructor(
         Log.d(TAG, "onSubmitTranscription: $transcript")
 
         // Reset state immediately
-        _uiState.value = _uiState.value.copy()
+        _uiState.value = _uiState.value.copy(isListening = false)
         speechRecognitionManager.cancelListening()
 
         return if (transcript.isNotEmpty()) {
@@ -144,7 +144,7 @@ class SpeechViewModel @Inject constructor(
             ""
         }.also {
             // Clear partial text after attempting submission
-            _uiState.value = _uiState.value.copy()
+            _uiState.value = _uiState.value.copy(partialSpokenText = "")
         }
     }
 
