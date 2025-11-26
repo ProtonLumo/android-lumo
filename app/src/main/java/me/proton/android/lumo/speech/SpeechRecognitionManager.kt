@@ -90,9 +90,6 @@ class SpeechRecognitionManager(private val context: Context) {
         current.destroy()
     }
 
-    fun isVosk(): Boolean =
-        current is VoskSpeechRecognizer
-
     fun engineState(): Engine =
         when (current) {
             is OnDeviceSpeechRecognizer -> Engine.OnDevice

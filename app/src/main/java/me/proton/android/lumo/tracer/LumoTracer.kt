@@ -15,7 +15,7 @@ interface LumoTracer {
 
         data object LoadUi : Operation {
             override val name: String
-                get() = "load.ui"
+                get() = "ui.load"
         }
 
         data object MainReady : Operation {

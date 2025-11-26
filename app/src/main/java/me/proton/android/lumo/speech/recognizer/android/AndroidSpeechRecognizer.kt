@@ -145,9 +145,7 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
         }
 
         try {
-            Log.d(TAG, "Calling speechRecognizer.startListening...")
             speechRecognizer?.startListening(intent)
-            Log.d(TAG, "speechRecognizer.startListening call finished.")
         } catch (e: Exception) {
             Log.e(TAG, "Exception calling speechRecognizer.startListening", e)
             listener?.onError(
@@ -160,12 +158,10 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
     }
 
     override fun cancelListening() {
-        Log.d(TAG, "Cancelling speech recognition")
         speechRecognizer?.cancel()
     }
 
     override fun destroy() {
-        Log.d(TAG, "Destroying speech recognizer")
         speechRecognizer?.destroy()
         speechRecognizer = null
     }

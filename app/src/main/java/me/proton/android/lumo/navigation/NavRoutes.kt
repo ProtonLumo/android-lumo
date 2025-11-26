@@ -15,4 +15,7 @@ sealed interface NavRoutes {
 
     @Serializable
     data object SpeechToText : NavRoutes
+
+    @Serializable
+    data class MissingPermission(val missingPermision: String) : NavRoutes
 }

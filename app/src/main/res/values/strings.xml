@@ -8,6 +8,8 @@
     <string name="please_check_your_internet_connection_and_try_again">Please check your internet connection and try again</string>
     <string name="retry_button">Retry</string>
     <string name="retry_connection">Retry Connection</string>
+    <string name="settings">Settings</string>
+    <string name="cancel">Cancel</string>
     
     <!-- Loading Messages -->
     <string name="loading_message_1">Demanding attention… and processing power…</string>
@@ -27,6 +29,7 @@
     <string name="speech_status_vosk" tools:ignore="MissingTranslation">Recognition processed by Vosk • On-device • Private</string>
     <string name="speech_status_google" tools:ignore="MissingTranslation">Recognition processed by Google</string>
     <string name="speech_status_on_device">On-device • Private</string>
+    <string name="permission_rationale_title">Missing permission</string>
     <string name="permission_mic_rationale">Microphone permission needed for speech input</string>
     <string name="speech_not_available">Speech recognition not available</string>
     <string name="speech_error_format">Speech Error: %1$s</string> <!-- Placeholder for error message -->

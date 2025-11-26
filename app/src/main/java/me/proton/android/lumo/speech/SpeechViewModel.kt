@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.R
+import me.proton.android.lumo.speech.SpeechRecognitionManager.Engine
 import me.proton.android.lumo.ui.text.UiText
 import javax.inject.Inject
 
@@ -54,7 +55,7 @@ class SpeechViewModel @Inject constructor(
                 }
 
                 override fun onEndOfSpeech() {
-                    _uiState.update { it.copy(isListening = false) }
+                    _uiState.update { it.copy() }
                 }
 
                 override fun onError(
@@ -78,7 +79,7 @@ class SpeechViewModel @Inject constructor(
                             finalBuffer = currentText
                         }
                         it.copy(
-                            partialSpokenText = currentText
+                            partialSpokenText = currentText,
                         )
                     }
                 }
@@ -117,18 +118,9 @@ class SpeechViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 speechStatusText = statusText,
-                isVosk = speechRecognitionManager.isVosk()
+                isVosk = speechRecognitionManager.engineState() == Engine.Vosk,
             )
         }
-    }
-
-    fun onCancelListening() {
-        Log.d(TAG, "onCancelListening")
-        speechRecognitionManager.cancelListening()
-        _uiState.value = _uiState.value.copy(
-            isListening = false,
-            partialSpokenText = ""
-        )
     }
 
     fun onSubmitTranscription(): String {
@@ -136,7 +128,7 @@ class SpeechViewModel @Inject constructor(
         Log.d(TAG, "onSubmitTranscription: $transcript")
 
         // Reset state immediately
-        _uiState.value = _uiState.value.copy(isListening = false)
+        _uiState.value = _uiState.value.copy()
         speechRecognitionManager.cancelListening()
 
         return if (transcript.isNotEmpty()) {
@@ -152,12 +144,13 @@ class SpeechViewModel @Inject constructor(
             ""
         }.also {
             // Clear partial text after attempting submission
-            _uiState.value = _uiState.value.copy(partialSpokenText = "")
+            _uiState.value = _uiState.value.copy()
         }
     }
 
     override fun onCleared() {
         super.onCleared()
+        speechRecognitionManager.cancelListening()
         speechRecognitionManager.removeListener()
         speechRecognitionManager.destroy()
     }

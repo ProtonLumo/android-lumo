@@ -53,6 +53,7 @@ class MainActivityViewModel @Inject constructor(
         data class ShowToast(val message: UiText) : UiEvent()
         class ShowPaymentDialog(val paymentEvent: PaymentEvent = PaymentEvent.Default) : UiEvent()
         object ShowSpeechSheet : UiEvent()
+        data class MissingPermission(val missingPermission: String) : UiEvent()
     }
 
     enum class PaymentEvent {
@@ -307,5 +308,9 @@ class MainActivityViewModel @Inject constructor(
 
     fun detachPermissionContract() {
         audioPermissionContract = null
+    }
+
+    fun showMissingPermission(missingPermission: String) {
+        _eventChannel.trySend(UiEvent.MissingPermission(missingPermission))
     }
 }
