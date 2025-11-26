@@ -11,12 +11,15 @@ class SentryInitializer : Initializer<Unit> {
 
     override fun create(context: Context) {
         SentryAndroid.init(context.applicationContext) { options: SentryOptions ->
-            options.dsn = BuildConfig.SENTRY_DSN
-            options.release = BuildConfig.VERSION_NAME
-            options.isDebug = BuildConfig.DEBUG
-            options.environment = BuildConfig.BASE_DOMAIN
-            options.isEnableUncaughtExceptionHandler = true
-            options.setDiagnosticLevel(SentryLevel.DEBUG)
+            with(options) {
+                dsn = BuildConfig.SENTRY_DSN
+                release = BuildConfig.VERSION_NAME
+                isDebug = BuildConfig.DEBUG
+                environment = BuildConfig.BASE_DOMAIN
+                isEnableUncaughtExceptionHandler = true
+                setDiagnosticLevel(SentryLevel.DEBUG)
+                tracesSampleRate = 0.2
+            }
         }
     }
 
