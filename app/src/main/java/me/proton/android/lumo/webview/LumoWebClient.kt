@@ -1,5 +1,7 @@
 package me.proton.android.lumo.webview
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -179,31 +181,41 @@ class LumoWebClient(
         view: WebView?,
         request: WebResourceRequest?
     ): Boolean {
-        val url = request?.url?.toString() ?: return false
+        val rawUrl = request?.url ?: return false
+        val url = rawUrl.toString()
 
-        // Only allow configured Lumo and Account domains in the WebView
-        if (LumoConfig.isKnownDomain(url)) {
-            if (isAccountDomain(url)) {
-                request.url.buildUpon()
-                    .appendQueryParameter("theme", if (isDarkThemeProvider()) "dark" else "light")
-                    .appendQueryParameter("remember", "3")?.let {
-                        view?.loadUrl(it.toString())
-                        return true
-                    }
-            }
-            return false // Let WebView handle it
-        } else {
-            // Open all other domains externally
-            try {
-                val intent = android.content.Intent(
-                    android.content.Intent.ACTION_VIEW,
-                    request.url
-                )
-                view?.context?.startActivity(intent)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to open external link: $url", e)
-            }
-            return true // Cancel loading in WebView
+        if (LumoConfig.isKnownDomain(url) && !LumoConfig.isBusinessPage(url)) {
+            return handleKnownDomain(view, rawUrl, url)
+        }
+
+        openExternally(view, rawUrl)
+        return true
+    }
+
+    private fun handleKnownDomain(
+        view: WebView?,
+        uri: Uri,
+        url: String
+    ): Boolean {
+        if (!LumoConfig.isAccountDomain(url)) {
+            return false
+        }
+
+        val themedUri = uri.buildUpon()
+            .appendQueryParameter("theme", if (isDarkThemeProvider()) "dark" else "light")
+            .appendQueryParameter("remember", "3")
+            .build()
+
+        view?.loadUrl(themedUri.toString())
+        return true
+    }
+
+    private fun openExternally(view: WebView?, uri: Uri) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            view?.context?.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to open external link: $uri", e)
         }
     }
 
