@@ -6,6 +6,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,10 +29,7 @@ import me.proton.android.lumo.ui.theme.LumoTheme
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun SpeechSheet(
-    onDismiss: () -> Unit,
-    onSubmitText: (String) -> Unit,
-) {
+fun SpeechSheet(onDismiss: () -> Unit) {
     val viewModel: SpeechViewModel = hiltViewModel()
 
     val context = LocalContext.current
@@ -48,8 +46,7 @@ fun SpeechSheet(
                     error.getText(context),
                     Toast.LENGTH_SHORT
                 ).show()
-                scope.launch { sheetState.hide() }
-                    .invokeOnCompletion { onDismiss() }
+                scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
             }
         }
     }
@@ -83,8 +80,7 @@ fun SpeechSheet(
                     scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
                 },
                 onSubmit = {
-                    val spokenText = viewModel.onSubmitTranscription()
-                    onSubmitText(spokenText)
+                    viewModel.onSubmitTranscription()
                     scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
                 }
             )
@@ -95,5 +91,9 @@ fun SpeechSheet(
         delay(100)
         showBottomSheet = true
         viewModel.onStartVoiceEntryRequested()
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() } }
     }
 }

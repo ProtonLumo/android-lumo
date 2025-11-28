@@ -22,6 +22,7 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
         SpeechRecognizer.ERROR_RECOGNIZER_BUSY,
         SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS,
     ) + extraErrors()
+
     abstract fun speechRecognizer(context: Context): SpeechRecognizer
 
     private var speechRecognizer: SpeechRecognizer? = null
@@ -62,6 +63,11 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
             }
 
             override fun onError(error: Int) {
+                // when we encounter this, the recognizer stopped so we should restart it
+                if (error == SpeechRecognizer.ERROR_NO_MATCH) {
+                    listener?.restart()
+                    return
+                }
                 val errorMessage = getErrorMessage(error)
                 val isInitialisationError = fatalErrors.contains(error)
                 Log.e(TAG, "SpeechRecognizer: onError: $errorMessage (code: $error)")
@@ -78,7 +84,7 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
                 if (text != null) {
                     listener?.onPartialResults(text, true)
                 } else {
-                    listener?.onEndOfSpeech()
+                    listener?.restart()
                 }
             }
 
@@ -132,7 +138,11 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
             )
             putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE,
-                Locale.getDefault()
+                Locale.getDefault().language
+            )
+            putExtra(
+                RecognizerIntent.EXTRA_ENABLE_LANGUAGE_SWITCH,
+                RecognizerIntent.LANGUAGE_SWITCH_QUICK_RESPONSE
             )
             putExtra(
                 RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,

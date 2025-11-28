@@ -53,7 +53,6 @@ import me.proton.android.lumo.webview.LumoChromeClient
 import me.proton.android.lumo.webview.LumoWebClient
 import me.proton.android.lumo.webview.WebAppInterface
 import me.proton.android.lumo.webview.createWebView
-import me.proton.android.lumo.webview.injectSpokenText
 import javax.inject.Inject
 import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 
@@ -292,10 +291,7 @@ class MainActivity : ComponentActivity() {
                 )
             }
             dialog<NavRoutes.SpeechToText> {
-                SpeechSheet(
-                    onDismiss = { navController.popBackStack() },
-                    onSubmitText = { injectSpokenText(webView = webView, text = it) }
-                )
+                SpeechSheet(onDismiss = { navController.popBackStack() })
             }
             dialog<NavRoutes.MissingPermission> {
                 PermissionDialog(

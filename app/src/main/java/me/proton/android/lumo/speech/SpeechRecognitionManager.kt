@@ -9,15 +9,16 @@ import me.proton.android.lumo.speech.recognizer.VoskSpeechRecognizer
 import me.proton.android.lumo.speech.recognizer.android.GoogleSpeechRecognizer
 import me.proton.android.lumo.speech.recognizer.android.OnDeviceSpeechRecognizer
 import me.proton.android.lumo.ui.text.UiText
+import javax.inject.Inject
 
 private const val TAG = "SpeechRecognitionManager"
 
-class SpeechRecognitionManager(private val context: Context) {
+class SpeechRecognitionManager @Inject constructor(private val context: Context) {
 
     interface SpeechRecognitionListener {
         fun onReadyForSpeech()
         fun onRmsChanged(rmsdB: Float)
-        fun onEndOfSpeech()
+        fun restart()
         fun onError(errorMessage: UiText, isInitialisation: Boolean)
         fun onPartialResults(text: String, isFinal: Boolean)
         fun switched()
@@ -105,8 +106,8 @@ class SpeechRecognitionManager(private val context: Context) {
             override fun onRmsChanged(rmsdB: Float) =
                 real.onRmsChanged(rmsdB)
 
-            override fun onEndOfSpeech() =
-                real.onEndOfSpeech()
+            override fun restart() =
+                real.restart()
 
             override fun onPartialResults(text: String, isFinal: Boolean) =
                 real.onPartialResults(text, isFinal)
