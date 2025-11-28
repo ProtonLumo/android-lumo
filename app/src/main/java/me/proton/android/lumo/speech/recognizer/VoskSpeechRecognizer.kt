@@ -29,13 +29,13 @@ class VoskSpeechRecognizer(
     private var speechService: SpeechService? = null
     private var recognizer: Recognizer? = null
     private var listener: SpeechRecognitionListener? = null
-
     private val _speechChannel = Channel<SpeechService>()
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     init {
         speechService?.stop()
         speechService = null
+        setupListener()
 
         StorageService.unpack(
             context, "model-en-us", "model",
@@ -84,6 +84,10 @@ class VoskSpeechRecognizer(
     override fun isSpeechRecognitionAvailable(): Boolean = true
 
     override fun startListening() {
+        speechService?.let { _speechChannel.trySend(it) }
+    }
+
+    private fun setupListener() {
         coroutineScope.launch {
             _speechChannel.receiveAsFlow().collect { speechService ->
                 speechService.startListening(object : RecognitionListener {
@@ -113,8 +117,7 @@ class VoskSpeechRecognizer(
                     }
 
                     override fun onFinalResult(hypothesis: String?) {
-                        listener?.onEndOfSpeech()
-                        cancelListening()
+                        listener?.restart()
                     }
 
                     override fun onError(error: Exception?) {
@@ -127,7 +130,7 @@ class VoskSpeechRecognizer(
                     }
 
                     override fun onTimeout() {
-                        listener?.onEndOfSpeech()
+                        listener?.restart()
                     }
                 })
             }

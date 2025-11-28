@@ -10,8 +10,13 @@ import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
+import me.proton.android.lumo.R
+import me.proton.android.lumo.ui.text.UiText
 
-class LumoChromeClient(activity: ComponentActivity) : WebChromeClient() {
+class LumoChromeClient(
+    private val activity: ComponentActivity,
+    private val errorHandler: (UiText) -> Unit,
+) : WebChromeClient() {
 
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private val fileChooserLauncher = activity.registerForActivityResult(
@@ -35,10 +40,20 @@ class LumoChromeClient(activity: ComponentActivity) : WebChromeClient() {
 
     private fun showFileChooser(filePathCallback: ValueCallback<Array<Uri>>?) {
         this.filePathCallback = filePathCallback
-        val intent =
-            Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.type = "*/*"
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            type = "*/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        }
+
+        val pm = activity.packageManager
+        val resolved = pm.queryIntentActivities(intent, 0).isNotEmpty()
+
+        if (!resolved) {
+            Log.e(TAG, "No activity available to handle file chooser")
+            errorHandler(UiText.ResText(R.string.error_open_file_chooser))
+            return
+        }
+
         fileChooserLauncher.launch(intent)
     }
 

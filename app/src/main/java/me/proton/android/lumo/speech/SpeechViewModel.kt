@@ -19,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SpeechViewModel @Inject constructor(
-    application: Application
+    private val speechRecognitionManager: SpeechRecognitionManager,
+    private val speechRepository: SpeechRepository
 ) : ViewModel() {
 
     data class SpeechUiState(
@@ -32,7 +33,6 @@ class SpeechViewModel @Inject constructor(
 
     private val _errorChannel = Channel<UiText>()
     val errors = _errorChannel.receiveAsFlow()
-    private val speechRecognitionManager = SpeechRecognitionManager(application)
     private val _uiState = MutableStateFlow(SpeechUiState())
     val uiState: StateFlow<SpeechUiState> = _uiState.asStateFlow()
 
@@ -54,8 +54,8 @@ class SpeechViewModel @Inject constructor(
                     _uiState.update { it.copy(rmsDbValue = rmsdB) }
                 }
 
-                override fun onEndOfSpeech() {
-                    _uiState.update { it.copy() }
+                override fun restart() {
+                    onStartVoiceEntryRequested()
                 }
 
                 override fun onError(
@@ -72,11 +72,20 @@ class SpeechViewModel @Inject constructor(
                     _uiState.update {
                         val currentText = buildString {
                             append(finalBuffer)
-                            if (finalBuffer.isNotEmpty()) append(" ")
+                            if (finalBuffer.isNotEmpty() && !finalBuffer.endsWith(" ")) {
+                                append(" ")
+                            }
                             append(text)
                         }
                         if (isFinal) {
-                            finalBuffer = currentText
+                            finalBuffer = buildString {
+                                append(currentText)
+                                if (currentText.isNotEmpty() &&
+                                    !currentText.trim().endsWith(".")
+                                ) {
+                                    append(".")
+                                }
+                            }
                         }
                         it.copy(
                             partialSpokenText = currentText,
@@ -123,22 +132,21 @@ class SpeechViewModel @Inject constructor(
         }
     }
 
-    fun onSubmitTranscription(): String {
+    fun onSubmitTranscription() {
         val transcript = _uiState.value.partialSpokenText
-        Log.d(TAG, "onSubmitTranscription: $transcript")
 
         // Reset state immediately
         _uiState.value = _uiState.value.copy(isListening = false)
-        speechRecognitionManager.cancelListening()
+        destroySpeechRecognizer()
 
-        return if (transcript.isNotEmpty()) {
+        if (transcript.isNotEmpty()) {
             val escaped = transcript
                 .replace("\\", "\\\\") // Must replace backslash first!
                 .replace("\"", "\\\"") // Escape double quotes
                 .replace("'", "\\'")   // Escape single quotes (optional but safe)
                 .replace("\n", "\\n")  // Escape newlines
                 .replace("\r", "\\r")  // Escape carriage returns
-            "\"$escaped\""
+            speechRepository.injectText("\"$escaped\"")
         } else {
             Log.w(TAG, "Skipping submission, empty transcript")
             ""
@@ -150,8 +158,12 @@ class SpeechViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        speechRecognitionManager.cancelListening()
+        destroySpeechRecognizer()
+    }
+
+    private fun destroySpeechRecognizer() {
         speechRecognitionManager.removeListener()
+        speechRecognitionManager.cancelListening()
         speechRecognitionManager.destroy()
     }
 

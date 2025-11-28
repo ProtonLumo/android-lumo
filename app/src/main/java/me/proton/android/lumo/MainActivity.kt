@@ -46,6 +46,7 @@ import me.proton.android.lumo.ui.components.ChatScreen
 import me.proton.android.lumo.ui.components.dialog.PermissionDialog
 import me.proton.android.lumo.ui.components.dialog.PurchaseLinkDialog
 import me.proton.android.lumo.ui.components.speech.SpeechSheet
+import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.usecase.IsPaymentAvailableUseCase
@@ -53,7 +54,6 @@ import me.proton.android.lumo.webview.LumoChromeClient
 import me.proton.android.lumo.webview.LumoWebClient
 import me.proton.android.lumo.webview.WebAppInterface
 import me.proton.android.lumo.webview.createWebView
-import me.proton.android.lumo.webview.injectSpokenText
 import javax.inject.Inject
 import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 
@@ -75,7 +75,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         webViewManager = WebViewManager()
-        val lumoChromeClient = LumoChromeClient(activity = this)
+        val lumoChromeClient = LumoChromeClient(
+            activity = this,
+            errorHandler = {}
+        )
 
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -125,7 +128,8 @@ class MainActivity : ComponentActivity() {
                     isDarkThemeProvider = { isDarkTheme },
                     isLoading = { uiState.isLoading },
                     showLoading = { viewModel.showLoading() },
-                    hideLoading = { viewModel.hideLoading(it) }
+                    hideLoading = { viewModel.hideLoading(it) },
+                    onError = { showToast(it) }
                 )
             }
 
@@ -196,11 +200,7 @@ class MainActivity : ComponentActivity() {
 
                                 is MainUiEvent.ShowToast -> {
                                     Log.d(TAG, "Received ShowToast event: ${event.message}")
-                                    Toast.makeText(
-                                        this@MainActivity,
-                                        event.message.getText(this@MainActivity),
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                                    showToast(event.message)
                                 }
 
                                 is MainUiEvent.ShowPaymentDialog -> {
@@ -292,10 +292,7 @@ class MainActivity : ComponentActivity() {
                 )
             }
             dialog<NavRoutes.SpeechToText> {
-                SpeechSheet(
-                    onDismiss = { navController.popBackStack() },
-                    onSubmitText = { injectSpokenText(webView = webView, text = it) }
-                )
+                SpeechSheet(onDismiss = { navController.popBackStack() })
             }
             dialog<NavRoutes.MissingPermission> {
                 PermissionDialog(
@@ -330,6 +327,14 @@ class MainActivity : ComponentActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         webViewManager.invalidate()
+    }
+
+    private fun showToast(uiText: UiText) {
+        Toast.makeText(
+            this@MainActivity,
+            uiText.getText(this),
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     companion object {

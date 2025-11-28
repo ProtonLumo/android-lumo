@@ -199,12 +199,36 @@ fun injectEssentialJavascript(webView: WebView) {
                     function tryInsertPrompt(attempts = 0, maxAttempts = 10) {
                         const editor = document.querySelector('.tiptap.ProseMirror.composer');
                         if (editor) {
-                            console.log('Editor found, inserting prompt');
-                            editor.innerHTML = '';
-                            const p = document.createElement('p');
-                            p.textContent = prompt.trim(); 
-                            editor.appendChild(p);
+                            console.log("Editor found");
+                        
+                            const text = prompt.trim();
+                        
+                            // Find last <p> (the paragraph we want to append to)
+                            let lastP = editor.querySelector('p:last-child');
+                        
+                            // If no <p> exists, create one
+                            if (!lastP) {
+                                lastP = document.createElement('p');
+                                editor.appendChild(lastP);
+                            }
+                        
+                            // Append correctly: add a space only if needed
+                            const needsSpace =
+                                lastP.textContent.length > 0 &&
+                                !lastP.textContent.endsWith(" ");
+                        
+                            lastP.textContent += (needsSpace ? " " : "") + text;
+                        
                             editor.focus();
+                        
+                            // Move caret to end of paragraph
+                            const range = document.createRange();
+                            range.selectNodeContents(lastP);
+                            range.collapse(false);
+
+                            const sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
                             
                             if (window.endProgrammaticOperation) {
                                 window.endProgrammaticOperation();

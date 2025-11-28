@@ -156,5 +156,7 @@
     <string name="error_failed_to_load_plans">Failed to load plans: %1$s</string>
     <string name="error_loading_plans">Error loading plans: %1$s</string>
     <string name="error_webview_not_available">WebView not available</string>
+    <string name="error_open_external_link">Can\'t open the external link</string>
+    <string name="error_open_file_chooser">Can\'t open the file chooser</string>
 
 </resources>

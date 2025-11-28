@@ -27,6 +27,8 @@ object LumoConfig {
      */
     val ACCOUNT_DOMAIN: String = buildDomain("account")
 
+    private val BUSINESS_PATH: String = "/business"
+
     /**
      * Full Lumo URL with HTTPS
      */
@@ -66,6 +68,8 @@ object LumoConfig {
      * Checks if a URL belongs to any of our configured domains
      */
     fun isKnownDomain(url: String?): Boolean = isLumoDomain(url) || isAccountDomain(url)
+
+    fun isBusinessPage(url: String): Boolean = url.contains(BUSINESS_PATH)
 
     /**
      * Get all configured domains for logging/debugging

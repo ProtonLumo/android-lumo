@@ -52,6 +52,12 @@ open class WebAppInterface {
         injectTheme(webView = webView, theme = theme, mode = mode)
     }
 
+    fun injectSpeechOutput(spokenText: String) {
+        val webView = webView ?: throw IllegalStateException("WebView not attached")
+
+        injectSpokenText(webView, spokenText)
+    }
+
     @JavascriptInterface
     fun showPayment() {
         Log.d(TAG, "showPayment called from JavaScript")
