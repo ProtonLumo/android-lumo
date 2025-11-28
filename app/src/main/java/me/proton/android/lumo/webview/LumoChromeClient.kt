@@ -45,9 +45,7 @@ class LumoChromeClient(
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         }
 
-        val pm = activity.packageManager
-        val resolved = pm.queryIntentActivities(intent, 0).isNotEmpty()
-
+        val resolved = intent.resolveActivity(activity.packageManager) != null
         if (!resolved) {
             Log.e(TAG, "No activity available to handle file chooser")
             errorHandler(UiText.ResText(R.string.error_open_file_chooser))

@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
         webViewManager = WebViewManager()
         val lumoChromeClient = LumoChromeClient(
             activity = this,
-            errorHandler = {}
+            errorHandler = { showToast(uiText = it) }
         )
 
         val callback = object : OnBackPressedCallback(true) {
