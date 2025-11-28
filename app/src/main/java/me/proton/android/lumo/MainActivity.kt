@@ -46,6 +46,7 @@ import me.proton.android.lumo.ui.components.ChatScreen
 import me.proton.android.lumo.ui.components.dialog.PermissionDialog
 import me.proton.android.lumo.ui.components.dialog.PurchaseLinkDialog
 import me.proton.android.lumo.ui.components.speech.SpeechSheet
+import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.usecase.IsPaymentAvailableUseCase
@@ -74,7 +75,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         webViewManager = WebViewManager()
-        val lumoChromeClient = LumoChromeClient(activity = this)
+        val lumoChromeClient = LumoChromeClient(
+            activity = this,
+            errorHandler = {}
+        )
 
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -124,7 +128,8 @@ class MainActivity : ComponentActivity() {
                     isDarkThemeProvider = { isDarkTheme },
                     isLoading = { uiState.isLoading },
                     showLoading = { viewModel.showLoading() },
-                    hideLoading = { viewModel.hideLoading(it) }
+                    hideLoading = { viewModel.hideLoading(it) },
+                    onError = { showToast(it) }
                 )
             }
 
@@ -195,11 +200,7 @@ class MainActivity : ComponentActivity() {
 
                                 is MainUiEvent.ShowToast -> {
                                     Log.d(TAG, "Received ShowToast event: ${event.message}")
-                                    Toast.makeText(
-                                        this@MainActivity,
-                                        event.message.getText(this@MainActivity),
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                                    showToast(event.message)
                                 }
 
                                 is MainUiEvent.ShowPaymentDialog -> {
@@ -326,6 +327,14 @@ class MainActivity : ComponentActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         webViewManager.invalidate()
+    }
+
+    private fun showToast(uiText: UiText) {
+        Toast.makeText(
+            this@MainActivity,
+            uiText.getText(this),
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     companion object {

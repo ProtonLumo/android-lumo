@@ -9,13 +9,16 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import me.proton.android.lumo.R
 import me.proton.android.lumo.config.LumoConfig
+import me.proton.android.lumo.ui.text.UiText
 
 class LumoWebClient(
     private val isDarkThemeProvider: () -> Boolean,
     private val isLoading: () -> Boolean,
     private val showLoading: () -> Unit,
     private val hideLoading: (Boolean) -> Unit,
+    private val onError: (UiText) -> Unit,
 ) : WebViewClient() {
     private val errorPageUrl = "file:///android_asset/network_error.html"
 
@@ -212,9 +215,21 @@ class LumoWebClient(
 
     private fun openExternally(view: WebView?, uri: Uri) {
         try {
+            val context = view?.context ?: return
             val intent = Intent(Intent.ACTION_VIEW, uri)
-            view?.context?.startActivity(intent)
+
+            val pm = context.packageManager
+            val resolved = intent.resolveActivity(pm) != null
+
+            if (!resolved) {
+                Log.e(TAG, "No activity found to handle external link: $uri")
+                onError(UiText.ResText(R.string.error_open_external_link))
+                return
+            }
+
+            context.startActivity(intent)
         } catch (e: Exception) {
+            onError(UiText.ResText(R.string.error_open_external_link))
             Log.e(TAG, "Failed to open external link: $uri", e)
         }
     }
