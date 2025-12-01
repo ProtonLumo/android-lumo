@@ -43,8 +43,8 @@ android {
     defaultConfig {
         minSdk = 29
         targetSdk = 36
-        versionName = versionProps["VERSION_NAME"] as String
-        versionCode = (versionProps["VERSION_CODE"] as String).toInt()
+        versionName = "1.2.11"
+        versionCode = 43
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
