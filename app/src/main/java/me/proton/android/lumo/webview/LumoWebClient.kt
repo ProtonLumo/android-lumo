@@ -218,8 +218,7 @@ class LumoWebClient(
             val context = view?.context ?: return
             val intent = Intent(Intent.ACTION_VIEW, uri)
 
-            val pm = context.packageManager
-            val resolved = intent.resolveActivity(pm) != null
+            val resolved = intent.resolveActivity(context.packageManager) != null
 
             if (!resolved) {
                 Log.e(TAG, "No activity found to handle external link: $uri")
