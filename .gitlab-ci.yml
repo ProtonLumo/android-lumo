@@ -27,6 +27,7 @@ variables:
   CACHE_COMPRESSION_LEVEL: "fast"
   # Gem path
   BUNDLE_GEM_PATH: 'vendor/ruby'
+  SECURE_FILES_DOWNLOAD_PATH: './.secrets'
 
 # Makes sure we do not create separate merge request and branch pipelines.
 # See https://docs.gitlab.com/ee/ci/yaml/workflow.html#switch-between-branch-pipelines-and-merge-request-pipelines
