@@ -29,6 +29,7 @@ hilt = "2.57.2"
 hiltExtension = "1.3.0"
 ksp = "2.2.20-2.0.4"
 timber = "5.0.1"
+unleash = "3.2.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -72,6 +73,7 @@ hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltExtension" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+unleash = { group = "io.getunleash", name = "unleash-android", version.ref = "unleash" }
 
 
 [plugins]

@@ -8,6 +8,8 @@ import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.data.repository.ThemeRepositoryImpl
 import me.proton.android.lumo.data.repository.WebAppRepository
 import me.proton.android.lumo.data.repository.WebAppRepositoryImpl
+import me.proton.android.lumo.unleash.UnleashRepository
+import me.proton.android.lumo.unleash.UnleashRepositoryImpl
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -18,4 +20,7 @@ abstract class AppBinder {
 
     @Binds
     abstract fun webAppRepository(impl: WebAppRepositoryImpl): WebAppRepository
+
+    @Binds
+    abstract fun unleashRepository(impl: UnleashRepositoryImpl): UnleashRepository
 }
