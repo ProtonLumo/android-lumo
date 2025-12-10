@@ -7,7 +7,6 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -54,6 +53,7 @@ import me.proton.android.lumo.webview.LumoChromeClient
 import me.proton.android.lumo.webview.LumoWebClient
 import me.proton.android.lumo.webview.WebAppInterface
 import me.proton.android.lumo.webview.createWebView
+import timber.log.Timber
 import javax.inject.Inject
 import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 
@@ -101,8 +101,8 @@ class MainActivity : ComponentActivity() {
         }
         onBackPressedDispatcher.addCallback(this, callback)
 
-        Log.d(TAG, "onCreate called")
-        Log.d(TAG, LumoConfig.getConfigInfo())
+        Timber.tag(TAG).i("onCreate called")
+        Timber.tag(TAG).i("LumoConfig.getConfigInfo()")
 
         // Trigger the initial network connectivity check (independent of billing)
         viewModel.performInitialNetworkCheck()
@@ -192,14 +192,14 @@ class MainActivity : ComponentActivity() {
                         viewModel.events.collectLatest { event ->
                             when (event) {
                                 is MainUiEvent.EvaluateJavascript -> {
-                                    Log.d(TAG, "Received EvaluateJavascript event")
+                                    Timber.tag(TAG).i("Received EvaluateJavascript event")
                                     webViewManager.evaluateJavaScript(event.script) { result ->
                                         viewModel.handleJavascriptResult(result)
                                     }
                                 }
 
                                 is MainUiEvent.ShowToast -> {
-                                    Log.d(TAG, "Received ShowToast event: ${event.message}")
+                                    Timber.tag(TAG).i("Received ShowToast event: ${event.message}")
                                     showToast(event.message)
                                 }
 

@@ -3,9 +3,7 @@ package me.proton.android.lumo.webview
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.util.Log
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.core.view.ViewCompat
@@ -13,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import me.proton.android.lumo.BuildConfig
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.utils.isNetworkStable
+import timber.log.Timber
 
 private const val TAG = "WebViewScreen"
 
@@ -51,7 +50,7 @@ fun createWebView(
             }
             val customUserAgent = generateCustomUserAgent()
             userAgentString = customUserAgent
-            Log.d(TAG, "Custom User Agent set: $customUserAgent")
+            Timber.tag(TAG).i("Custom User Agent set: $customUserAgent")
         }
 
         // Set WebView background to white to match loading screen and prevent flashing
@@ -82,16 +81,14 @@ fun createWebView(
         try {
             onAttach(this)
         } catch (e: Exception) {
-            Log.e(
-                MainActivity.Companion.TAG,
-                "WebView factory: Error adding JavascriptInterface",
-                e
+            Timber.tag(MainActivity.Companion.TAG).e(
+                e, "WebView factory: Error adding JavascriptInterface"
             )
         }
 
 
         // Load the INITIAL URL passed in
-        Log.d(TAG, "WebView factory: Loading initial URL: $initialUrl")
+        Timber.tag(TAG).i("WebView factory: Loading initial URL: $initialUrl")
         loadUrl(initialUrl)
     }
 }
@@ -102,9 +99,9 @@ fun createWebView(
 private fun toggleDebug() {
     if (BuildConfig.DEBUG) {
         WebView.setWebContentsDebuggingEnabled(true)
-        Log.d(TAG, "WebView debugging enabled (debug)")
+        Timber.tag(TAG).i("WebView debugging enabled (debug)")
     } else {
-        Log.d(TAG, "WebView debugging completely disabled")
+        Timber.tag(TAG).i("WebView debugging completely disabled")
     }
 }
 
@@ -165,12 +162,11 @@ private fun injectSafeAreaInsets(
         """.trimIndent()
 
         webView.evaluateJavascript(safeAreaJs, null)
-        Log.d(
-            TAG,
+        Timber.tag(TAG).i(
             "Safe area insets injected: top=${topDp}dp, right=${rightDp}dp, bottom=${bottomDp}dp, left=${leftDp}dp"
         )
 
     } catch (e: Exception) {
-        Log.e(TAG, "Error injecting safe area insets", e)
+        Timber.tag(TAG).e(e, "Error injecting safe area insets")
     }
 }

@@ -1,6 +1,5 @@
 package me.proton.android.lumo.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,6 +27,7 @@ import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.usecase.HasOfferUseCase
+import timber.log.Timber
 import javax.inject.Inject
 
 private const val TAG = "SubscriptionViewModel"
@@ -90,7 +90,7 @@ class SubscriptionViewModel @Inject constructor(
                         googleProductDetails = products,
                     )
                 }
-                Log.d(TAG, "Received ${products.size} Google Play products")
+                Timber.tag(TAG).i("Received ${products.size} Google Play products")
 
                 // Update plan pricing if we have plans
                 if (_uiStateFlow.value.planOptions.isNotEmpty()) {
@@ -182,7 +182,7 @@ class SubscriptionViewModel @Inject constructor(
             return
         }
 
-        Log.d(TAG, "Updating plan pricing from Google Play")
+        Timber.tag(TAG).i("Updating plan pricing from Google Play")
 
         val updatedPlans = repository.updatePlanPricing(
             plans = planOptions,
@@ -221,7 +221,7 @@ class SubscriptionViewModel @Inject constructor(
                 }
             }
         } else {
-            Log.e(TAG, "No valid plans found")
+            Timber.tag(TAG).e("No valid plans found")
             _uiStateFlow.update {
                 it.copy(
                     errorMessage = UiText.ResText(R.string.error_no_plans_with_pricing)
@@ -265,18 +265,18 @@ class SubscriptionViewModel @Inject constructor(
         // Get Google Play subscription status
         val (hasGooglePlaySubscription, isAutoRenewing) = getGooglePlaySubscriptionStatus()
 
-        Log.d(
-            TAG,
-            "Subscription sync check - API hasValid: $hasValidSubscriptions, " + "GooglePlay hasActive: $hasGooglePlaySubscription, isRenewing: $isAutoRenewing"
+        Timber.tag(TAG).i(
+            "Subscription sync check - API hasValid: $hasValidSubscriptions, GooglePlay hasActive: $hasGooglePlaySubscription, isRenewing: $isAutoRenewing"
         )
 
         // Check for mismatch: No valid subscription from API but active subscription on Google Play
         val hasMismatch = !hasValidSubscriptions && hasGooglePlaySubscription
 
         if (hasMismatch) {
-            Log.w(TAG, "SUBSCRIPTION SYNC MISMATCH DETECTED!")
-            Log.w(TAG, "API shows no valid subscription, but Google Play shows active subscription")
-            Log.w(TAG, "This indicates a sync issue that needs recovery")
+            Timber.tag(TAG).i("SUBSCRIPTION SYNC MISMATCH DETECTED!")
+            Timber.tag(TAG)
+                .i("API shows no valid subscription, but Google Play shows active subscription")
+            Timber.tag(TAG).i("This indicates a sync issue that needs recovery")
         }
 
         return hasMismatch

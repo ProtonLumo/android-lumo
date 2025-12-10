@@ -1,6 +1,5 @@
 package me.proton.android.lumo.webview
 
-import android.util.Log
 import android.webkit.JavascriptInterface
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.serialization.json.Json
@@ -8,6 +7,7 @@ import me.proton.android.lumo.billing.BillingManagerWrapper.PaymentRequestType
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.models.Subscription
+import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 
 class WebAppWithPaymentsInterface : WebAppInterface() {
@@ -17,7 +17,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
 
     @JavascriptInterface
     fun postResult(transactionId: String, resultJson: String) {
-        Log.d(TAG, "postResult received: id=$transactionId")
+        Timber.tag(TAG).i("postResult received: id=$transactionId")
         handleJavaScriptResult(transactionId, resultJson)
     }
 
@@ -77,12 +77,12 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
         transactionId: String,
         resultJson: String
     ) {
-        Log.d(TAG, "handleJavaScriptResult received for ID $transactionId: $resultJson")
+        Timber.tag(TAG).i("handleJavaScriptResult received for ID $transactionId: $resultJson")
 
         // Retrieve and remove the original callback
         val deferred = pendingResults.remove(transactionId)
         if (deferred == null) {
-            Log.e(TAG, "No callback found for transaction ID: $transactionId")
+            Timber.tag(TAG).e("No callback found for transaction ID : $transactionId")
             return
         }
 
@@ -99,8 +99,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
     ): Result<PaymentJsResponse> {
         // Add check for common unresolved promise representations
         if (resultString?.startsWith("[object Promise]") == true || resultString == "undefined" || resultString == "{}") {
-            Log.w(
-                TAG,
+            Timber.tag(TAG).i(
                 "JavaScript returned a Promise object representation, empty object, or undefined. Raw: $resultString"
             )
             return Result.failure(Exception("JavaScript promise handling error or unexpected result."))
@@ -116,10 +115,10 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
                 try {
                     processableString = json.decodeFromString<String>(processableString)
                 } catch (e: Exception) {
-                    Log.w(
-                        TAG,
-                        "Could not decode potentially double-encoded JSON string: $processableString",
-                        e
+                    Timber.tag(TAG).i(
+                        e,
+                        "Could not decode potentially double-encoded JSON string: $processableString"
+
                     )
                     // Proceed with the original string if decoding fails
                 }
@@ -135,7 +134,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
                 Result.failure(Exception("JavaScript returned null"))
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error processing JS response: $resultString", e)
+            Timber.tag(TAG).e(e, "Error processing JS response : $resultString")
             Result.failure(Exception("Error processing JS response: ${e.message}. Raw response: $resultString"))
         }
     }

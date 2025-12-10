@@ -1,6 +1,5 @@
 package me.proton.android.lumo.ui.components
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -48,6 +47,7 @@ import me.proton.android.lumo.ui.text.asString
 import me.proton.android.lumo.ui.theme.AppStyle.Companion.isDarkTheme
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.viewmodels.SubscriptionViewModel.UiState
+import timber.log.Timber
 
 private const val TAG = "PlanSelectionDialog"
 
@@ -205,13 +205,12 @@ private fun Footer(
                         onClearError()
                         return@Button
                     }
-                    Log.d(
-                        TAG,
+                    Timber.tag(TAG).i(
                         "Purchase button clicked for plan: ${planToPurchase.id}, ProductID: ${planToPurchase.productId}, OfferToken: ${planToPurchase.offerToken}"
                     )
                     onPurchaseClicked(planToPurchase)
                 } ?: run {
-                    Log.w(TAG, "Purchase clicked but no plan selected.")
+                    Timber.tag(TAG).i("Purchase clicked but no plan selected.")
                 }
             },
             modifier = Modifier

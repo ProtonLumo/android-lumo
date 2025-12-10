@@ -1,6 +1,5 @@
 package me.proton.android.lumo.ui.components.waveform
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -12,6 +11,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
+import timber.log.Timber
 import kotlin.math.max
 import kotlin.math.pow
 
@@ -42,12 +42,13 @@ fun OnDeviceAudioWaveform(
 
         // Log intermediate values
         // Limit logging frequency if needed, but let's see full data first
-        Log.d(
-            "AudioWaveform",
-            "rmsDb: %.2f -> norm: %.2f -> curved: %.2f -> smoothed: %.2f -> final: %.2f".format(
-                rmsDbValue, normalized, curvedValue, smoothedValue, finalValue
+        Timber.tag("AudioWaveform")
+            .i(
+                "rmsDb: %.2f -> norm: %.2f -> curved: %.2f -> smoothed: %.2f -> final: %.2f"
+                    .format(
+                        rmsDbValue, normalized, curvedValue, smoothedValue, finalValue
+                    )
             )
-        )
 
         // Update the list: shift and add new value
         if (audioLevels.isNotEmpty()) { // Ensure list is not empty before removing

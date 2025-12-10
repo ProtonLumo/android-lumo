@@ -2,7 +2,6 @@ package me.proton.android.lumo.ui.components
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +27,7 @@ import com.android.billingclient.api.ProductDetails
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.SubscriptionItemResponse
 import me.proton.android.lumo.ui.theme.LumoTheme
+import timber.log.Timber
 import java.util.Date
 
 /**
@@ -44,14 +44,12 @@ fun SubscriptionOverviewSection(
     val (isActive, isAutoRenewing, expiryTimeMillis) = getSubscriptionPaymentStatus()
 
     // Log Google Play status
-    Log.d(
-        "SubscriptionOverview",
+    Timber.tag(TAG).i(
         "Google Play Status: isActive=$isActive, isAutoRenewing=$isAutoRenewing, expiryTime=${
             Date(expiryTimeMillis)
         }"
     )
-    Log.d(
-        "SubscriptionOverview",
+    Timber.tag(TAG).i(
         "Google Play Products: ${googleProductDetails.size} available"
     )
 
@@ -96,8 +94,7 @@ fun SubscriptionOverviewSection(
         // Use the SubscriptionComponent for each subscription
         for (subscription in subscriptions) {
             // Debug log the subscription info
-            Log.d(
-                "SubscriptionOverview",
+            Timber.tag(TAG).i(
                 "Subscription: Name=${subscription.name}, External=${subscription.external}, Renew=${subscription.renew}"
             )
 
@@ -107,8 +104,7 @@ fun SubscriptionOverviewSection(
                     subscription.external == 2
 
             if (isGooglePlayPlan) {
-                Log.d(
-                    "SubscriptionOverview",
+                Timber.tag(TAG).i(
                     "This is a Google Play Lumo plan - using Google Play status and product details"
                 )
             }
@@ -141,7 +137,7 @@ private fun openSubscriptionManagementScreen(context: Context): Boolean {
 
         if (intent.resolveActivity(context.packageManager) != null) {
             context.startActivity(intent)
-            Log.d(TAG, "Opened Google Play subscription management screen")
+            Timber.tag(TAG).i("Opened Google Play subscription management screen")
             true
         } else {
             // Fallback if the URI method doesn't work
@@ -152,16 +148,16 @@ private fun openSubscriptionManagementScreen(context: Context): Boolean {
 
             if (playStoreIntent.resolveActivity(context.packageManager) != null) {
                 context.startActivity(playStoreIntent)
-                Log.d(TAG, "Opened Google Play Store")
+                Timber.tag(TAG).i("Opened Google Play Store")
                 true
             } else {
-                Log.e(TAG, "Could not open Google Play Store")
+                Timber.tag(TAG).e("Could not open Google Play Store ")
                 false
             }
         }
 
     } catch (e: Exception) {
-        Log.e(TAG, "Error opening subscription management", e)
+        Timber.tag(TAG).e(e, "Error opening subscription management ")
         false
     }
 }

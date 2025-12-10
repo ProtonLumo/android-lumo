@@ -1,6 +1,6 @@
 package me.proton.android.lumo.webview
 
-import android.util.Log
+
 import android.webkit.WebView
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import me.proton.android.lumo.billing.BillingManagerWrapper.PaymentRequestType
 import me.proton.android.lumo.models.PaymentJsResponse
+import timber.log.Timber
 import java.util.UUID
 
 
@@ -28,8 +29,8 @@ suspend inline fun <reified T> sendPaymentDataToWebView(
     val deferred = CompletableDeferred<Result<PaymentJsResponse>>()
     deferredCreated(transactionId, deferred)
 
-    Log.d("PaymentsJsInjector", "Sending ${jsFunction.name.lowercase()} (ID: $transactionId)...")
-    Log.d("PaymentsJsInjector", "Payload: $payloadLog")
+    Timber.tag("PaymentsJsInjector").i("Sending ${jsFunction.name.lowercase()} (ID: $transactionId)...")
+    Timber.tag("PaymentsJsInjector").i("Payload: $payloadLog")
 
     val jsFunctionCall =
         if (jsFunction == PaymentRequestType.GET_PLANS || jsFunction == PaymentRequestType.GET_SUBSCRIPTIONS) {

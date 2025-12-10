@@ -1,4 +1,3 @@
-import android.util.Log
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
@@ -8,6 +7,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.ui.text.UiText
+import timber.log.Timber
 
 object PlanExtractor {
 
@@ -60,10 +60,10 @@ object PlanExtractor {
                         )
 
                         extractedPlans.add(jsPlan)
-                        Log.d(TAG, "Added plan: ${jsPlan.name} (${jsPlan.duration})")
+                        Timber.tag(TAG).i("Added plan: ${jsPlan.name} (${jsPlan.duration})")
                     }
                 }.onFailure { e ->
-                    Log.e(TAG, "Error parsing instance", e)
+                    Timber.tag(TAG).e(e, "Error parsing instance")
                 }
             }
         }
