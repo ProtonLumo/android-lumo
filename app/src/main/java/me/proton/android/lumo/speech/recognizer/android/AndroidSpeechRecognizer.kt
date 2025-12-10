@@ -2,15 +2,18 @@ package me.proton.android.lumo.speech.recognizer.android
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.os.LocaleList
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import android.util.Log
+
 import me.proton.android.lumo.R
 import me.proton.android.lumo.speech.SpeechRecognitionManager.SpeechRecognitionListener
 import me.proton.android.lumo.speech.recognizer.LumoSpeechRecognizer
 import me.proton.android.lumo.ui.text.UiText
+import timber.log.Timber
 import java.util.Locale
 
 abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeechRecognizer {
@@ -32,9 +35,9 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
         try {
             speechRecognizer = speechRecognizer(context)
             setupSpeechRecognizerListener()
-            Log.d(TAG, "SpeechRecognizer initialized.")
+            Timber.tag(TAG).i("SpeechRecognizer initialized.")
         } catch (e: Exception) {
-            Log.e(TAG, "SpeechRecognizer not available on this device.")
+            Timber.tag(TAG).e("SpeechRecognizer not available on this device.")
             speechRecognizer = null
         }
     }
@@ -42,7 +45,7 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
     private fun setupSpeechRecognizerListener() {
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {
-                Log.d(TAG, "SpeechRecognizer: onReadyForSpeech")
+                Timber.tag(TAG).i("SpeechRecognizer: onReadyForSpeech")
                 listener?.onReadyForSpeech()
             }
 
@@ -54,11 +57,11 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
             }
 
             override fun onBufferReceived(buffer: ByteArray?) {
-                Log.d(TAG, "SpeechRecognizer: onBufferReceived")
+                Timber.tag(TAG).i("SpeechRecognizer: onBufferReceived")
             }
 
             override fun onEndOfSpeech() {
-                Log.d(TAG, "SpeechRecognizer: onEndOfSpeech")
+                Timber.tag(TAG).i("SpeechRecognizer: onEndOfSpeech")
                 // don't call end of speech here, simply ignore it
             }
 
@@ -70,7 +73,7 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
                 }
                 val errorMessage = getErrorMessage(error)
                 val isInitialisationError = fatalErrors.contains(error)
-                Log.e(TAG, "SpeechRecognizer: onError: $errorMessage (code: $error)")
+                Timber.tag(TAG).e("SpeechRecognizer: onError: $errorMessage (code: $error)")
                 listener?.onError(
                     errorMessage = UiText.StringText(errorMessage),
                     isInitialisation = isInitialisationError
@@ -80,7 +83,7 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
             override fun onResults(results: Bundle?) {
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 val text = matches?.getOrNull(0)
-                Log.d(TAG, "SpeechRecognizer: onResults: $text")
+                Timber.tag(TAG).i("SpeechRecognizer: onResults: $text")
                 if (text != null) {
                     listener?.onPartialResults(text, true)
                 } else {
@@ -95,12 +98,12 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
                 val text = matches?.getOrNull(0)
                 if (text != null) {
                     listener?.onPartialResults(text, isFinalResult)
-                    Log.d(TAG, "SpeechRecognizer: onPartialResults: $text")
+                    Timber.tag(TAG).i("SpeechRecognizer: onPartialResults: $text")
                 }
             }
 
             override fun onEvent(eventType: Int, params: Bundle?) {
-                Log.d(TAG, "SpeechRecognizer: onEvent: $eventType")
+                Timber.tag(TAG).i("SpeechRecognizer: onEvent: $eventType")
             }
         })
     }
@@ -136,14 +139,35 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
                 RecognizerIntent.EXTRA_PARTIAL_RESULTS,
                 true
             )
+
+            // keep language instead of languageTag here as using language tag will provide
+            // something like en-GB and if the local speech recognizer is set to en-US it will
+            // fail to resolve and fallback to vosk. language will remove the country part of the
+            // locale so en-GB becomes en
             putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE,
                 Locale.getDefault().language
             )
             putExtra(
-                RecognizerIntent.EXTRA_ENABLE_LANGUAGE_SWITCH,
-                RecognizerIntent.LANGUAGE_SWITCH_QUICK_RESPONSE
+                RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
+                Locale.getDefault().toLanguageTag()
             )
+
+            val localesSize = LocaleList.getDefault().size()
+            val locales = Array(localesSize) { "" }
+            for (i in 0 until localesSize) {
+                locales[i] = LocaleList.getDefault().get(i).toLanguageTag()
+            }
+            putExtra(
+                RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES,
+                locales
+            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                putExtra(
+                    RecognizerIntent.EXTRA_ENABLE_LANGUAGE_SWITCH,
+                    RecognizerIntent.LANGUAGE_SWITCH_QUICK_RESPONSE
+                )
+            }
             putExtra(
                 RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
                 5000
@@ -157,7 +181,7 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
         try {
             speechRecognizer?.startListening(intent)
         } catch (e: Exception) {
-            Log.e(TAG, "Exception calling speechRecognizer.startListening", e)
+            Timber.tag(TAG).e(e, "Exception calling speechRecognizer.startListening")
             listener?.onError(
                 errorMessage = e.message?.let { UiText.StringText(it) }
                     ?: UiText.ResText(R.string.speech_error_client),
