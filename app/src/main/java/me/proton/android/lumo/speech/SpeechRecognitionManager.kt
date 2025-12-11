@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Build
 import android.speech.SpeechRecognizer
 import androidx.annotation.RequiresApi
+import me.proton.android.lumo.speech.SpeechRecognitionManager.Engine.LanguageTag.LanguageAndCountry
+import me.proton.android.lumo.speech.SpeechRecognitionManager.Engine.LanguageTag.LanguageOnly
 import me.proton.android.lumo.speech.recognizer.LumoSpeechRecognizer
 import me.proton.android.lumo.speech.recognizer.VoskSpeechRecognizer
 import me.proton.android.lumo.speech.recognizer.android.GoogleSpeechRecognizer
@@ -25,19 +27,30 @@ class SpeechRecognitionManager @Inject constructor(private val context: Context)
     }
 
     sealed interface Engine {
-        object OnDevice : Engine
-        object GoogleCloud : Engine
-        object Vosk : Engine
+        data class OnDevice(val languageTag: LanguageTag) : Engine
+        data class GoogleCloud(val languageTag: LanguageTag) : Engine
+        data object Vosk : Engine
+
+        sealed interface LanguageTag {
+            data object LanguageOnly : LanguageTag
+            data object LanguageAndCountry : LanguageTag
+        }
     }
 
     private var listener: SpeechRecognitionListener? = null
 
-    private val androidOnDeviceEngine: LumoSpeechRecognizer
-        @RequiresApi(Build.VERSION_CODES.S)
-        get() = OnDeviceSpeechRecognizer(context = context)
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun androidOnDeviceEngine(languageTag: Engine.LanguageTag): LumoSpeechRecognizer =
+        OnDeviceSpeechRecognizer(
+            context = context,
+            languageTag = languageTag
+        )
 
-    private val googleCloudEngine: LumoSpeechRecognizer
-        get() = GoogleSpeechRecognizer(context = context)
+    private fun googleCloudEngine(languageTag: Engine.LanguageTag): LumoSpeechRecognizer =
+        GoogleSpeechRecognizer(
+            context = context,
+            languageTag = languageTag
+        )
 
     private val voskEngine: LumoSpeechRecognizer by lazy {
         VoskSpeechRecognizer(context)
@@ -50,7 +63,7 @@ class SpeechRecognitionManager @Inject constructor(private val context: Context)
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
             SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
         ) {
-            androidOnDeviceEngine
+            androidOnDeviceEngine(languageTag = LanguageAndCountry)
         } else {
             voskEngine
         }
@@ -92,10 +105,12 @@ class SpeechRecognitionManager @Inject constructor(private val context: Context)
     }
 
     fun engineState(): Engine =
-        when (current) {
-            is OnDeviceSpeechRecognizer -> Engine.OnDevice
-            is GoogleSpeechRecognizer -> Engine.GoogleCloud
-            else -> Engine.Vosk
+        with(current) {
+            when (this) {
+                is OnDeviceSpeechRecognizer -> Engine.OnDevice(this.languageTag)
+                is GoogleSpeechRecognizer -> Engine.GoogleCloud(this.languageTag)
+                else -> Engine.Vosk
+            }
         }
 
     private fun wrapListener(real: SpeechRecognitionListener): SpeechRecognitionListener =
@@ -114,14 +129,35 @@ class SpeechRecognitionManager @Inject constructor(private val context: Context)
 
             override fun onError(errorMessage: UiText, isInitialisation: Boolean) {
                 if (isInitialisation) {
-                    when (engineState()) {
-                        is Engine.OnDevice -> switch(voskEngine)
-                        is Engine.Vosk -> switch(googleCloudEngine)
-                        is Engine.GoogleCloud ->
-                            real.onError(
-                                errorMessage = errorMessage,
-                                isInitialisation = false
+                    when (val state = engineState()) {
+                        is Engine.OnDevice -> switch(
+                            lumoSpeechRecognizer =
+                                if (state.languageTag == LanguageAndCountry) {
+                                    androidOnDeviceEngine(languageTag = LanguageOnly)
+                                } else {
+                                    voskEngine
+                                }
+                        )
+
+                        is Engine.Vosk ->
+                            switch(
+                                lumoSpeechRecognizer =
+                                    googleCloudEngine(languageTag = LanguageAndCountry)
                             )
+
+                        is Engine.GoogleCloud ->
+                            if (state.languageTag == LanguageAndCountry) {
+                                switch(
+                                    lumoSpeechRecognizer =
+                                        googleCloudEngine(languageTag = LanguageOnly)
+                                )
+                            } else {
+                                real.onError(
+                                    errorMessage = errorMessage,
+                                    isInitialisation = false
+                                )
+                            }
+
                     }
                 } else {
                     real.onError(

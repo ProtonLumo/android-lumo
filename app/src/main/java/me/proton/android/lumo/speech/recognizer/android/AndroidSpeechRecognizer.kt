@@ -10,13 +10,19 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 
 import me.proton.android.lumo.R
+import me.proton.android.lumo.speech.SpeechRecognitionManager
+import me.proton.android.lumo.speech.SpeechRecognitionManager.Engine.LanguageTag.LanguageAndCountry
+import me.proton.android.lumo.speech.SpeechRecognitionManager.Engine.LanguageTag.LanguageOnly
 import me.proton.android.lumo.speech.SpeechRecognitionManager.SpeechRecognitionListener
 import me.proton.android.lumo.speech.recognizer.LumoSpeechRecognizer
 import me.proton.android.lumo.ui.text.UiText
 import timber.log.Timber
 import java.util.Locale
 
-abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeechRecognizer {
+abstract class AndroidSpeechRecognizer(
+    private val context: Context,
+    val languageTag: SpeechRecognitionManager.Engine.LanguageTag
+) : LumoSpeechRecognizer {
 
     protected open fun extraErrors(): Set<Int> = emptySet()
     private val fatalErrors = setOf(
@@ -146,7 +152,10 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
             // locale so en-GB becomes en
             putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE,
-                Locale.getDefault().language
+                when (languageTag) {
+                    LanguageAndCountry -> Locale.getDefault().toLanguageTag()
+                    LanguageOnly -> Locale.getDefault().language
+                }
             )
             putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
@@ -188,7 +197,6 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
                 isInitialisation = true
             )
         }
-
     }
 
     override fun cancelListening() {
