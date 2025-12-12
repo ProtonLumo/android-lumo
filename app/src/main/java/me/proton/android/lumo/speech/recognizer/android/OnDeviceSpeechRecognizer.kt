@@ -4,13 +4,9 @@ import android.content.Context
 import android.os.Build
 import android.speech.SpeechRecognizer
 import androidx.annotation.RequiresApi
-import me.proton.android.lumo.speech.SpeechRecognitionManager.Engine.LanguageTag
 
 @RequiresApi(Build.VERSION_CODES.S)
-class OnDeviceSpeechRecognizer(
-    context: Context,
-    languageTag: LanguageTag
-) : AndroidSpeechRecognizer(context, languageTag) {
+class OnDeviceSpeechRecognizer(context: Context) : AndroidSpeechRecognizer(context) {
 
     override fun extraErrors(): Set<Int> =
         setOf(

@@ -8,21 +8,21 @@ import android.os.LocaleList
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-
 import me.proton.android.lumo.R
-import me.proton.android.lumo.speech.SpeechRecognitionManager
-import me.proton.android.lumo.speech.SpeechRecognitionManager.Engine.LanguageTag.LanguageAndCountry
-import me.proton.android.lumo.speech.SpeechRecognitionManager.Engine.LanguageTag.LanguageOnly
 import me.proton.android.lumo.speech.SpeechRecognitionManager.SpeechRecognitionListener
 import me.proton.android.lumo.speech.recognizer.LumoSpeechRecognizer
 import me.proton.android.lumo.ui.text.UiText
 import timber.log.Timber
 import java.util.Locale
 
-abstract class AndroidSpeechRecognizer(
-    private val context: Context,
-    val languageTag: SpeechRecognitionManager.Engine.LanguageTag
-) : LumoSpeechRecognizer {
+abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeechRecognizer {
+
+    private var languageTag: LanguageTag = LanguageTag.LanguageAndCountry
+
+    sealed interface LanguageTag {
+        data object LanguageOnly : LanguageTag
+        data object LanguageAndCountry : LanguageTag
+    }
 
     protected open fun extraErrors(): Set<Int> = emptySet()
     private val fatalErrors = setOf(
@@ -72,14 +72,25 @@ abstract class AndroidSpeechRecognizer(
             }
 
             override fun onError(error: Int) {
+                val errorMessage = getErrorMessage(error)
+                Timber.tag(TAG).d("SpeechRecognizer: onError: $errorMessage (code: $error)")
                 // when we encounter this, the recognizer stopped so we should restart it
+                if ((error == SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE ||
+                            error == SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED) &&
+                    languageTag == LanguageTag.LanguageAndCountry
+                ) {
+                    languageTag = LanguageTag.LanguageOnly
+                    cancelListening()
+                    startListening()
+                    return
+                }
+
                 if (error == SpeechRecognizer.ERROR_NO_MATCH) {
                     listener?.restart()
                     return
                 }
-                val errorMessage = getErrorMessage(error)
+
                 val isInitialisationError = fatalErrors.contains(error)
-                Timber.tag(TAG).e("SpeechRecognizer: onError: $errorMessage (code: $error)")
                 listener?.onError(
                     errorMessage = UiText.StringText(errorMessage),
                     isInitialisation = isInitialisationError
@@ -153,8 +164,8 @@ abstract class AndroidSpeechRecognizer(
             putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE,
                 when (languageTag) {
-                    LanguageAndCountry -> Locale.getDefault().toLanguageTag()
-                    LanguageOnly -> Locale.getDefault().language
+                    LanguageTag.LanguageAndCountry -> Locale.getDefault().toLanguageTag()
+                    LanguageTag.LanguageOnly -> Locale.getDefault().language
                 }
             )
             putExtra(
