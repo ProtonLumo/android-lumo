@@ -1,12 +1,12 @@
 package me.proton.android.lumo.webview
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import me.proton.android.lumo.MainActivity
+import timber.log.Timber
 import me.proton.android.lumo.MainActivityViewModel.WebEvent as MainWebEvent
 
 @SuppressLint("StaticFieldLeak")
@@ -29,7 +29,7 @@ open class WebAppInterface {
                 this,
                 "Android"
             )
-            Log.d(MainActivity.TAG, "JavaScript interface 'Android' added successfully")
+            Timber.tag(TAG).i("JavaScript interface 'Android' added successfully")
 
             // Inject a simple test to verify interface is working
             webView.evaluateJavascript(
@@ -37,7 +37,7 @@ open class WebAppInterface {
                 null
             )
         } catch (e: Exception) {
-            Log.e(MainActivity.TAG, "Error adding JavaScript interface", e)
+            Timber.tag(MainActivity.TAG).e(e, "Error adding JavaScript interface")
         }
     }
 
@@ -60,61 +60,61 @@ open class WebAppInterface {
 
     @JavascriptInterface
     fun showPayment() {
-        Log.d(TAG, "showPayment called from JavaScript")
+        Timber.tag(TAG).i("showPayment called from JavaScript")
         _mainEventChannel.trySend(MainWebEvent.ShowPaymentRequested)
     }
 
     @JavascriptInterface
     fun showBlackFridaySale() {
-        Log.d(TAG, "showBlackFridaySale called from JavaScript")
+        Timber.tag(TAG).i("showBlackFridaySale called from JavaScript")
         _mainEventChannel.trySend(MainWebEvent.ShowBlackFridaySale)
     }
 
     @JavascriptInterface
     fun startVoiceEntry() {
-        Log.d(TAG, "startVoiceEntry called from JavaScript")
+        Timber.tag(TAG).i("startVoiceEntry called from JavaScript")
         _mainEventChannel.trySend(MainWebEvent.StartVoiceEntryRequested)
     }
 
     @JavascriptInterface
     fun retryLoad() {
-        Log.d(TAG, "retryLoad called from JavaScript (error page)")
+        Timber.tag(TAG).i("retryLoad called from JavaScript(error page)")
         _mainEventChannel.trySend(MainWebEvent.RetryLoadRequested)
     }
 
     @JavascriptInterface
     fun onPageTypeChanged(isLumo: Boolean, url: String) {
-        Log.d(TAG, "Page type changed: isLumo = $isLumo")
+        Timber.tag(TAG).i("Page type changed : isLumo = $isLumo")
         _mainEventChannel.trySend(MainWebEvent.PageTypeChanged(isLumo, url))
     }
 
     @JavascriptInterface
     fun onNavigation(url: String, type: String) {
-        Log.d(TAG, "Navigation: url=$url, type=$type")
+        Timber.tag(TAG).i("Navigation : url =$url, type = $type")
         _mainEventChannel.trySend(MainWebEvent.Navigated(url, type))
     }
 
     @JavascriptInterface
     fun onLumoContainerVisible() {
-        Log.d(TAG, "Lumo container became visible")
+        Timber.tag(TAG).i("Lumo container became visible")
         _mainEventChannel.trySend(MainWebEvent.LumoContainerVisible)
     }
 
     @JavascriptInterface
     fun log(message: String) {
-        Log.d(TAG, "Web logs: $message")
+        Timber.tag(TAG).i("Web logs: $message")
     }
 
     @JavascriptInterface
     fun onThemeChanged(mode: String) {
-        Log.d(TAG, "onThemeChanged: $mode")
+        Timber.tag(TAG).i("onThemeChanged : $mode")
         _mainEventChannel.trySend(MainWebEvent.ThemeResult(mode))
     }
 
     @JavascriptInterface
     fun onThemeStyleChanged(themeStyle: String) {
         if (themeStyle.isNotEmpty()) {
-            Log.d(TAG, "onThemeChanged: $themeStyle")
+            Timber.tag(TAG).i("onThemeChanged : $themeStyle")
             _mainEventChannel.trySend(MainWebEvent.ThemeResult(themeStyle))
         }
     }

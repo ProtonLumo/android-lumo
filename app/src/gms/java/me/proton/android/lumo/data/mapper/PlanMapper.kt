@@ -1,6 +1,6 @@
 package me.proton.android.lumo.data.mapper
 
-import android.util.Log
+import PlanExtractor
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import me.proton.android.lumo.R
@@ -10,6 +10,7 @@ import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.utils.FeatureExtractor
+import timber.log.Timber
 
 object PlanMapper {
 
@@ -26,7 +27,7 @@ object PlanMapper {
                     planOptions = extractedPlans
                 )
             }.onFailure { error ->
-                Log.e(TAG, "Failed to load plans: ${error.message}", error)
+                Timber.tag(TAG).e(error, "Failed to load plans: ${error.message}")
                 planResult = planResult.copy(
                     error = UiText.ResText(
                         R.string.error_failed_to_load_plans,
@@ -35,7 +36,7 @@ object PlanMapper {
                 )
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error loading plans", e)
+            Timber.tag(TAG).e(e, "Error loading plans")
             planResult = planResult.copy(
                 error = UiText.ResText(
                     R.string.error_loading_plans,
@@ -49,7 +50,7 @@ object PlanMapper {
 
     private fun extractPlanFeatures(response: PaymentJsResponse): List<PlanFeature> {
         if (response.data == null || response.data !is JsonObject) {
-            Log.e(TAG, "Cannot extract features: Data is null or not a JSON object")
+            Timber.tag(TAG).e("Cannot extract features: Data is null or not a JSON object")
             return emptyList()
         }
 
@@ -65,7 +66,7 @@ object PlanMapper {
 
     private fun extractPlans(response: PaymentJsResponse): List<JsPlanInfo> {
         if (response.data == null || response.data !is JsonObject) {
-            Log.e(TAG, "Cannot extract plans: Data is null or not a JSON object")
+            Timber.tag(TAG).e("Cannot extract plans: Data is null or not a JSON object")
             return emptyList()
         }
 

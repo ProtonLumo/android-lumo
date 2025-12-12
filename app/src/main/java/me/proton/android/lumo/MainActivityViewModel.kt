@@ -1,6 +1,5 @@
 package me.proton.android.lumo
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
@@ -26,6 +25,7 @@ import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.usecase.HasOfferUseCase
 import me.proton.android.lumo.utils.isHostReachable
 import me.proton.android.lumo.webview.hideBfButton
+import timber.log.Timber
 import javax.inject.Inject
 
 private const val TAG = "MainActivityViewModel"
@@ -212,7 +212,7 @@ class MainActivityViewModel @Inject constructor(
 
     fun performInitialNetworkCheck() {
         if (checkCompleted) {
-            Log.d(TAG, "Initial network check already completed, skipping.")
+            Timber.tag(TAG).i("Initial network check already completed, skipping.")
             return
         }
         _uiState.update { it.copy(isLoading = true, initialLoadError = null) } // Show loading
@@ -221,12 +221,12 @@ class MainActivityViewModel @Inject constructor(
             val host = LumoConfig.LUMO_DOMAIN
             val port = 443
             val timeout = 3000 // 3 seconds
-            Log.d(TAG, "Performing initial network check for $host:$port...")
+            Timber.tag(TAG).i("Performing initial network check for $host:$port...")
 
             val reachable = isHostReachable(host, port, timeout) // Call the suspend function
 
             if (reachable) {
-                Log.d(TAG, "Initial network check: Host $host is reachable.")
+                Timber.tag(TAG).i("Initial network check: Host $host is reachable.")
                 _initialUrl.value = LumoConfig.LUMO_URL
                 _uiState.update {
                     it.copy(
@@ -235,7 +235,8 @@ class MainActivityViewModel @Inject constructor(
                     )
                 }
             } else {
-                Log.w(TAG, "Initial network check: Host $host is NOT reachable within $timeout ms.")
+                Timber.tag(TAG)
+                    .i("Initial network check: Host $host is NOT reachable within $timeout ms.")
                 _initialUrl.value = "file:///android_asset/network_error.html"
                 _uiState.update {
                     it.copy(
@@ -245,7 +246,8 @@ class MainActivityViewModel @Inject constructor(
                 } // Set error state
             }
             checkCompleted = true
-            Log.d(TAG, "Initial network check finished. Initial URL set to: ${_initialUrl.value}")
+            Timber.tag(TAG)
+                .i("Initial network check finished.Initial URL set to : $ { _initialUrl.value }")
         }
         forceHideLoadingAfterDelay()
     }
@@ -255,21 +257,21 @@ class MainActivityViewModel @Inject constructor(
             delay(5000)
             val currentState = _uiState.value
             if (currentState.isLoading) {
-                Log.d(TAG, "Forcing loading screen to hide from global timer")
+                Timber.tag(TAG).i("Forcing loading screen to hide from global timer")
                 hideLoading()
             }
         }
     }
 
     fun resetNetworkCheckFlag() {
-        Log.d(TAG, "Resetting checkCompleted flag for retry.")
+        Timber.tag(TAG).i("Resetting checkCompleted flag for retry.")
         checkCompleted = false
     }
 
     fun handleJavascriptResult(result: String?) {
-        Log.d(TAG, "JavaScript execution result: $result")
+        Timber.tag(TAG).i("JavaScript execution result: $result")
         if (result == null || result == "null" || result.contains("Error")) {
-            Log.e(TAG, "JavaScript execution failed or function not found. Result: $result")
+            Timber.tag(TAG).e("JavaScript execution failed or function not found.Result: $result")
             viewModelScope.launch {
                 _eventChannel.send(
                     UiEvent.ShowToast(
@@ -278,7 +280,7 @@ class MainActivityViewModel @Inject constructor(
                 )
             }
         } else {
-            Log.d(TAG, "JavaScript insertPromptAndSubmit executed successfully.")
+            Timber.tag(TAG).i("JavaScript insertPromptAndSubmit executed successfully.")
         }
     }
 

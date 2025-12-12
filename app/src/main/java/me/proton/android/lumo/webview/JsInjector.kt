@@ -1,8 +1,9 @@
 package me.proton.android.lumo.webview
 
-import android.util.Log
+
 import android.webkit.WebView
 import me.proton.android.lumo.config.LumoConfig
+import timber.log.Timber
 
 private const val TAG = "JsInjector"
 
@@ -259,7 +260,7 @@ fun injectEssentialJavascript(webView: WebView) {
         })();
     """.trimIndent()
 
-    Log.d(TAG, "Injecting essential JavaScript")
+    Timber.tag(TAG).i("Injecting essential JavaScript")
     webView.evaluateJavascript(js, null)
 }
 
@@ -347,9 +348,9 @@ fun injectPromotionButtonHandlers(webView: WebView) {
         })();
     """.trimIndent()
 
-    Log.d(TAG, "Injecting promotion button handlers JavaScript")
+    Timber.tag(TAG).i("Injecting promotion button handlers JavaScript")
     webView.evaluateJavascript(js) { result ->
-        Log.d(TAG, "Promotion button handler JS evaluation result: $result")
+        Timber.tag(TAG).i("Promotion button handler JS evaluation result: $result")
     }
 }
 
@@ -415,9 +416,9 @@ fun injectSignupPlanParamFix(webView: WebView) {
         })();
     """.trimIndent()
 
-    Log.d(TAG, "Injecting signup URL modifier JavaScript")
+    Timber.tag(TAG).i("Injecting signup URL modifier JavaScript")
     webView.evaluateJavascript(js) { result ->
-        Log.d(TAG, "Signup URL modifier JS evaluation result: $result")
+        Timber.tag(TAG).i("Signup URL modifier JS evaluation result: $result")
     }
 }
 
@@ -477,9 +478,9 @@ fun injectLumoContainerCheck(webView: WebView) {
         })();
     """.trimIndent()
 
-    Log.d(TAG, "Injecting Lumo container check JavaScript")
+    Timber.tag(TAG).i("Injecting Lumo container check JavaScript")
     webView.evaluateJavascript(js) { result ->
-        Log.d(TAG, "Container check JS evaluation result: $result")
+        Timber.tag(TAG).i("Container check JS evaluation result: $result")
     }
 }
 
@@ -559,9 +560,9 @@ fun injectUpgradeLinkHandlers(webView: WebView) {
             }
         })();
     """.trimIndent()
-    Log.d(TAG, "Injecting upgrade link handlers JavaScript")
+    Timber.tag(TAG).i("Injecting upgrade link handlers JavaScript")
     webView.evaluateJavascript(js) { result ->
-        Log.d(TAG, "Upgrade link handler JS evaluation result: $result")
+        Timber.tag(TAG).i("Upgrade link handler JS evaluation result: $result")
     }
 }
 
@@ -569,7 +570,7 @@ fun injectUpgradeLinkHandlers(webView: WebView) {
  * Injects JavaScript to handle keyboard visibility and adjust composer positioning
  */
 fun injectKeyboardHandling(webView: WebView) {
-    Log.d(TAG, "🎯 injectKeyboardHandling() called - about to inject JavaScript")
+    Timber.tag(TAG).i("🎯 injectKeyboardHandling() called - about to inject JavaScript")
     val js = """
         (function() {
             console.log('🚀 Lumo keyboard handler initializing...');
@@ -876,9 +877,9 @@ fun injectKeyboardHandling(webView: WebView) {
         })();
     """.trimIndent()
 
-    Log.d(TAG, "💉 About to inject keyboard JavaScript of length: ${js.length}")
+    Timber.tag(TAG).i("💉 About to inject keyboard JavaScript of length: ${js.length}")
     webView.evaluateJavascript(js) { result ->
-        Log.d(TAG, "✅ Keyboard JavaScript injection completed. Result: $result")
+        Timber.tag(TAG).i("✅ Keyboard JavaScript injection completed. Result: $result")
     }
 }
 
@@ -947,7 +948,7 @@ fun injectAccountPageModifier(webView: WebView) {
         })();
     """.trimIndent()
 
-    Log.d(TAG, "Injecting account page modifier JavaScript")
+    Timber.tag(TAG).i("Injecting account page modifier JavaScript")
     webView.evaluateJavascript(js, null)
 }
 
@@ -1041,9 +1042,9 @@ fun injectAndroidInterfacePolyfill(webView: WebView) {
         })();
     """.trimIndent()
 
-    Log.d(TAG, "Injecting Android interface polyfill")
+    Timber.tag(TAG).i("Injecting Android interface polyfill")
     webView.evaluateJavascript(js) { result ->
-        Log.d(TAG, "Android interface polyfill result: $result")
+        Timber.tag(TAG).i("Android interface polyfill result: $result")
     }
 }
 
@@ -1063,9 +1064,9 @@ fun verifyAndroidInterface(webView: WebView) {
         })();
     """.trimIndent()
 
-    Log.d(TAG, "Verifying Android interface availability")
+    Timber.tag(TAG).i("Verifying Android interface availability")
     webView.evaluateJavascript(js) { result ->
-        Log.d(TAG, "Android interface verification result: $result")
+        Timber.tag(TAG).i("Android interface verification result: $result")
     }
 }
 
@@ -1307,9 +1308,9 @@ fun injectBF2025PromotionHandler(webView: WebView) {
         })();
     """.trimIndent()
 
-    Log.d(TAG, "Injecting BF2025 promotion button handlers JavaScript")
+    Timber.tag(TAG).i("Injecting BF2025 promotion button handlers JavaScript")
     webView.evaluateJavascript(js) { result ->
-        Log.d(TAG, "BF2025 promotion button handler JS evaluation result: $result")
+        Timber.tag(TAG).i("BF2025 promotion button handler JS evaluation result: $result")
     }
 }
 
@@ -1392,7 +1393,7 @@ fun injectUpgradeLinkHider(webView: WebView) {
         })();
     """.trimIndent()
 
-    Log.d(TAG, "Injecting upgrade link hider JavaScript")
+    Timber.tag(TAG).i("Injecting upgrade link hider JavaScript")
     webView.evaluateJavascript(js, null)
 }
 
@@ -1411,6 +1412,6 @@ fun injectSpokenText(
         })()
     """.trimIndent()
 
-    Log.d(TAG, "Injecting spoken text JavaScript")
+    Timber.tag(TAG).i("Injecting spoken text JavaScript")
     webView.evaluateJavascript(js, null)
 }

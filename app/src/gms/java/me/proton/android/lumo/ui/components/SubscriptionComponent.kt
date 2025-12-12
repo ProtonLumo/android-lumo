@@ -3,7 +3,6 @@ package me.proton.android.lumo.ui.components
 import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.content.res.Configuration.UI_MODE_TYPE_NORMAL
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +41,7 @@ import me.proton.android.lumo.models.SubscriptionEntitlement
 import me.proton.android.lumo.models.SubscriptionItemResponse
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.utils.PriceFormatter
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -58,21 +58,18 @@ fun SubscriptionComponent(
 
     // Log to verify the values
     if (isMobilePlan) {
-        Log.d(
-            "SubscriptionComponent",
+        Timber.tag("SubscriptionComponent").i(
             "Mobile plan detected: ${subscription.title}, External=${subscription.external}"
         )
         if (googlePlayRenewalStatus != null) {
             val (isActive, isAutoRenewing, expiryTime) = googlePlayRenewalStatus
-            Log.d(
-                "SubscriptionComponent",
+            Timber.tag("SubscriptionComponent").i(
                 "Google Play Status: isActive=$isActive, isAutoRenewing=$isAutoRenewing, expiryTime=${
                     Date(expiryTime)
                 }"
             )
         } else {
-            Log.d(
-                "SubscriptionComponent",
+            Timber.tag("SubscriptionComponent").i(
                 "WARNING: googlePlayRenewalStatus is null for mobile plan"
             )
         }
@@ -85,16 +82,14 @@ fun SubscriptionComponent(
         // even if it's still active until the end of the current billing period
         val (isActive, isAutoRenewing, _) = googlePlayRenewalStatus
         val cancelled = !isAutoRenewing
-        Log.d(
-            "SubscriptionComponent",
+        Timber.tag("SubscriptionComponent").i(
             "Mobile plan cancellation check: isCancelled=$cancelled (!isAutoRenewing=${!isAutoRenewing}), isActive=$isActive"
         )
         cancelled
     } else {
         // For web plans, check the API Renew value
         val cancelled = subscription.renew == 0
-        Log.d(
-            "SubscriptionComponent",
+        Timber.tag("SubscriptionComponent").i(
             "Web plan cancellation check: isCancelled=$cancelled (Renew=${subscription.renew})"
         )
         cancelled
@@ -147,16 +142,14 @@ fun SubscriptionComponent(
                     else -> if (subscription.cycle == 1) "month" else "year"
                 }
 
-                Log.d(
-                    "SubscriptionComponent",
+                Timber.tag("SubscriptionComponent").i(
                     "Found Google Play pricing: $totalPrice per $periodText for product ${matchingProduct.productId}"
                 )
                 return Pair(totalPrice, periodText)
             }
         }
 
-        Log.d(
-            "SubscriptionComponent",
+        Timber.tag("SubscriptionComponent").i(
             "No matching Google Play product found for subscription cycle ${subscription.cycle}"
         )
         return null
@@ -283,14 +276,12 @@ fun SubscriptionComponent(
                     val (priceText, periodText) = if (isMobilePlan) {
                         val googlePlayPricing = getGooglePlayPricing()
                         if (googlePlayPricing != null) {
-                            Log.d(
-                                "SubscriptionComponent",
+                            Timber.tag("SubscriptionComponent").i(
                                 "Using Google Play pricing: ${googlePlayPricing.first} per ${googlePlayPricing.second}"
                             )
                             Pair(googlePlayPricing.first, googlePlayPricing.second)
                         } else {
-                            Log.d(
-                                "SubscriptionComponent",
+                            Timber.tag("SubscriptionComponent").i(
                                 "Falling back to API pricing for mobile plan"
                             )
                             val formattedPrice = PriceFormatter.formatPrice(

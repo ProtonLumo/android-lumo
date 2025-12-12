@@ -3,7 +3,6 @@ package me.proton.android.lumo.webview
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -12,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
 import me.proton.android.lumo.R
 import me.proton.android.lumo.ui.text.UiText
+import timber.log.Timber
 
 class LumoChromeClient(
     private val activity: ComponentActivity,
@@ -22,8 +22,7 @@ class LumoChromeClient(
     private val fileChooserLauncher = activity.registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        Log.d(
-            TAG,
+        Timber.tag(TAG).i(
             "File chooser result received with code: ${result.resultCode}"
         )
         handleFileChooserResult(result.resultCode, result.data)
@@ -47,7 +46,7 @@ class LumoChromeClient(
 
         val resolved = intent.resolveActivity(activity.packageManager) != null
         if (!resolved) {
-            Log.e(TAG, "No activity available to handle file chooser")
+            Timber.tag(TAG).e("No activity available to handle file chooser")
             errorHandler(UiText.ResText(R.string.error_open_file_chooser))
             return
         }
@@ -77,7 +76,7 @@ class LumoChromeClient(
         filePathCallback?.onReceiveValue(results ?: arrayOf())
         filePathCallback = null
 
-        Log.d(TAG, "File chooser result handled. Results: ${results?.size ?: 0} files")
+        Timber.tag(TAG).i("File chooser result handled. Results: ${results?.size ?: 0} files")
     }
 
     companion object {

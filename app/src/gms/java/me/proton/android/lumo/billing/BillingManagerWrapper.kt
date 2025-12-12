@@ -1,10 +1,10 @@
 package me.proton.android.lumo.billing
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import timber.log.Timber
 
 private const val TAG = "BillingManagerWrapper"
 
@@ -28,7 +28,7 @@ class BillingManagerWrapper(private val context: Context) {
 
     init {
         try {
-            Log.d(TAG, "=== BILLING INITIALIZATION CHECK ===")
+            Timber.tag(TAG).i("=== BILLING INITIALIZATION CHECK ===")
 
             // 1. Check if Google Play Services is available
             val googleApiAvailability = GoogleApiAvailability.getInstance()
@@ -37,31 +37,31 @@ class BillingManagerWrapper(private val context: Context) {
 
             when (playServicesStatus) {
                 ConnectionResult.SUCCESS -> {
-                    Log.d(TAG, "✅ Google Play Services is available")
+                    Timber.tag(TAG).i("✅ Google Play Services is available")
                     initializeBillingManager()
                 }
 
                 ConnectionResult.SERVICE_MISSING -> {
-                    Log.w(TAG, "❌ Google Play Services is not installed")
+                    Timber.tag(TAG).i("❌ Google Play Services is not installed")
                     handleBillingUnavailable(
                         "Google Play Services is not available on this device"
                     )
                 }
 
                 ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED -> {
-                    Log.w(TAG, "❌ Google Play Services needs to be updated")
+                    Timber.tag(TAG).i("❌ Google Play Services needs to be updated")
                     handleBillingUnavailable("Google Play Services needs to be updated")
                 }
 
                 ConnectionResult.SERVICE_DISABLED -> {
-                    Log.w(TAG, "❌ Google Play Services is disabled")
+                    Timber.tag(TAG).i("❌ Google Play Services is disabled")
                     handleBillingUnavailable(
                         "Google Play Services is disabled on this device"
                     )
                 }
 
                 else -> {
-                    Log.w(TAG, "❌ Google Play Services unavailable: $playServicesStatus")
+                    Timber.tag(TAG).i("❌ Google Play Services unavailable: $playServicesStatus")
                     handleBillingUnavailable(
                         "Google Play Services is not available (code: $playServicesStatus)"
                     )
@@ -69,7 +69,7 @@ class BillingManagerWrapper(private val context: Context) {
             }
 
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Critical error during billing initialization", e)
+            Timber.tag(TAG).e(e, "❌ Critical error during billing initialization ")
             handleBillingUnavailable("Billing services are not available: ${e.message}")
         }
     }
@@ -78,24 +78,24 @@ class BillingManagerWrapper(private val context: Context) {
         // 2. Check if Google Play Store app is installed and accessible
         try {
             val pInfo = context.packageManager.getPackageInfo("com.android.vending", 0)
-            Log.d(TAG, "✅ Google Play Store version: ${pInfo.versionName}")
+            Timber.tag(TAG).i("✅ Google Play Store version: ${pInfo.versionName}")
 
             // 3. Initialize BillingManager
             try {
-                Log.d(TAG, "Initializing BillingManager...")
+                Timber.tag(TAG).i("Initializing BillingManager...")
                 val tempBillingManager = BillingManager(context)
                 // Check if BillingClient was created successfully
                 if (tempBillingManager.isBillingAvailable()) {
                     billingManager = tempBillingManager
-                    Log.d(TAG, "✅ BillingManager initialized successfully")
+                    Timber.tag(TAG).i("✅ BillingManager initialized successfully")
                 } else {
-                    Log.w(TAG, "⚠️ BillingClient creation failed - billing unavailable")
+                    Timber.tag(TAG).i("⚠️ BillingClient creation failed - billing unavailable")
                     handleBillingUnavailable(
                         "Google Play Billing API is not available on this device"
                     )
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "❌ BillingManager initialization failed", e)
+                Timber.tag(TAG).e(e, "❌ BillingManager initialization failed ")
                 val errorMessage = e.message ?: "Unknown error"
                 val reason = when {
                     errorMessage.contains("API version is less than 3", ignoreCase = true) -> {
@@ -114,7 +114,7 @@ class BillingManagerWrapper(private val context: Context) {
             }
 
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Google Play Store not accessible", e)
+            Timber.tag(TAG).e(e, "❌ Google Play Store not accessible ")
             handleBillingUnavailable("Google Play Store is not accessible")
         }
     }
@@ -123,8 +123,8 @@ class BillingManagerWrapper(private val context: Context) {
      * Handle the case where billing is unavailable
      */
     private fun handleBillingUnavailable(reason: String) {
-        Log.w(TAG, "=== BILLING UNAVAILABLE - ENTERING GRACEFUL DEGRADATION MODE ===")
-        Log.w(TAG, "Reason: $reason")
+        Timber.tag(TAG).i("=== BILLING UNAVAILABLE -ENTERING GRACEFUL DEGRADATION MODE ===")
+        Timber.tag(TAG).i("Reason: $reason")
 
         // Set states to indicate unavailability
         billingManager = null
@@ -145,7 +145,7 @@ class BillingManagerWrapper(private val context: Context) {
         }
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 
-        Log.i(TAG, "✅ App will continue normally with billing features disabled")
+        Timber.tag(TAG).i("✅ App will continue normally with billing features disabled")
     }
 
     /**

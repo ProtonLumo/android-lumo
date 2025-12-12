@@ -1,6 +1,5 @@
 package me.proton.android.lumo.data.repository
 
-import android.util.Log
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
@@ -24,6 +23,7 @@ import me.proton.android.lumo.models.Subscription
 import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.utils.PlanPricingHelper
 import me.proton.android.lumo.webview.WebAppWithPaymentsInterface
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -56,7 +56,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
                 subscription?.let {
                     result = sendSubscriptionEvent(subscription)
                     subscriptionPurchaseHandler?.handleSubscriptionEvent(jsResult = result)
-                } ?: run { Log.e(TAG, "Failed to load payment token") }
+                } ?: run { Timber.tag(TAG).e("Failed to load payment token") }
             }
         }
     }

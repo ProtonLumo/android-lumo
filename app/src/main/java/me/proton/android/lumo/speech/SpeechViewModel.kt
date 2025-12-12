@@ -1,7 +1,5 @@
 package me.proton.android.lumo.speech
 
-import android.app.Application
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +13,7 @@ import kotlinx.coroutines.launch
 import me.proton.android.lumo.R
 import me.proton.android.lumo.speech.SpeechRecognitionManager.Engine
 import me.proton.android.lumo.ui.text.UiText
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -100,7 +99,7 @@ class SpeechViewModel @Inject constructor(
     }
 
     fun onStartVoiceEntryRequested() {
-        Log.d(TAG, "onStartVoiceEntryRequested")
+        Timber.tag(TAG).i("onStartVoiceEntryRequested")
         if (!speechRecognitionManager.isSpeechRecognitionAvailable()) {
             viewModelScope.launch {
                 _errorChannel.send(
@@ -148,7 +147,7 @@ class SpeechViewModel @Inject constructor(
                 .replace("\r", "\\r")  // Escape carriage returns
             speechRepository.injectText("\"$escaped\"")
         } else {
-            Log.w(TAG, "Skipping submission, empty transcript")
+            Timber.tag(TAG).i(" Skipping submission, empty transcript ")
             ""
         }.also {
             // Clear partial text after attempting submission

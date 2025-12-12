@@ -1,9 +1,9 @@
 package me.proton.android.lumo.utils
 
 import android.annotation.SuppressLint
-import android.util.Log
 import com.android.billingclient.api.ProductDetails
 import me.proton.android.lumo.models.JsPlanInfo
+import timber.log.Timber
 import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
@@ -45,7 +45,7 @@ object PlanPricingHelper {
         return plans.map { plan ->
             val product = productMap[plan.productId]
             if (product == null || product.subscriptionOfferDetails.isNullOrEmpty()) {
-                Log.w(TAG, "No matching Google product found for ${plan.productId}")
+                Timber.tag(TAG).i("No matching Google product found for ${plan.productId}")
                 return@map plan
             }
 
@@ -66,8 +66,7 @@ object PlanPricingHelper {
                 savings = computeSavings(plan, plans, productMap, pricingPhase)
             )
 
-            Log.d(
-                TAG,
+            Timber.tag(TAG).i(
                 "Updated ${plan.name}: total=${updated.totalPrice}, " +
                         "monthly=${updated.pricePerMonth}, savings=${updated.savings}"
             )
@@ -120,8 +119,8 @@ object PlanPricingHelper {
      * @param currencyCode The currency code (e.g., "USD", "GBP", "EUR")
      * @return Formatted price string with correct currency symbol
      */
-    private fun formatPriceWithCurrency(amount: Double, currencyCode: String): String {
-        return try {
+    private fun formatPriceWithCurrency(amount: Double, currencyCode: String): String =
+        try {
             val locale = when (currencyCode) {
                 "GBP" -> Locale.UK
                 "EUR" -> Locale.GERMANY
@@ -132,9 +131,10 @@ object PlanPricingHelper {
             formatter.currency = Currency.getInstance(currencyCode)
             formatter.format(amount)
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to format currency $currencyCode, falling back to simple format", e)
+            Timber.tag(TAG).i(
+                e, "Failed to format currency $currencyCode, falling back to simple format"
+            )
             // Fallback to simple format if currency formatting fails
             String.format("%.2f %s", amount, currencyCode)
         }
-    }
-} 
+}

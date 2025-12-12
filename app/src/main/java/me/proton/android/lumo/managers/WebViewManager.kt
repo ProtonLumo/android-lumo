@@ -1,13 +1,13 @@
 package me.proton.android.lumo.managers
 
 import android.net.Uri
-import android.util.Log
 import android.webkit.ServiceWorkerClient
 import android.webkit.ServiceWorkerController
 import android.webkit.ValueCallback
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
+import timber.log.Timber
 
 private const val TAG = "WebViewManager"
 
@@ -38,7 +38,7 @@ class WebViewManager() {
      */
     fun setWebView(webView: WebView) {
         this._webView = webView
-        Log.d(TAG, "WebView instance set")
+        Timber.tag(TAG).i("WebView instance set")
     }
 
     /**
@@ -46,7 +46,7 @@ class WebViewManager() {
      */
     fun evaluateJavaScript(script: String, callback: ((String?) -> Unit)? = null) {
         _webView?.evaluateJavascript(script, callback)
-        Log.d(TAG, "JavaScript executed: ${script.take(100)}...")
+        Timber.tag(TAG).i("JavaScript executed: ${script.take(100)}...")
     }
 
     /**
@@ -54,7 +54,7 @@ class WebViewManager() {
      */
     fun loadUrl(url: String) {
         _webView?.loadUrl(url)
-        Log.d(TAG, "Loading URL: $url")
+        Timber.tag(TAG).i("Loading URL: $url")
     }
 
     /**
@@ -69,7 +69,7 @@ class WebViewManager() {
      */
     fun goBack() {
         _webView?.goBack()
-        Log.d(TAG, "WebView navigated back")
+        Timber.tag(TAG).i("WebView navigated back")
     }
 
     fun clearHistory() {
@@ -90,6 +90,6 @@ class WebViewManager() {
         _webView?.destroy()
         _webView = null
         filePathCallback = null
-        Log.d(TAG, "WebView destroyed")
+        Timber.tag(TAG).i("WebView destroyed")
     }
 }

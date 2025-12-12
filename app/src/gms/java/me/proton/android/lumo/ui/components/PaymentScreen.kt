@@ -2,7 +2,6 @@ package me.proton.android.lumo.ui.components
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.content.res.Configuration.UI_MODE_TYPE_NORMAL
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,6 +16,7 @@ import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.viewmodels.SubscriptionViewModel
+import timber.log.Timber
 
 private const val TAG = "PaymentDialog"
 
@@ -46,10 +46,10 @@ fun PaymentScreen(
             !uiState.isRefreshingPurchases &&
             !uiState.hasValidSubscription
         ) {
-            Log.d(
-                TAG,
-                "Both loading operations complete, checking for subscription sync mismatch..."
-            )
+            Timber.tag(TAG)
+                .i(
+                    "Both loading operations complete, checking for subscription sync mismatch..."
+                )
             // Check if there's a mismatch that needs recovery
             if (viewModel.checkSubscriptionSyncMismatch()) {
                 // Trigger the recovery flow

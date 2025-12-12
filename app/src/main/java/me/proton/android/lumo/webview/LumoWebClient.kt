@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -12,6 +11,7 @@ import android.webkit.WebViewClient
 import me.proton.android.lumo.R
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.ui.text.UiText
+import timber.log.Timber
 
 class LumoWebClient(
     private val isDarkThemeProvider: () -> Boolean,
@@ -29,60 +29,52 @@ class LumoWebClient(
     ) {
         super.onPageStarted(view, url, favicon)
 
-        Log.d(TAG, ">>> onPageStarted CALLED for URL: $url")
+        Timber.tag(TAG).i(">>> onPageStarted CALLED for URL: $url")
 
         val isLumoDomain = isLumoDomain(url)
         val isAccountDomain = isAccountDomain(url)
 
-        Log.d(
-            TAG,
-            "URL analysis for '$url': isLumoDomain=$isLumoDomain, isAccountDomain=$isAccountDomain"
-        )
+        Timber.tag(TAG)
+            .i("URL analysis for '$url': isLumoDomain=$isLumoDomain, isAccountDomain=$isAccountDomain")
 
         if ((isLumoDomain || isAccountDomain) && view != null) {
-            Log.d(
-                TAG,
-                "Calling injectSignupPlanParamFix from onPageStarted for URL: $url"
-            )
+            Timber.tag(TAG)
+                .i("Calling injectSignupPlanParamFix from onPageStarted for URL: $url")
             injectSignupPlanParamFix(view)
             // Inject keyboard handler early to avoid race conditions
-            Log.d(
-                TAG,
-                "🚀 INJECTING KEYBOARD HANDLER EARLY in onPageStarted for URL: $url"
-            )
+            Timber.tag(TAG)
+                .i("🚀 INJECTING KEYBOARD HANDLER EARLY in onPageStarted for URL: $url")
             injectKeyboardHandling(view)
-            Log.d(TAG, "✅ Keyboard handler injection completed in onPageStarted")
+            Timber.tag(TAG).i("✅ Keyboard handler injection completed in onPageStarted")
         } else {
-            Log.d(
-                TAG,
-                "❌ Skipping keyboard injection - isLumoDomain=$isLumoDomain, isAccountDomain=$isAccountDomain, view=$view"
-            )
+            Timber.tag(TAG)
+                .i("❌ Skipping keyboard injection - isLumoDomain=$isLumoDomain, isAccountDomain=$isAccountDomain, view=$view")
         }
 
         // Only show loading screen when navigating to Lumo pages
         if (isLumoDomain) {
             showLoading()
-            Log.d(TAG, "Lumo page loading started - showing loading overlay")
+            Timber.tag(TAG).i("Lumo page loading started - showing loading overlay")
         } else {
-            Log.d(TAG, "Non-Lumo page loading - no loading overlay needed")
+            Timber.tag(TAG).i("Non-Lumo page loading - no loading overlay needed")
         }
     }
 
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
 
-        Log.d(TAG, ">>> onPageFinished CALLED for URL: $url")
+        Timber.tag(TAG).i(">>> onPageFinished CALLED for URL: $url")
 
         try {
             // *** NOW, check if it's the error page and skip the rest if it is ***
             if (url == errorPageUrl) {
-                Log.d(TAG, "Skipping non-essential JS injection for error page.")
+                Timber.tag(TAG).i("Skipping non-essential JS injection for error page.")
                 hideLoading(false)
                 return // Exit after adding the interface
             }
 
             if ((isLumoDomain(url) || isAccountDomain(url)) && view != null) {
-                Log.d(TAG, "Injecting essential JavaScript for URL: $url")
+                Timber.tag(TAG).i("Injecting essential JavaScript for URL: $url")
                 injectAndroidInterfacePolyfill(view) // Inject polyfill first for robust interface calls
                 injectEssentialJavascript(view)
                 injectLumoContainerCheck(view)
@@ -92,10 +84,8 @@ class LumoWebClient(
                 themeStyleChangedListener(view)
                 injectBF2025PromotionHandler(view)
                 injectUpgradeLinkHider(view)
-                Log.d(
-                    TAG,
-                    "Calling injectSignupPlanParamFix from onPageFinished for URL: $url"
-                )
+                Timber.tag(TAG)
+                    .i("Calling injectSignupPlanParamFix from onPageFinished for URL: $url")
                 injectSignupPlanParamFix(view)
 
 
@@ -112,30 +102,26 @@ class LumoWebClient(
 
                 // Inject account page modifier only for account domain pages
                 if (isAccountDomain(url)) {
-                    Log.d(TAG, "Injecting account page modifier for URL: $url")
+                    Timber.tag(TAG).i("Injecting account page modifier for URL: $url")
                     injectAccountPageModifier(view)
                 }
 
                 // Add a safety timeout to ensure loading state is cleared
                 Handler(Looper.getMainLooper()).postDelayed({
                     val isLoading = isLoading()
-                    Log.d(
-                        TAG,
-                        "Safety timeout reached, current loading state: $isLoading"
-                    )
+                    Timber.tag(TAG)
+                        .i("Safety timeout reached, current loading state: $isLoading")
                     if (isLoading) {
-                        Log.d(
-                            TAG,
-                            "Forcing loading state off and setting hasSeenLumoContainer to true"
-                        )
+                        Timber.tag(TAG)
+                            .i("Forcing loading state off and setting hasSeenLumoContainer to true")
                         hideLoading(true)
-                        Log.d(TAG, "State updated via ViewModel")
+                        Timber.tag(TAG).i("State updated via ViewModel")
                     }
                 }, 2000) // Reduced to 2 seconds for faster response
             }
 
         } catch (e: Exception) {
-            Log.e(TAG, "Error during onPageFinished setup", e)
+            Timber.tag(TAG).e(e, "Error during onPageFinished setup ")
             // Ensure loading state is cleared even on error
 
             hideLoading(false)
@@ -153,10 +139,7 @@ class LumoWebClient(
             val description = error.description ?: "Unknown error"
             val failingUrl = request.url?.toString() ?: "Unknown URL"
 
-            Log.e(
-                TAG,
-                "WebView Error: Code=$errorCode, Desc=$description, URL=$failingUrl"
-            )
+            Timber.tag(TAG).e("WebView Error: Code=$errorCode, Desc=$description, URL=$failingUrl")
 
             // Check for common network-related errors
             val isNetworkError = when (errorCode) {
@@ -172,7 +155,7 @@ class LumoWebClient(
             }
 
             if (isNetworkError) {
-                Log.i(TAG, "Network error detected. Loading custom error page.")
+                Timber.tag(TAG).i("Network error detected. Loading custom error page.")
                 view.loadUrl(errorPageUrl)
             } else {
                 super.onReceivedError(view, request, error)
@@ -221,7 +204,7 @@ class LumoWebClient(
             val resolved = intent.resolveActivity(context.packageManager) != null
 
             if (!resolved) {
-                Log.e(TAG, "No activity found to handle external link: $uri")
+                Timber.tag(TAG).e("No activity found to handle external link: $uri")
                 onError(UiText.ResText(R.string.error_open_external_link))
                 return
             }
@@ -229,7 +212,7 @@ class LumoWebClient(
             context.startActivity(intent)
         } catch (e: Exception) {
             onError(UiText.ResText(R.string.error_open_external_link))
-            Log.e(TAG, "Failed to open external link: $uri", e)
+            Timber.tag(TAG).e(e, "Failed to open external link: $uri")
         }
     }
 

@@ -1,12 +1,12 @@
 package me.proton.android.lumo.utils
 
-import android.util.Log
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import me.proton.android.lumo.models.PlanFeature
+import timber.log.Timber
 
 object FeatureExtractor {
 
@@ -42,11 +42,11 @@ object FeatureExtractor {
                                 ?: "checkmark"
                         )
                         features.add(feature)
-                        Log.d(TAG, "Added feature: ${feature.name}")
+                        Timber.tag(TAG).i("Added feature: ${feature.name}")
                     }
                 }
             }.onFailure { e ->
-                Log.e(TAG, "Error parsing entitlement", e)
+                Timber.tag(TAG).e(e, "Error parsing entitlement")
             }
         }
 

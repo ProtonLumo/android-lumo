@@ -1,6 +1,5 @@
 package me.proton.android.lumo.data.mapper
 
-import android.util.Log
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -10,6 +9,7 @@ import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.SubscriptionItemResponse
 import me.proton.android.lumo.models.SubscriptionsResponse
 import me.proton.android.lumo.ui.text.UiText
+import timber.log.Timber
 
 object SubscriptionMapper {
 
@@ -28,22 +28,21 @@ object SubscriptionMapper {
                         hasValidSubscription = hasValidSubscription
                     )
 
-                    Log.d(
-                        TAG,
+                    Timber.tag(TAG).i(
                         "Loaded ${parsedSubscriptions.size} subscriptions, " +
                                 "hasValid=${hasValidSubscription}"
                     )
                 } else {
-                    Log.e(TAG, "Invalid subscription data format")
+                    Timber.tag(TAG).e("Invalid subscription data format")
                 }
             }.onFailure { error ->
-                Log.e(TAG, "Failed to load subscriptions: ${error.message}", error)
+                Timber.tag(TAG).e(error, "Failed to load subscriptions : $ { error.message }")
                 subscriptionResult.copy(
                     error = UiText.ResText(R.string.error_failed_to_load_subscriptions)
                 )
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error loading subscriptions", e)
+            Timber.tag(TAG).e(e, "Error loading subscriptions")
             subscriptionResult.copy(
                 error = UiText.ResText(R.string.error_loading_subscriptions)
             )
@@ -57,7 +56,7 @@ object SubscriptionMapper {
      */
     private fun parseSubscriptions(response: PaymentJsResponse): List<SubscriptionItemResponse> {
         if (response.data == null || response.data !is JsonObject) {
-            Log.e(TAG, "Cannot parse subscriptions: Data is null or not a JSON object")
+            Timber.tag(TAG).e("Cannot parse subscriptions: Data is null or not a JSON object")
             return emptyList()
         }
 
@@ -72,10 +71,8 @@ object SubscriptionMapper {
             if (subscriptions != null) {
                 val subscriptionsResponse =
                     json.decodeFromJsonElement<SubscriptionsResponse>(response.data)
-                Log.d(
-                    TAG,
-                    "Parsed multiple subscriptions: ${subscriptionsResponse.subscriptions.size}"
-                )
+                Timber.tag(TAG)
+                    .i("Parsed multiple subscriptions: ${subscriptionsResponse.subscriptions.size}")
                 return subscriptionsResponse.subscriptions
             }
             // Try parsing as SubscriptionResponse (single subscription)
@@ -83,18 +80,18 @@ object SubscriptionMapper {
                 val subscriptionResponse =
                     json.decodeFromJsonElement<SubscriptionsResponse>(response.data)
 
-                Log.d(TAG, "Parsed single subscription response")
+                Timber.tag(TAG).i("Parsed single subscription response")
                 return subscriptionResponse.subscriptions
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error parsing subscriptions: ${e.message}", e)
+            Timber.tag(TAG).e(e, "Error parsing subscriptions: ${e.message}")
         }
 
         return emptyList()
     }
 
     private fun hasValidSubscription(subscriptions: List<SubscriptionItemResponse>): Boolean {
-        Log.e(TAG, "$subscriptions")
+        Timber.tag(TAG).e("$subscriptions")
         return subscriptions.any { subscription ->
             // Check for Lumo or Visionary plans
             subscription.name != null &&

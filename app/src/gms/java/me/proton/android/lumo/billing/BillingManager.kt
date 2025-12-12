@@ -2,7 +2,6 @@ package me.proton.android.lumo.billing
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -34,6 +33,7 @@ import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.models.SubscriptionPlan
 import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.ui.text.UiText
+import timber.log.Timber
 import java.util.Date
 
 class BillingManager(private val context: Context) {
@@ -95,8 +95,7 @@ class BillingManager(private val context: Context) {
     private val _selectedPlanIndex = MutableStateFlow(0)
 
     private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
-        Log.d(
-            TAG,
+        Timber.tag(TAG).d(
             "onPurchasesUpdated: ${billingResult.responseCode}, ${billingResult.debugMessage}"
         )
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
@@ -124,11 +123,9 @@ class BillingManager(private val context: Context) {
                 .enableAutoServiceReconnection()
                 .build()
         } catch (e: Exception) {
-            Log.e(
-                TAG,
-                "Failed to create BillingClient - likely due to old Google Play Billing API",
-                e
-            )
+            Timber
+                .tag(TAG)
+                .e(e, "Failed to create BillingClient - likely due to old Google Play Billing API")
             // Return null so the app can continue without billing
             null
         }
@@ -144,31 +141,27 @@ class BillingManager(private val context: Context) {
     }
 
     init {
-        Log.d(
-            TAG,
-            "Initializing BillingManager in PRODUCTION mode"
-        )
-
+        Timber.tag(TAG).i("Initializing BillingManager in PRODUCTION mode")
         try {
             // Check if Google Play is installed before proceeding
             val pInfo = context.packageManager.getPackageInfo("com.android.vending", 0)
-            Log.d(TAG, "Google Play Store is installed - version: ${pInfo.versionName}")
+            Timber.tag(TAG).i("Google Play Store is installed -version: ${pInfo.versionName}")
 
             // Initialize billing with additional safety
             initializeBilling()
 
         } catch (e: PackageManager.NameNotFoundException) {
-            Log.e(TAG, "Google Play Store is not installed", e)
+            Timber.tag(TAG).e(e, "Google Play Store is not installed")
             _purchaseState.value = PurchaseState.Error(
                 UiText.ResText(R.string.billing_google_play_required)
             )
         } catch (e: SecurityException) {
-            Log.e(TAG, "Permission denied accessing Google Play Store", e)
+            Timber.tag(TAG).e(e, "Permission denied accessing Google Play Store")
             _purchaseState.value = PurchaseState.Error(
                 UiText.ResText(R.string.billing_cannot_access_google_play)
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Critical error during billing initialization", e)
+            Timber.tag(TAG).e(e, "Critical error during billing initialization")
             _purchaseState.value = PurchaseState.Error(
                 UiText.ResText(
                     R.string.billing_services_unavailable,
@@ -176,23 +169,19 @@ class BillingManager(private val context: Context) {
                 )
             )
             // Don't let billing errors crash the app - just disable billing
-            Log.w(
-                TAG,
-                "Billing initialization failed - app will continue without billing features"
-            )
+            Timber.tag(TAG)
+                .w("Billing initialization failed - app will continue without billing features")
         }
     }
 
     private fun initializeBilling() {
-        Log.d(TAG, "Initializing billing client")
+        Timber.tag(TAG).d("Initializing billing client")
 
         try {
             when {
                 billingClient == null -> {
-                    Log.w(
-                        TAG,
-                        "Billing client is null - billing unavailable (likely old Google Play API)"
-                    )
+                    Timber.tag(TAG)
+                        .w("Billing client is null - billing unavailable (likely old Google Play API)")
                     _purchaseState.value = PurchaseState.Error(
                         UiText.ResText(R.string.billing_api_not_available)
                     )
@@ -205,7 +194,7 @@ class BillingManager(private val context: Context) {
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Exception during billing client initialization", e)
+            Timber.tag(TAG).e(e, "Exception during billing client initialization")
             _purchaseState.value = PurchaseState.Error(
                 UiText.ResText(
                     R.string.billing_initialization_failed,
@@ -217,23 +206,22 @@ class BillingManager(private val context: Context) {
     }
 
     private fun establishConnection() {
-        Log.d(TAG, "Starting billing client connection")
+        Timber.tag(TAG).d("Starting billing client connection")
         if (billingClient == null) {
-            Log.e(TAG, "Billing client is null")
+            Timber.tag(TAG).e("Billing client is null")
             return
         }
 
         billingClient?.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    Log.d(TAG, "Billing client connected successfully")
+                    Timber.tag(TAG).d("Billing client connected successfully")
                     _isConnected.value = true
 
                     // Check billing features support
                     val subscriptionsSupported =
                         billingClient?.isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS)
-                    Log.d(
-                        TAG,
+                    Timber.tag(TAG).d(
                         "Subscriptions supported: " +
                                 "${
                                     subscriptionsSupported?.responseCode ==
@@ -243,8 +231,7 @@ class BillingManager(private val context: Context) {
 
                     val productDetailsSupported =
                         billingClient?.isFeatureSupported(BillingClient.FeatureType.PRODUCT_DETAILS)
-                    Log.d(
-                        TAG,
+                    Timber.tag(TAG).d(
                         "Product details supported: ${productDetailsSupported?.responseCode == BillingClient.BillingResponseCode.OK}"
                     )
 
@@ -257,7 +244,7 @@ class BillingManager(private val context: Context) {
                 } else if (billingResult.responseCode == BillingClient.BillingResponseCode.BILLING_UNAVAILABLE) {
                     // Specific handling for BILLING_UNAVAILABLE (error code 3)
                     val debugMessage = billingResult.debugMessage
-                    Log.e(TAG, "Billing unavailable: $debugMessage")
+                    Timber.tag(TAG).e("Billing unavailable: $debugMessage")
 
                     _isConnected.value = false
 
@@ -281,15 +268,13 @@ class BillingManager(private val context: Context) {
                     try {
                         val pInfo =
                             context.packageManager.getPackageInfo("com.android.vending", 0)
-                        Log.d(TAG, "Google Play Store version: ${pInfo.versionName}")
+                        Timber.tag(TAG).d("Google Play Store version: ${pInfo.versionName}")
                     } catch (e: Exception) {
-                        Log.e(TAG, "Google Play Store not found", e)
+                        Timber.tag(TAG).e(e, "Google Play Store not found")
                     }
                 } else {
-                    Log.e(
-                        TAG,
-                        "Billing client connection failed: ${billingResult.responseCode} ${billingResult.debugMessage}"
-                    )
+                    Timber.tag(TAG)
+                        .e("Billing client connection failed: ${billingResult.responseCode} ${billingResult.debugMessage}")
                     _isConnected.value = false
                     _purchaseState.value =
                         PurchaseState.Error(
@@ -302,7 +287,7 @@ class BillingManager(private val context: Context) {
             }
 
             override fun onBillingServiceDisconnected() {
-                Log.w(TAG, "Billing service disconnected")
+                Timber.tag(TAG).w("Billing service disconnected")
                 _isConnected.value = false
                 // Retry connection after a delay
                 coroutineScope.launch {
@@ -318,7 +303,7 @@ class BillingManager(private val context: Context) {
         forceRefresh: Boolean = false
     ) {
         if (!_isConnected.value) {
-            Log.e(TAG, "Cannot query purchases - billing client not connected")
+            Timber.tag(TAG).e("Cannot query purchases - billing client not connected")
             // If we're in a payment processing state, show error
             if (_paymentProcessingState.value != null) {
                 _paymentProcessingState.value = PaymentProcessingState.Error(
@@ -334,15 +319,15 @@ class BillingManager(private val context: Context) {
 
         // Check if we should skip query due to recent cache
         if (!forceRefresh && cacheAge < CACHE_INVALIDATION_INTERVAL_MS && lastPurchaseQueryTime > 0) {
-            Log.d(
-                TAG,
+            Timber.tag(TAG).d(
                 "Using cached purchase data (age: ${cacheAge}ms, ${cachedPurchases.size} purchases)"
             )
             onComplete?.invoke(cachedPurchases) // Return cached purchases
             return
         }
 
-        Log.d(TAG, "Querying existing purchases (force: $forceRefresh, cache age: ${cacheAge}ms)")
+        Timber.tag(TAG)
+            .d("Querying existing purchases (force: $forceRefresh, cache age: ${cacheAge}ms)")
         coroutineScope.launch {
             try {
                 // For test mode, we use INAPP for standard test products
@@ -351,8 +336,7 @@ class BillingManager(private val context: Context) {
                     .build()
 
                 billingClient?.queryPurchasesAsync(params) { billingResult, purchases ->
-                    Log.d(
-                        TAG,
+                    Timber.tag(TAG).d(
                         "Existing purchases query result: ${billingResult.responseCode}, purchases size: ${purchases.size}"
                     )
 
@@ -367,12 +351,12 @@ class BillingManager(private val context: Context) {
                             subscriptionExpiryTimeMillis = 0
 
                             for (purchase in purchases) {
-                                Log.d(TAG, "Found purchase: ${purchase.products}")
+                                Timber.tag(TAG).d("Found purchase: ${purchase.products}")
 
                                 // Check if the subscription is set to renew
                                 val isAutoRenewing = purchase.isAutoRenewing
                                 _isSubscriptionRenewing.value = isAutoRenewing
-                                Log.d(TAG, "Subscription auto-renewing: $isAutoRenewing")
+                                Timber.tag(TAG).d("Subscription auto-renewing: $isAutoRenewing")
 
                                 // Extract expiry time from subscription
                                 try {
@@ -383,27 +367,27 @@ class BillingManager(private val context: Context) {
                                     val subscriptionInfo = json.decodeFromString<JsonObject>(
                                         purchase.originalJson
                                     )
-                                    Log.d(TAG, "Subscription info: $subscriptionInfo")
+                                    Timber.tag(TAG).d("Subscription info: $subscriptionInfo")
                                     val expiryTimeMillis: Long =
                                         subscriptionInfo["expiryTimeMillis"]?.jsonPrimitive?.long
                                             ?: 0
 
                                     if (expiryTimeMillis > 0) {
                                         subscriptionExpiryTimeMillis = expiryTimeMillis
-                                        Log.d(
-                                            TAG,
+                                        Timber.tag(TAG).d(
                                             "Subscription expires at: ${Date(expiryTimeMillis)}"
                                         )
 
                                         // Check if subscription is actually expired
                                         val currentTimeMillis = System.currentTimeMillis()
                                         if (expiryTimeMillis <= currentTimeMillis) {
-                                            Log.w(
-                                                TAG,
-                                                "Subscription appears to be EXPIRED (expiry: ${
-                                                    Date(expiryTimeMillis)
-                                                }, current: ${Date(currentTimeMillis)})"
-                                            )
+                                            Timber
+                                                .tag(TAG)
+                                                .w(
+                                                    "Subscription appears to be EXPIRED (expiry: ${
+                                                        Date(expiryTimeMillis)
+                                                    }, current: ${Date(currentTimeMillis)})"
+                                                )
                                             // Consider this as no active subscription
                                             _purchaseState.value = PurchaseState.NotPurchased
                                             _isSubscriptionRenewing.value = false
@@ -411,20 +395,19 @@ class BillingManager(private val context: Context) {
                                         }
                                     }
                                 } catch (e: Exception) {
-                                    Log.e(TAG, "Error parsing subscription expiry time", e)
+                                    Timber.tag(TAG).e(e, "Error parsing subscription expiry time")
                                 }
                             }
 
                             // Only set to Purchased if we have valid, non-expired purchases
                             if (_purchaseState.value != PurchaseState.NotPurchased) {
                                 _purchaseState.value = PurchaseState.Purchased
-                                Log.d(
-                                    TAG,
+                                Timber.tag(TAG).d(
                                     "Purchase state set to Purchased - found ${purchases.size} active subscription(s)"
                                 )
                             }
                         } else {
-                            Log.d(TAG, "No existing purchases found")
+                            Timber.tag(TAG).d("No existing purchases found")
                             // Reset subscription status
                             _isSubscriptionRenewing.value = false
                             subscriptionExpiryTimeMillis = 0
@@ -434,10 +417,8 @@ class BillingManager(private val context: Context) {
                         // Call completion callback with successful result
                         onComplete?.invoke(purchases)
                     } else {
-                        Log.e(
-                            TAG,
-                            "Failed to query purchases: ${billingResult.responseCode} ${billingResult.debugMessage}"
-                        )
+                        Timber.tag(TAG)
+                            .e("Failed to query purchases: ${billingResult.responseCode} ${billingResult.debugMessage}")
 
                         // If we're in a payment processing state during retry, show error
                         if (_paymentProcessingState.value is PaymentProcessingState.Loading) {
@@ -454,10 +435,10 @@ class BillingManager(private val context: Context) {
 
                     // Mark refresh as complete
                     _isRefreshingPurchases.value = false
-                    Log.d(TAG, "Purchase refresh completed")
+                    Timber.tag(TAG).d("Purchase refresh completed")
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Exception during purchase query", e)
+                Timber.tag(TAG).e(e, "Exception during purchase query ")
                 // If we're in a payment processing state during retry, show error
                 if (_paymentProcessingState.value is PaymentProcessingState.Loading) {
                     _paymentProcessingState.value = PaymentProcessingState.Error(
@@ -474,12 +455,12 @@ class BillingManager(private val context: Context) {
 
     private fun querySubscriptions() {
         if (!_isConnected.value) {
-            Log.e(TAG, "Cannot query subscriptions - billing client not connected")
+            Timber.tag(TAG).e("Cannot query subscriptions - billing client not connected")
             establishConnection()
             return
         }
 
-        Log.d(TAG, "Querying products")
+        Timber.tag(TAG).i("Querying products")
 
         // For production, query all subscription plans
         val productList = SUBSCRIPTION_PLANS.map { plan ->
@@ -494,7 +475,7 @@ class BillingManager(private val context: Context) {
 
     private fun queryProductDetails(productList: List<QueryProductDetailsParams.Product>) {
         if (productList.isEmpty()) {
-            Log.e(TAG, "Cannot query products - empty product list")
+            Timber.tag(TAG).e("Cannot query products - empty product list")
             return
         }
 
@@ -502,10 +483,7 @@ class BillingManager(private val context: Context) {
             .setProductList(productList)
             .build()
 
-        Log.d(
-            TAG,
-            "Querying ${productList.size} products in PRODUCTION mode"
-        )
+        Timber.tag(TAG).i("Querying ${productList.size} products in PRODUCTION mode")
 
         billingClient?.queryProductDetailsAsync(params) { billingResult, retrievedProductDetails ->
             val responseCodeName = when (billingResult.responseCode) {
@@ -521,16 +499,14 @@ class BillingManager(private val context: Context) {
                 else -> "UNKNOWN (${billingResult.responseCode})"
             }
 
-            Log.d(
-                TAG,
-                "Product details query result: $responseCodeName, debug: ${billingResult.debugMessage}"
-            )
+            Timber.tag(TAG)
+                .i("Product details query result: $responseCodeName, debug: ${billingResult.debugMessage}")
             val productDetailsList = retrievedProductDetails.productDetailsList
-            Log.d(TAG, "Retrieved $productDetailsList products")
+            Timber.tag(TAG).i("Retrieved $productDetailsList products")
 
             when (billingResult.responseCode) {
                 BillingClient.BillingResponseCode.OK -> {
-                    Log.d(TAG, retrievedProductDetails.toString())
+                    Timber.tag(TAG).i(retrievedProductDetails.toString())
                     if (productDetailsList.isNotEmpty()) {
                         // Store all retrieved product details
                         _productDetailsList.value = productDetailsList
@@ -541,16 +517,14 @@ class BillingManager(private val context: Context) {
 
                         // Log info about all retrieved products
                         productDetailsList.forEach { product ->
-                            Log.d(TAG, "Product details retrieved:")
-                            Log.d(TAG, "- Product ID: ${product.productId}")
-                            Log.d(TAG, "- Name: ${product.name}")
-                            Log.d(TAG, "- Description: ${product.description}")
+                            Timber.tag(TAG).i("Product details retrieved:")
+                            Timber.tag(TAG).i("- Product ID: $ {product.productId}")
+                            Timber.tag(TAG).i("- Name: $ {product.name}")
+                            Timber.tag(TAG).i("- Description: ${product.description}")
 
                             product.subscriptionOfferDetails?.forEach { offer ->
-                                Log.d(
-                                    TAG,
-                                    "Offer: ${offer.basePlanId}, token: ${offer.offerToken}"
-                                )
+                                Timber.tag(TAG)
+                                    .i("Offer: ${offer.basePlanId}, token: ${offer.offerToken}")
                             }
                         }
 
@@ -566,7 +540,7 @@ class BillingManager(private val context: Context) {
                                 "unknown"
                             }
                         }
-                        Log.e(TAG, "No products found for IDs: $productIds")
+                        Timber.tag(TAG).e("No products found for IDs: $productIds")
 
                         _purchaseState.value = PurchaseState.Error(
                             UiText.StringText("No products found")
@@ -575,13 +549,13 @@ class BillingManager(private val context: Context) {
                 }
 
                 BillingClient.BillingResponseCode.SERVICE_DISCONNECTED -> {
-                    Log.e(TAG, "Service disconnected, reconnecting...")
+                    Timber.tag(TAG).e("Service disconnected, reconnecting...")
                     isConnected = false
                     establishConnection()
                 }
 
                 BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE -> {
-                    Log.e(TAG, "Service unavailable - check internet connection")
+                    Timber.tag(TAG).e("Service unavailable -check internet connection")
                     _purchaseState.value =
                         PurchaseState.Error(
                             UiText.StringText("Service unavailable - check internet connection")
@@ -589,7 +563,7 @@ class BillingManager(private val context: Context) {
                 }
 
                 BillingClient.BillingResponseCode.BILLING_UNAVAILABLE -> {
-                    Log.e(TAG, "Billing unavailable - check Play Store app")
+                    Timber.tag(TAG).e("Billing unavailable -check Play Store app")
                     _purchaseState.value =
                         PurchaseState.Error(
                             UiText.StringText("Billing unavailable - check Play Store app")
@@ -597,10 +571,8 @@ class BillingManager(private val context: Context) {
                 }
 
                 else -> {
-                    Log.e(
-                        TAG,
-                        "Failed to retrieve product details: ${billingResult.responseCode} ${billingResult.debugMessage}"
-                    )
+                    Timber.tag(TAG)
+                        .e("Failed to retrieve product details: ${billingResult.responseCode} ${billingResult.debugMessage}")
                     _purchaseState.value =
                         PurchaseState.Error(
                             UiText.StringText("Failed to retrieve product details: ${billingResult.debugMessage}")
@@ -622,8 +594,7 @@ class BillingManager(private val context: Context) {
 
         // For production mode, check if index is valid
         if (index < 0 || index >= SUBSCRIPTION_PLANS.size) {
-            Log.e(
-                TAG,
+            Timber.tag(TAG).e(
                 "Invalid plan index: $index, must be between 0 and ${SUBSCRIPTION_PLANS.size - 1}"
             )
             return false
@@ -631,31 +602,27 @@ class BillingManager(private val context: Context) {
 
         // Find the product details for the selected plan
         val planProductId = SUBSCRIPTION_PLANS[index].productId
-        Log.d(TAG, "Selecting plan with product ID: $planProductId")
+        Timber.tag(TAG).i("Selecting plan with product ID: $planProductId")
 
         val selectedProduct = productDetailsList.find { it.productId == planProductId }
 
         if (selectedProduct != null) {
             this.productDetails = selectedProduct
             _selectedPlanIndex.value = index
-            Log.d(
-                TAG,
-                "Selected plan ${SUBSCRIPTION_PLANS[index].planName} with product ID $planProductId"
-            )
+            Timber.tag(TAG)
+                .i("Selected plan ${SUBSCRIPTION_PLANS[index].planName} with product ID $planProductId")
             return true
         } else {
-            Log.e(
-                TAG,
-                "No product details found for plan index $index with product ID $planProductId"
-            )
-            Log.d(TAG, "Available products: ${productDetailsList.map { it.productId }}")
+            Timber.tag(TAG)
+                .e("No product details found for plan index $index with product ID $planProductId")
+            Timber.tag(TAG).i("Available products: ${productDetailsList.map { it.productId }}")
             return false
         }
     }
 
 
     private fun handlePurchase(purchase: Purchase) {
-        Log.d(TAG, "Handling purchase: ${purchase.purchaseState}")
+        Timber.tag(TAG).i("Handling purchase: ${purchase.purchaseState}")
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
             _purchaseState.value = PurchaseState.Purchased
             // Set initial payment processing state
@@ -674,8 +641,7 @@ class BillingManager(private val context: Context) {
                         ?: productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.priceCurrencyCode
                         ?: "USD"
 
-                    Log.d(
-                        TAG,
+                    Timber.tag(TAG).i(
                         "Using Google Play pricing for payment: ${amountInCents / 100.0} $currencyCode (from priceAmountMicros: $priceAmountMicros)"
                     )
 
@@ -686,8 +652,7 @@ class BillingManager(private val context: Context) {
                         productID = purchase.products.firstOrNull() ?: "",
                         orderID = purchase.orderId.toString()
                     )
-                    Log.d(
-                        TAG,
+                    Timber.tag(TAG).i(
                         "Created InAppGooglePayload with customerID: ${currentCustomerID ?: "not set"}"
                     )
                     val payment = Payment(type = "google", details = inAppGooglePayload)
@@ -696,14 +661,14 @@ class BillingManager(private val context: Context) {
                         currency = currencyCode,
                         payment = payment
                     )
-                    Log.d(TAG, "Sending to createPaymentToken: $paymentTokenPayload")
+                    Timber.tag(TAG).i("Sending to createPaymentToken: $paymentTokenPayload")
 
                     // Update state to show we're processing with server
                     _paymentProcessingState.value = PaymentProcessingState.Verifying
 
                     _purchaseChannel.trySend(paymentTokenPayload)
                 } else {
-                    Log.e(TAG, "Activity or product details not available")
+                    Timber.tag(TAG).e("Activity or product details not available ")
                     _paymentProcessingState.value = PaymentProcessingState.Error(
                         UiText.StringText(
                             "Application error: could not process payment"
@@ -711,7 +676,7 @@ class BillingManager(private val context: Context) {
                     )
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error sending payment token to WebView", e)
+                Timber.tag(TAG).e(e, "Error sending payment token to WebView ")
                 _paymentProcessingState.value = PaymentProcessingState.Error(
                     UiText.StringText("Error processing payment: ${e.message}")
                 )
@@ -720,7 +685,7 @@ class BillingManager(private val context: Context) {
 
             // Acknowledge the purchase if it hasn't been acknowledged yet
             if (!purchase.isAcknowledged) {
-                Log.d(TAG, "Acknowledging purchase")
+                Timber.tag(TAG).i("Acknowledging purchase")
                 val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                     .setPurchaseToken(purchase.purchaseToken)
                     .build()
@@ -728,21 +693,17 @@ class BillingManager(private val context: Context) {
                 coroutineScope.launch {
                     try {
                         billingClient?.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
-                            Log.d(
-                                TAG,
-                                "Acknowledge result: ${billingResult.responseCode} ${billingResult.debugMessage}"
-                            )
+                            Timber.tag(TAG)
+                                .i("Acknowledge result: ${billingResult.responseCode} ${billingResult.debugMessage}")
                             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                                Log.d(TAG, "Purchase acknowledged")
+                                Timber.tag(TAG).i("Purchase acknowledged")
                             } else {
-                                Log.e(
-                                    TAG,
-                                    "Failed to acknowledge purchase: ${billingResult.debugMessage}"
-                                )
+                                Timber.tag(TAG)
+                                    .e("Failed to acknowledge purchase: ${billingResult.debugMessage}")
                             }
                         }
                     } catch (e: Exception) {
-                        Log.e(TAG, "Error acknowledging purchase", e)
+                        Timber.tag(TAG).e(e, "Error acknowledging purchase")
                     }
                 }
             }
@@ -781,12 +742,12 @@ class BillingManager(private val context: Context) {
      */
     fun refreshPurchaseStatus(forceRefresh: Boolean = false) {
         if (!_isConnected.value) {
-            Log.d(TAG, "Cannot refresh purchases - billing client not connected")
+            Timber.tag(TAG).i("Cannot refresh purchases - billing client not connected")
             establishConnection()
             return
         }
 
-        Log.d(TAG, "Refreshing purchase status (force: $forceRefresh)...")
+        Timber.tag(TAG).i("Refreshing purchase status (force: $forceRefresh)...")
         _isRefreshingPurchases.value = true
         queryExistingPurchases(forceRefresh = forceRefresh)
     }
@@ -804,10 +765,10 @@ class BillingManager(private val context: Context) {
 
                 // Only refresh if we have an active subscription
                 if (hasActiveSubscription()) {
-                    Log.d(TAG, "Periodic refresh - checking subscription status")
+                    Timber.tag(TAG).i("Periodic refresh - checking subscription status")
                     queryExistingPurchases(forceRefresh = true)
                 } else {
-                    Log.d(TAG, "No active subscription - skipping periodic refresh")
+                    Timber.tag(TAG).i("No active subscription - skipping periodic refresh")
                 }
             }
         }
@@ -825,7 +786,7 @@ class BillingManager(private val context: Context) {
      * Invalidate all cached data and force a fresh query
      */
     fun invalidateCache() {
-        Log.d(TAG, "Invalidating subscription cache")
+        Timber.tag(TAG).i("Invalidating subscription cache")
         lastPurchaseQueryTime = 0L
         lastProductDetailsQueryTime = 0L
         cachedPurchases = emptyList()
@@ -846,7 +807,7 @@ class BillingManager(private val context: Context) {
         getBillingResult: (BillingClient?, BillingFlowParams) -> BillingResult?
     ) {
         if (!_isConnected.value) {
-            Log.e(TAG, "Cannot launch billing flow - billing client not connected.")
+            Timber.tag(TAG).e("Cannot launch billing flow -billing client not connected.")
             _purchaseState.value = PurchaseState.Error(
                 UiText.StringText("Billing service not connected.")
             )
@@ -856,15 +817,13 @@ class BillingManager(private val context: Context) {
         // Store customerID for use during purchase processing
         this.currentCustomerID = customerID
 
-        Log.d(
-            TAG,
-            "Attempting to launch purchase flow for Product ID: $productId, Offer Token: $offerToken, Customer ID: $customerID"
-        )
+        Timber.tag(TAG)
+            .i("Attempting to launch purchase flow for Product ID: $productId, Offer Token: $offerToken, Customer ID: $customerID")
 
         val productDetails = _productDetailsList.value.find { it.productId == productId }
 
         if (productDetails == null) {
-            Log.e(TAG, "Product details not found for $productId. Cannot launch flow.")
+            Timber.tag(TAG).e("Product details not found for $productId.Cannot launch flow.")
             _purchaseState.value = PurchaseState.Error(
                 UiText.StringText("Selected plan details not found.")
             )
@@ -880,17 +839,15 @@ class BillingManager(private val context: Context) {
             val selectedOffer =
                 productDetails.subscriptionOfferDetails?.find { it.offerToken == offerToken }
             if (selectedOffer != null) {
-                Log.d(TAG, "Found matching offer token: $offerToken")
+                Timber.tag(TAG).i("Found matching offer token: $offerToken")
                 productDetailsParamsBuilder.setOfferToken(selectedOffer.offerToken)
             } else {
                 // Handle case where the offer token from JS doesn't match any available offer
                 // This might happen if eligibility changed or plans updated.
                 // Fallback: Try purchasing the base plan if offerToken is invalid/not found?
                 // Or show an error.
-                Log.w(
-                    TAG,
-                    "Provided offer token '$offerToken' not found for product $productId. Check plan configuration or user eligibility."
-                )
+                Timber.tag(TAG)
+                    .i("Provided offer token '$offerToken' not found for product $productId. Check plan configuration or user eligibility.")
                 // Optionally, default to the base plan if no offer token is needed/found
                 // If *only* specific offers should be purchasable, then this should be an error:
                 _purchaseState.value =
@@ -903,16 +860,14 @@ class BillingManager(private val context: Context) {
                 // return // Uncomment this line if purchase should fail when offer token is invalid
             }
         } else if (offerToken != null && productDetails.subscriptionOfferDetails == null) {
-            Log.w(
-                TAG,
-                "Offer token '$offerToken' provided, but product $productId has no subscription offer details."
-            )
+            Timber.tag(TAG)
+                .i("Offer token '$offerToken' provided, but product $productId has no subscription offer details.")
             _purchaseState.value = PurchaseState.Error(
                 UiText.StringText("Plan configuration error.")
             )
             return
         } else {
-            Log.d(TAG, "No specific offer token provided or needed for product $productId.")
+            Timber.tag(TAG).i("No specific offer token provided or needed for product $productId.")
             // If offerToken is null, we don't call setOfferToken, which usually defaults to the base plan
         }
 
@@ -926,16 +881,14 @@ class BillingManager(private val context: Context) {
         val billingResult = getBillingResult(billingClient, billingFlowParams)
 
         if (billingResult?.responseCode != BillingClient.BillingResponseCode.OK) {
-            Log.e(
-                TAG,
-                "Failed to launch billing flow: ${billingResult?.responseCode} ${billingResult?.debugMessage}"
-            )
+            Timber.tag(TAG)
+                .e("Failed to launch billing flow: ${billingResult?.responseCode} ${billingResult?.debugMessage}")
             _purchaseState.value =
                 PurchaseState.Error(
                     UiText.StringText("Failed to initiate purchase: ${billingResult?.debugMessage}")
                 )
         } else {
-            Log.d(TAG, "Billing flow launched successfully.")
+            Timber.tag(TAG).i("Billing flow launched successfully.")
             // Purchase process continues in PurchasesUpdatedListener
         }
     }
@@ -948,13 +901,11 @@ class BillingManager(private val context: Context) {
             val currentState = _paymentProcessingState.value
 
             if (currentState is PaymentProcessingState.SubscriptionRecovery) {
-                Log.d(
-                    TAG,
-                    "Retrying subscription recovery - processing existing Google Play purchase"
-                )
+                Timber.tag(TAG)
+                    .i("Retrying subscription recovery - processing existing Google Play purchase")
                 triggerSubscriptionRecovery()
             } else {
-                Log.d(TAG, "Retrying payment verification")
+                Timber.tag(TAG).i("Retrying payment verification")
                 // Set state back to loading
                 _paymentProcessingState.value = PaymentProcessingState.Loading
 
@@ -964,21 +915,19 @@ class BillingManager(private val context: Context) {
                         if (purchases.isNotEmpty()) {
                             // Found purchase - check if it's already acknowledged and processed
                             val purchase = purchases.first()
-                            Log.d(TAG, "Found purchase to retry: ${purchase.products}")
+                            Timber.tag(TAG).i("Found purchase to retry: ${purchase.products}")
 
                             // If we already have a purchased state, the purchase is valid
                             if (_purchaseState.value is PurchaseState.Purchased) {
-                                Log.d(
-                                    TAG,
-                                    "Purchase already processed successfully, setting state to Success"
-                                )
+                                Timber.tag(TAG)
+                                    .i("Purchase already processed successfully, setting state to Success")
                                 _paymentProcessingState.value = PaymentProcessingState.Success
                             } else {
                                 // Process the purchase normally
                                 handlePurchase(purchase)
                             }
                         } else {
-                            Log.e(TAG, "No purchases found during retry")
+                            Timber.tag(TAG).e("No purchases found during retry")
                             _paymentProcessingState.value = PaymentProcessingState.Error(
                                 UiText.StringText(
                                     "No active purchase found to retry. Please try purchasing again."
@@ -990,7 +939,7 @@ class BillingManager(private val context: Context) {
                 )
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error retrying payment verification", e)
+            Timber.tag(TAG).e(e, "Error retrying payment verification ")
             _paymentProcessingState.value = PaymentProcessingState.Error(
                 UiText.StringText(
                     "Error retrying payment: ${e.message}"
@@ -1012,7 +961,7 @@ class BillingManager(private val context: Context) {
      */
     fun triggerSubscriptionRecovery() {
         if (!_isConnected.value) {
-            Log.e(TAG, "Cannot process recovery - billing client not connected")
+            Timber.tag(TAG).e("Cannot process recovery - billing client not connected ")
             _paymentProcessingState.value =
                 PaymentProcessingState.Error(
                     UiText.StringText("Billing service not connected")
@@ -1020,7 +969,7 @@ class BillingManager(private val context: Context) {
             return
         }
 
-        Log.d(TAG, "Triggering subscription recovery")
+        Timber.tag(TAG).i("Triggering subscription recovery")
         _paymentProcessingState.value = PaymentProcessingState.SubscriptionRecovery(
             "We found your subscription in Google Play but it's not synced with our servers. Let's fix that!"
         )
@@ -1030,13 +979,13 @@ class BillingManager(private val context: Context) {
             onComplete = { purchases ->
                 if (purchases.isNotEmpty()) {
                     val purchase = purchases.first()
-                    Log.d(TAG, "Processing recovery for purchase: ${purchase.products}")
+                    Timber.tag(TAG).i("Processing recovery for purchase: ${purchase.products}")
 
                     // Extract and set customer ID from existing purchase
                     purchase.accountIdentifiers?.obfuscatedAccountId?.let { accountId ->
-                        Log.d(TAG, "Using obfuscated account ID from purchase: $accountId")
+                        Timber.tag(TAG).i("Using obfuscated account ID from purchase: $accountId")
                         currentCustomerID = accountId
-                    } ?: Log.w(TAG, "No obfuscated account ID found in purchase")
+                    } ?: Timber.tag(TAG).i("No obfuscated account ID found in purchase ")
 
                     // Set to loading and process through normal payment flow
                     _paymentProcessingState.value = PaymentProcessingState.Loading

@@ -1,6 +1,5 @@
 package me.proton.android.lumo.data.mapper
 
-import android.util.Log
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
@@ -11,6 +10,7 @@ import me.proton.android.lumo.models.Subscription
 import me.proton.android.lumo.ui.components.PaymentProcessingState
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.utils.ErrorClassifier
+import timber.log.Timber
 
 class PaymentTokenMapper(private val billingManager: BillingManager) {
 
@@ -21,14 +21,14 @@ class PaymentTokenMapper(private val billingManager: BillingManager) {
         // Now within the call back we can do whatever else we need to do...
         jsResult.onSuccess { paymentJsResponse ->
             // Now we can access the data from the successful PaymentJsResponse
-            Log.d(TAG, "JavaScript result success: $paymentJsResponse")
+            Timber.tag(TAG).i("JavaScript result success: $paymentJsResponse")
 
             // Check for error status in response
             if (paymentJsResponse.status == "error") {
-                Log.e(
-                    TAG,
-                    "Error in payment token response: ${paymentJsResponse.message}"
-                )
+                Timber.tag(TAG)
+                    .e(
+                        "Error in payment token response: ${paymentJsResponse.message}"
+                    )
                 billingManager._paymentProcessingState.value = PaymentProcessingState.Error(
                     UiText.StringText(
                         paymentJsResponse.message
@@ -45,7 +45,9 @@ class PaymentTokenMapper(private val billingManager: BillingManager) {
                     else -> null
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error parsing token from response", e)
+                Timber.tag(TAG).e(
+                    e, "Error parsing token from response"
+                )
                 billingManager._paymentProcessingState.value = PaymentProcessingState.Error(
                     UiText.StringText(
                         "Error processing payment response: ${e.message}"
@@ -64,7 +66,9 @@ class PaymentTokenMapper(private val billingManager: BillingManager) {
                     billingAddress = null
                 )
             } else {
-                Log.e(TAG, "Token was null in payment response")
+                Timber.tag(TAG).e(
+                    "Token was null in payment response"
+                )
                 billingManager._paymentProcessingState.value = PaymentProcessingState.Error(
                     UiText.StringText(
                         "Payment token was not found in the server response"
@@ -72,7 +76,9 @@ class PaymentTokenMapper(private val billingManager: BillingManager) {
                 )
             }
         }.onFailure { error ->
-            Log.e(TAG, "Payment token request failed", error)
+            Timber.tag(TAG).e(
+                error, "Payment token request failed "
+            )
             // Use professional error classification
             val errorInfo = ErrorClassifier.classify(error)
             billingManager._paymentProcessingState.value = when (errorInfo.type) {

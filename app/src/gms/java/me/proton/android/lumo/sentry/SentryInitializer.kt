@@ -3,9 +3,12 @@ package me.proton.android.lumo.sentry
 import android.content.Context
 import androidx.startup.Initializer
 import io.sentry.SentryLevel
+import io.sentry.SentryLogLevel
 import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
+import io.sentry.android.timber.SentryTimberIntegration
 import me.proton.android.lumo.BuildConfig
+
 
 class SentryInitializer : Initializer<Unit> {
 
@@ -19,6 +22,13 @@ class SentryInitializer : Initializer<Unit> {
                 isEnableUncaughtExceptionHandler = true
                 setDiagnosticLevel(SentryLevel.DEBUG)
                 tracesSampleRate = 0.2
+                addIntegration(
+                    SentryTimberIntegration(
+                        minEventLevel = SentryLevel.ERROR,
+                        minBreadcrumbLevel = SentryLevel.ERROR,
+                        minLogsLevel = SentryLogLevel.ERROR
+                    )
+                )
             }
         }
     }

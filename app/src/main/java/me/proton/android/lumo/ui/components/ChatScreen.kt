@@ -1,6 +1,6 @@
 package me.proton.android.lumo.ui.components
 
-import android.util.Log
+
 import android.webkit.WebView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -37,6 +37,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
 import me.proton.android.lumo.ui.theme.LumoTheme
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,10 +69,8 @@ fun ChatScreen(
                                         bounded = true,
                                     )
                                 ) {
-                                    Log.d(
-                                        MainActivity.TAG,
-                                        "Back button clicked, navigating to Lumo"
-                                    )
+                                    Timber.tag(MainActivity.TAG)
+                                        .i("Back button clicked, navigating to Lumo")
                                     handleWebViewNavigation()
                                 }
                                 .padding(all = 8.dp) // optional padding
@@ -108,12 +107,9 @@ fun ChatScreen(
             )
 
             val showLoading = isLoading && !hasSeenLumoContainer && isLumoPage
-            Log.d(
-                MainActivity.TAG,
-                "Showing loading screen with fade transition - " +
-                        "isLoading: $isLoading, " +
-                        "hasSeenLumoContainer: $hasSeenLumoContainer, " +
-                        "isLumoPage: $isLumoPage"
+            Timber.tag(MainActivity.TAG).i(
+                "Showing loading screen with fade transition - isLoading: $isLoading, " +
+                        "hasSeenLumoContainer: $hasSeenLumoContainer, isLumoPage: $isLumoPage"
             )
             LoadingScreen(show = showLoading)
         }

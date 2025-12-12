@@ -204,7 +204,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.profileinstaller)
     implementation(libs.android.startup.runtime)
-
+    implementation(libs.timber)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
@@ -219,6 +219,7 @@ dependencies {
     "gmsImplementation"(libs.billing.ktx)
     "gmsImplementation"(libs.sentry)
     "gmsImplementation"(libs.sentry.android)
+    "gmsImplementation"(libs.sentry.android.timber)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
