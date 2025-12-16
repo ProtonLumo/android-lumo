@@ -1,17 +1,20 @@
 package me.proton.android.lumo.models
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonNames
 
 /**
  * Represents a subscription entitlement feature description
  */
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class SubscriptionEntitlement(
-    @SerialName("type") val type: String,
-    @SerialName("text") val text: String,
-    @SerialName("iconName") val iconName: String,
-    @SerialName("hint") val hint: String? = null
+    @JsonNames("type", "Type") val type: String,
+    @JsonNames("text", "Text") val text: String,
+    @JsonNames("iconName", "IconName") val iconName: String,
+    @JsonNames("hint", "Hint") val hint: String? = null
 )
 
 @Serializable

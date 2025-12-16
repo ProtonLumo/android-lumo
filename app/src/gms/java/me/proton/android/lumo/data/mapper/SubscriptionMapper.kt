@@ -92,11 +92,6 @@ object SubscriptionMapper {
 
     private fun hasValidSubscription(subscriptions: List<SubscriptionItemResponse>): Boolean {
         Timber.tag(TAG).e("$subscriptions")
-        return subscriptions.any { subscription ->
-            // Check for Lumo or Visionary plans
-            subscription.name != null &&
-                    (subscription.name.contains("lumo", ignoreCase = true) ||
-                            subscription.name.contains("visionary", ignoreCase = true))
-        }
+        return subscriptions.isNotEmpty()
     }
 }
