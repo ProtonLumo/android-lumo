@@ -9,7 +9,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import me.proton.android.lumo.featureflag.LumoFeatureFlags
@@ -29,7 +32,7 @@ interface LegacyFeatureFlagDataSource {
     ): FeatureFlag?
 
     fun get(featureId: FeatureId): FeatureFlag
-    fun onFeaturesChanged(): Flow<Unit>
+    fun onFeaturesChanged(featureId: FeatureId): Flow<FeatureFlag>
 }
 
 class LegacyFeatureFlagDataSourceImpl @Inject constructor(
@@ -41,7 +44,7 @@ class LegacyFeatureFlagDataSourceImpl @Inject constructor(
         replay = 0,
         extraBufferCapacity = 1
     )
-    private val featuresChangedFlow = MutableSharedFlow<Unit>(
+    private val featuresChangedFlow = MutableSharedFlow<MutableMap<FeatureId, FeatureFlag>>(
         replay = 0,
         extraBufferCapacity = 1,
     )
@@ -61,7 +64,7 @@ class LegacyFeatureFlagDataSourceImpl @Inject constructor(
                                 LumoFeatureFlags.flags[featureFlag.featureId] = featureFlag
                             }
 
-                        featuresChangedFlow.tryEmit(Unit)
+                        featuresChangedFlow.tryEmit(LumoFeatureFlags.flags)
                     }
                     .onFailure {
                         Timber.tag(TAG).d("Failure: $it")
@@ -95,7 +98,11 @@ class LegacyFeatureFlagDataSourceImpl @Inject constructor(
     override fun get(featureId: FeatureId): FeatureFlag =
         LumoFeatureFlags.flags[featureId] ?: FeatureFlag.DEFAULT
 
-    override fun onFeaturesChanged(): Flow<Unit> = featuresChangedFlow
+    override fun onFeaturesChanged(featureId: FeatureId): Flow<FeatureFlag> =
+        featuresChangedFlow
+            .map { map -> map[featureId] ?: FeatureFlag.DEFAULT }
+            .filter { it != FeatureFlag.DEFAULT }
+            .distinctUntilChanged()
 
     companion object {
         private const val TAG = "LegacyFeatureFlagDataSource"

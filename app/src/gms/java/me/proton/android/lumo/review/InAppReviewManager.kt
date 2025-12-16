@@ -24,6 +24,7 @@ class InAppReviewManagerImpl @Inject constructor(
             featureGatekeeper
                 .observeFeature(LumoFeatureFlags.ratingFeatureFlag)
                 .collect { featureFlag ->
+                    Timber.tag(TAG).d("Feature observed: $featureFlag")
                     if (featureFlag.value && !reviewRepository.hasSeen()) {
                         requestReview(activity)
                     }
@@ -43,10 +44,10 @@ class InAppReviewManagerImpl @Inject constructor(
                 // We got the ReviewInfo object
                 val reviewInfo = task.result
 
-                Timber.tag(TAG).d("Got review info $reviewInfo")
+                Timber.tag(TAG).d("Got review info: $reviewInfo")
                 val flow = manager.launchReviewFlow(activity, reviewInfo)
                 flow.addOnCompleteListener { _ ->
-                    Timber.tag(TAG).d("review flow completed")
+                    Timber.tag(TAG).d("In-App Review flow completed")
                     scope.launch {
                         featureGatekeeper.updateLegacyFeature(
                             featureId = LumoFeatureFlags.ratingFeatureFlag,

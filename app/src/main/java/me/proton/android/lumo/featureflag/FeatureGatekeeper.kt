@@ -39,10 +39,8 @@ class FeatureGatekeeperImpl @Inject constructor(
         } ?: FeatureFlag.DEFAULT
 
     override fun observeFeature(featureId: FeatureId): Flow<FeatureFlag> =
-        legacyFeatureFlagDataSource
-            .onFeaturesChanged()
-            .map { legacyFeatureFlagDataSource.get(featureId) }
-            .filter { it != FeatureFlag.DEFAULT }
+        legacyFeatureFlagDataSource.onFeaturesChanged(featureId)
+
 
     override suspend fun updateLegacyFeature(
         featureId: FeatureId,
