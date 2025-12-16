@@ -119,7 +119,6 @@ class LumoWebClient(
                     }
                 }, 2000) // Reduced to 2 seconds for faster response
             }
-
         } catch (e: Exception) {
             Timber.tag(TAG).e(e, "Error during onPageFinished setup ")
             // Ensure loading state is cleared even on error
@@ -218,7 +217,6 @@ class LumoWebClient(
 
     // Utility functions for domain checks
     private fun isLumoDomain(url: String?): Boolean = LumoConfig.isLumoDomain(url)
-
     private fun isAccountDomain(url: String?): Boolean = LumoConfig.isAccountDomain(url)
 
     companion object {

@@ -129,7 +129,7 @@ class MainActivity : ComponentActivity() {
                     isLoading = { uiState.isLoading },
                     showLoading = { viewModel.showLoading() },
                     hideLoading = { viewModel.hideLoading(it) },
-                    onError = { showToast(it) }
+                    onError = { showToast(it) },
                 )
             }
 

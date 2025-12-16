@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.data.repository.WebAppRepository
+import me.proton.android.lumo.featureflag.FeatureGatekeeper
 import me.proton.android.lumo.permission.PermissionContract
 import me.proton.android.lumo.tracer.LumoTracer
 import me.proton.android.lumo.ui.text.UiText
@@ -45,7 +46,8 @@ class MainActivityViewModel @Inject constructor(
     private val themeRepository: ThemeRepository,
     private val webAppRepository: WebAppRepository,
     private val hasOfferUseCase: Lazy<HasOfferUseCase>,
-    private val measureMainScreenReady: LumoTracer
+    private val measureMainScreenReady: LumoTracer,
+    private val featureGatekeeper: FeatureGatekeeper,
 ) : ViewModel() {
 
     sealed class UiEvent {
@@ -140,14 +142,18 @@ class MainActivityViewModel @Inject constructor(
                     }
 
                     is WebEvent.LumoContainerVisible -> {
-                        measureMainScreenReady.stopSpan(operation = LumoTracer.Operation.MainReady)
-                        measureMainScreenReady.finishTransaction()
-
                         _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                hasSeenLumoContainer = true
-                            )
+                            if (it.hasSeenLumoContainer && !it.isLoading) {
+                                it
+                            } else {
+                                measureMainScreenReady.stopSpan(operation = LumoTracer.Operation.MainReady)
+                                measureMainScreenReady.finishTransaction()
+                                featureGatekeeper.start()
+                                it.copy(
+                                    isLoading = false,
+                                    hasSeenLumoContainer = true
+                                )
+                            }
                         }
                     }
 

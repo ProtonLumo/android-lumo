@@ -45,8 +45,8 @@ object AppModule {
                         }
                         .build()
                 )
-                .pollingStrategy.interval(6000)
-                .metricsStrategy.interval(6000)
+                .pollingStrategy.interval(3_00_000) // once every 5 mins
+                .metricsStrategy.interval(3_00_000)
                 .build()
         )
     }
