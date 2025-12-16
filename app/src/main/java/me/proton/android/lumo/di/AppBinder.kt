@@ -14,23 +14,29 @@ import me.proton.android.lumo.featureflag.datasource.LegacyFeatureFlagDataSource
 import me.proton.android.lumo.featureflag.datasource.LegacyFeatureFlagDataSourceImpl
 import me.proton.android.lumo.featureflag.datasource.UnleashDataSource
 import me.proton.android.lumo.featureflag.datasource.UnleashDataSourceImpl
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AppBinder {
 
     @Binds
+    @Singleton
     abstract fun themeRepository(impl: ThemeRepositoryImpl): ThemeRepository
 
     @Binds
+    @Singleton
     abstract fun webAppRepository(impl: WebAppRepositoryImpl): WebAppRepository
 
     @Binds
+    @Singleton
     abstract fun unleashDataSource(impl: UnleashDataSourceImpl): UnleashDataSource
 
     @Binds
+    @Singleton
     abstract fun legacyFeatureFlagDataSource(impl: LegacyFeatureFlagDataSourceImpl): LegacyFeatureFlagDataSource
 
     @Binds
+    @Singleton
     abstract fun featureGatekeeper(impl: FeatureGatekeeperImpl): FeatureGatekeeper
 }

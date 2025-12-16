@@ -249,6 +249,8 @@ dependencies {
     "gmsImplementation"(libs.sentry)
     "gmsImplementation"(libs.sentry.android)
     "gmsImplementation"(libs.sentry.android.timber)
+    "gmsImplementation"(libs.inapp.review)
+    "gmsImplementation"(libs.inapp.review.ktx)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

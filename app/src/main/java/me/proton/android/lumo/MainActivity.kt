@@ -41,6 +41,7 @@ import me.proton.android.lumo.managers.WebViewManager
 import me.proton.android.lumo.navigation.NavRoutes
 import me.proton.android.lumo.navigation.paymentRoutes
 import me.proton.android.lumo.permission.rememberSinglePermission
+import me.proton.android.lumo.review.InAppReviewManager
 import me.proton.android.lumo.ui.components.ChatScreen
 import me.proton.android.lumo.ui.components.dialog.PermissionDialog
 import me.proton.android.lumo.ui.components.dialog.PurchaseLinkDialog
@@ -66,6 +67,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var isPaymentAvailable: IsPaymentAvailableUseCase
+
+    @Inject
+    lateinit var inAppReviewManager: InAppReviewManager
     private val viewModel: MainActivityViewModel by viewModels()
     private lateinit var webViewManager: WebViewManager
 
@@ -313,9 +317,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        inAppReviewManager.start(this)
+    }
+
     override fun onResume() {
         super.onResume()
         viewModel.tryHideBf()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        inAppReviewManager.stop()
     }
 
     override fun onDestroy() {

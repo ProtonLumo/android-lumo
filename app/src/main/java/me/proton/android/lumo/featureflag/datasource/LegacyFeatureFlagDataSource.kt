@@ -1,9 +1,14 @@
 package me.proton.android.lumo.featureflag.datasource
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
@@ -23,7 +28,8 @@ interface LegacyFeatureFlagDataSource {
         isEnabled: Boolean,
     ): FeatureFlag?
 
-    fun get(featureId: FeatureId): FeatureFlag?
+    fun get(featureId: FeatureId): FeatureFlag
+    fun onFeaturesChanged(): Flow<Unit>
 }
 
 class LegacyFeatureFlagDataSourceImpl @Inject constructor(
@@ -34,6 +40,10 @@ class LegacyFeatureFlagDataSourceImpl @Inject constructor(
     private val refreshTrigger = MutableSharedFlow<Unit>(
         replay = 0,
         extraBufferCapacity = 1
+    )
+    private val featuresChangedFlow = MutableSharedFlow<Unit>(
+        replay = 0,
+        extraBufferCapacity = 1,
     )
 
     init {
@@ -50,6 +60,8 @@ class LegacyFeatureFlagDataSourceImpl @Inject constructor(
                             .forEach { featureFlag ->
                                 LumoFeatureFlags.flags[featureFlag.featureId] = featureFlag
                             }
+
+                        featuresChangedFlow.tryEmit(Unit)
                     }
                     .onFailure {
                         Timber.tag(TAG).d("Failure: $it")
@@ -80,8 +92,10 @@ class LegacyFeatureFlagDataSourceImpl @Inject constructor(
             }
         }
 
-    override fun get(featureId: FeatureId): FeatureFlag? =
-        LumoFeatureFlags.flags[featureId]
+    override fun get(featureId: FeatureId): FeatureFlag =
+        LumoFeatureFlags.flags[featureId] ?: FeatureFlag.DEFAULT
+
+    override fun onFeaturesChanged(): Flow<Unit> = featuresChangedFlow
 
     companion object {
         private const val TAG = "LegacyFeatureFlagDataSource"

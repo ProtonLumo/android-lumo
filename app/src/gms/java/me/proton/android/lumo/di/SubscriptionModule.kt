@@ -27,28 +27,35 @@ object SubscriptionModule {
         WebAppWithPaymentsInterface()
 
     @Provides
+    @Singleton
     fun subscriptionMapper(): SubscriptionMapper = SubscriptionMapper
 
     @Provides
+    @Singleton
     fun planMapper(): PlanMapper = PlanMapper
 
     @Provides
+    @Singleton
     fun paymentTokenMapper(billingManager: BillingManager?): PaymentTokenMapper? =
         billingManager?.let { PaymentTokenMapper(billingManager = it) }
 
     @Provides
+    @Singleton
     fun subscriptionPurchaseHandler(billingManager: BillingManager?): SubscriptionPurchaseHandler? =
         billingManager?.let { SubscriptionPurchaseHandler(billingManager = it) }
 
     @Provides
+    @Singleton
     fun billingManagerWrapper(@ApplicationContext context: Context): BillingManagerWrapper =
         BillingManagerWrapper(context)
 
     @Provides
+    @Singleton
     fun billingManager(billingManagerWrapper: BillingManagerWrapper): BillingManager? =
         billingManagerWrapper.getBillingManager()
 
     @Provides
+    @Singleton
     fun isPaymentAvailable(billingManager: Lazy<BillingManager?>): IsPaymentAvailableUseCase =
         object : IsPaymentAvailableUseCase {
             override fun invoke(): Boolean = billingManager.get() != null
