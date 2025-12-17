@@ -1,11 +1,13 @@
 package me.proton.android.lumo.di
 
+import android.app.Activity
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import me.proton.android.lumo.review.InAppReviewManager
 import me.proton.android.lumo.tracer.LumoTracer
 import me.proton.android.lumo.usecase.HasOfferUseCase
 import me.proton.android.lumo.usecase.IsPaymentAvailableUseCase
@@ -49,6 +51,16 @@ object PlaceholderModule {
             }
 
             override fun finishTransaction() {
+            }
+        }
+
+    @Provides
+    fun reviewManager(): InAppReviewManager =
+        object : InAppReviewManager {
+            override fun start(activity: Activity) {
+            }
+
+            override fun stop() {
             }
         }
 }

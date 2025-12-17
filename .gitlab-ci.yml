@@ -11,6 +11,8 @@ before_script:
   - bundle config set without 'production'
   - bundle install
   - echo -e "\norg.gradle.daemon=false" >> gradle.properties # Disables gradle daemon
+  - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
+  - cp "$(pwd)/.secrets/unleash.properties" "$(pwd)/unleash.properties"
 
 variables:
   DOCKER_IMAGE_VERSION: v2.2.1
@@ -25,6 +27,7 @@ variables:
   CACHE_COMPRESSION_LEVEL: "fast"
   # Gem path
   BUNDLE_GEM_PATH: 'vendor/ruby'
+  SECURE_FILES_DOWNLOAD_PATH: './.secrets'
 
 # Makes sure we do not create separate merge request and branch pipelines.
 # See https://docs.gitlab.com/ee/ci/yaml/workflow.html#switch-between-branch-pipelines-and-merge-request-pipelines
@@ -120,10 +123,7 @@ build_release:
       policy: !reference [ .cache-policy, cache, policy ]
     - <<: *gradle-cache
       policy: !reference [ .cache-policy, cache, policy ]
-  variables:
-    SECURE_FILES_DOWNLOAD_PATH: './.secrets'
   script:
-    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - cp "$(pwd)/.secrets/sentry.properties" "$(pwd)/sentry.properties"
     - export LUMO_KEYSTORE_PATH="$(pwd)/.secrets/$LUMO_KEY"
     - export LUMO_STORE_PASSWORD=$(echo "$LUMO_STORE_PASSWORD_64" | base64 --decode)

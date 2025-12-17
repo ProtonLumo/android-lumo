@@ -3,10 +3,18 @@ package me.proton.android.lumo.webview
 import android.annotation.SuppressLint
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.serialization.json.Json
 import me.proton.android.lumo.MainActivity
+import me.proton.android.lumo.featureflag.LegacyFeatureFlagJsInjector
+import me.proton.android.lumo.featureflag.mapper.mapResponse
+import me.proton.android.lumo.featureflag.model.FeatureId
+import me.proton.android.lumo.featureflag.model.GetFeaturesResponse
+import me.proton.android.lumo.featureflag.model.PutFeatureResponse
 import timber.log.Timber
+import java.util.concurrent.ConcurrentHashMap
 import me.proton.android.lumo.MainActivityViewModel.WebEvent as MainWebEvent
 
 @SuppressLint("StaticFieldLeak")
@@ -17,6 +25,10 @@ open class WebAppInterface {
 
     private val _mainEventChannel = Channel<MainWebEvent>()
     val mainEventChannel = _mainEventChannel.receiveAsFlow()
+    private val pendingFeatureFlagResults =
+        ConcurrentHashMap<String, CompletableDeferred<Result<GetFeaturesResponse>>>()
+    private val pendingUpdateFeatureFlagResults =
+        ConcurrentHashMap<String, CompletableDeferred<Result<PutFeatureResponse>>>()
 
     fun attachWebView(webView: WebView) {
         try {
@@ -116,6 +128,75 @@ open class WebAppInterface {
         if (themeStyle.isNotEmpty()) {
             Timber.tag(TAG).i("onThemeChanged : $themeStyle")
             _mainEventChannel.trySend(MainWebEvent.ThemeResult(themeStyle))
+        }
+    }
+
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
+
+    @JavascriptInterface
+    fun postFeatureFlagResult(transactionId: String, resultJson: String, functionName: String) {
+        Timber.tag(TAG).d("postFeatureFlagResult received for ID $transactionId: $resultJson")
+
+        // Retrieve and remove the original callback
+        val functionCall = LegacyFeatureFlagJsInjector.FunctionCall.valueOf(functionName)
+        when (functionCall) {
+            LegacyFeatureFlagJsInjector.FunctionCall.GET_FEATURE,
+            LegacyFeatureFlagJsInjector.FunctionCall.GET_FEATURES -> {
+                val deferred = pendingFeatureFlagResults.remove(transactionId)
+                if (deferred == null) {
+                    Timber.tag(TAG).e("No callback found for transaction ID: $transactionId")
+                    return
+                }
+                deferred.mapResponse(json, resultJson)
+            }
+
+            LegacyFeatureFlagJsInjector.FunctionCall.UPDATE_FEATURE_VALUE -> {
+                val deferred = pendingUpdateFeatureFlagResults.remove(transactionId)
+                if (deferred == null) {
+                    Timber.tag(TAG).e("No callback found for transaction ID: $transactionId")
+                    return
+                }
+                deferred.mapResponse(json, resultJson)
+            }
+        }
+    }
+
+    suspend fun getFeature(featureId: FeatureId): Result<GetFeaturesResponse> {
+        val webView = webView ?: throw IllegalStateException("WebView not attached")
+
+        return LegacyFeatureFlagJsInjector.getFeature(
+            webView = webView,
+            featureId = featureId,
+        ) { transactionId, deferred ->
+            pendingFeatureFlagResults[transactionId] = deferred
+        }
+    }
+
+    suspend fun getFeatures(featureIds: List<FeatureId>): Result<GetFeaturesResponse> {
+        val webView = webView ?: throw IllegalStateException("WebView not attached")
+
+        return LegacyFeatureFlagJsInjector.getFeatures(
+            webView = webView,
+            featureIds = featureIds,
+        ) { transactionId, deferred ->
+            pendingFeatureFlagResults[transactionId] = deferred
+        }
+    }
+
+    suspend fun updateFeatureValue(
+        featureId: FeatureId,
+        isEnabled: Boolean,
+    ): Result<PutFeatureResponse> {
+        val webView = webView ?: throw IllegalStateException("WebView not attached")
+
+        return LegacyFeatureFlagJsInjector.updateFeatureValue(
+            webView = webView,
+            featureId = featureId,
+            isEnabled = isEnabled,
+        ) { transactionId, deferred ->
+            pendingUpdateFeatureFlagResults[transactionId] = deferred
         }
     }
 

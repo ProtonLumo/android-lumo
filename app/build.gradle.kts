@@ -12,7 +12,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     id("version-tasks")
 }
-
+val unleashPropsFile = rootProject.file("unleash.properties")
+val unleashProps = Properties().apply { load(unleashPropsFile.inputStream()) }
 val versionPropsFile = rootProject.file("version.properties")
 val versionProps = Properties().apply { load(versionPropsFile.inputStream()) }
 
@@ -51,6 +52,11 @@ android {
         // Default production environment
         buildConfigField("String", "ENV_NAME", "\"\"")
         buildConfigField("String", "SENTRY_DSN", "\"${sentryProp("dsn")}\"")
+        buildConfigField(
+            "String",
+            "UNLEASH_PROXY",
+            "\"${unleashProps["PROXY"] as String}\""
+        )
 
         ndk {
             abiFilters += listOf(
@@ -120,14 +126,36 @@ android {
                 "BASE_DOMAIN",
                 "\"${prop("BASE_DOMAIN_PRODUCTION", "proton.me")}\""
             )
-            buildConfigField("String", "OFFER_ID", "\"${prop("OFFER_ID_PRODUCTION", "")}\"")
+            buildConfigField(
+                "String",
+                "OFFER_ID",
+                "\"${prop("OFFER_ID_PRODUCTION", "")}\""
+            )
+            buildConfigField(
+                "String",
+                "UNLEASH_CLIENT_KEY",
+                "\"${unleashProps["CLIENT_KEY_PROD"] as String}\""
+            )
         }
 
         create("noble") {
             dimension = "env"
             applicationId = "me.proton.lumo"
-            buildConfigField("String", "BASE_DOMAIN", "\"${prop("BASE_DOMAIN_NOBLE", "")}\"")
-            buildConfigField("String", "OFFER_ID", "\"${prop("OFFER_ID_NOBLE", "")}\"")
+            buildConfigField(
+                "String",
+                "BASE_DOMAIN",
+                "\"${prop("BASE_DOMAIN_NOBLE", "")}\""
+            )
+            buildConfigField(
+                "String",
+                "OFFER_ID",
+                "\"${prop("OFFER_ID_NOBLE", "")}\""
+            )
+            buildConfigField(
+                "String",
+                "UNLEASH_CLIENT_KEY",
+                "\"${unleashProps["CLIENT_KEY_ATLAS"] as String}\""
+            )
         }
     }
 
@@ -207,6 +235,7 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.unleash)
     ksp(libs.hilt.compiler)
 
     implementation("com.alphacephei:vosk-android:0.3.70@aar")
@@ -220,6 +249,8 @@ dependencies {
     "gmsImplementation"(libs.sentry)
     "gmsImplementation"(libs.sentry.android)
     "gmsImplementation"(libs.sentry.android.timber)
+    "gmsImplementation"(libs.inapp.review)
+    "gmsImplementation"(libs.inapp.review.ktx)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

@@ -19,4 +19,5 @@ vosk-model/build
 
 # Sentry Config File
 sentry.properties
+unleash.properties
 ci/scripts/fdroid_release.sh
