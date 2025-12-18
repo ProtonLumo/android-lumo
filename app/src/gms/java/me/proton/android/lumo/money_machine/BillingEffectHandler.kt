@@ -8,11 +8,14 @@ import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PendingPurchasesParams
+import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import me.proton.android.lumo.BuildConfig
 import me.proton.android.lumo.billing.BillingManager.Companion.SUBSCRIPTION_PLANS
 import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.ui.text.UiText
@@ -122,16 +125,34 @@ class BillingEffectHandler(
             .setProductList(products)
             .build()
 
-        client.queryProductDetailsAsync(params) { result, details ->
-
-            if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                dispatch(BillingAction.ProductDetailsLoaded(details.productDetailsList))
+        scope.launch {
+            val planResult = backend.fetchPlans()
+            delay(3000)
+            if (planResult.error != null) {
+                dispatch(BillingAction.Error(planResult.error))
             } else {
-                dispatch(
-                    BillingAction.Error(
-                        UiText.StringText(result.debugMessage)
-                    )
-                )
+                client.queryProductDetailsAsync(params) { result, details ->
+                    if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                        val updatePlans = updatePlanPricing(
+                            plans = planResult.planOptions,
+                            productDetails = details.productDetailsList,
+                            offerId = BuildConfig.OFFER_ID
+                        )
+                        dispatch(
+                            BillingAction.ProductDetailsLoaded(
+                                products = details.productDetailsList,
+                                planFeatures = planResult.planFeatures,
+                                planOptions = updatePlans,
+                            )
+                        )
+                    } else {
+                        dispatch(
+                            BillingAction.Error(
+                                UiText.StringText(result.debugMessage)
+                            )
+                        )
+                    }
+                }
             }
         }
     }
@@ -143,16 +164,49 @@ class BillingEffectHandler(
             .setProductType(BillingClient.ProductType.SUBS)
             .build()
 
-        client.queryPurchasesAsync(params) { result, purchases ->
-            if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                dispatch(BillingAction.PurchasesLoaded(purchases))
+        scope.launch {
+            val subscriptionResult = backend.fetchSubscriptions()
+            delay(3000)
+            if (subscriptionResult.error != null) {
+                dispatch(BillingAction.Error(subscriptionResult.error))
             } else {
-                dispatch(
-                    BillingAction.Error(UiText.StringText(result.debugMessage))
-                )
+                client.queryPurchasesAsync(params) { result, purchases ->
+                    if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                        purchases.firstOrNull().let {
+                            val (renewing, expiry) = if (it != null) {
+                                parseSubscription(it)
+                            } else {
+                                false to 0L
+                            }
+
+                            dispatch(
+                                BillingAction.PurchasesLoaded(
+                                    purchase = it,
+                                    renewing = renewing,
+                                    expiry = expiry,
+                                    subscriptionResult = subscriptionResult,
+                                )
+                            )
+                        }
+                    } else if (subscriptionResult.hasValidSubscription) {
+                        dispatch(
+                            BillingAction.PurchasesLoaded(
+                                purchase = null,
+                                renewing = false,
+                                expiry = 0L,
+                                subscriptionResult = subscriptionResult,
+                            )
+                        )
+                    } else {
+                        dispatch(
+                            BillingAction.Error(UiText.StringText(result.debugMessage))
+                        )
+                    }
+                }
             }
         }
     }
+
 
     private fun launchBillingFlow(effect: BillingEffect.LaunchBillingFlow) {
         val client = billingClient ?: return
@@ -171,9 +225,7 @@ class BillingEffectHandler(
                 listOf(
                     BillingFlowParams.ProductDetailsParams.newBuilder()
                         .setProductDetails(effect.productDetails)
-                        .apply {
-                            effect.offerToken?.let { setOfferToken(it) }
-                        }
+                        .apply { effect.offerToken?.let { setOfferToken(it) } }
                         .build()
                 )
             )

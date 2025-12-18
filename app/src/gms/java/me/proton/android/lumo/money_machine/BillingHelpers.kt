@@ -7,8 +7,10 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
 import me.proton.android.lumo.models.InAppGooglePayload
+import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.Payment
 import me.proton.android.lumo.models.PaymentTokenPayload
+import me.proton.android.lumo.utils.PlanPricingHelper
 
 fun parseSubscription(purchase: Purchase): Pair<Boolean, Long> {
     val renewing = purchase.isAutoRenewing
@@ -54,3 +56,14 @@ fun buildPaymentPayload(
         )
     )
 }
+
+fun updatePlanPricing(
+    plans: List<JsPlanInfo>,
+    productDetails: List<ProductDetails>,
+    offerId: String?
+): List<JsPlanInfo> =
+    PlanPricingHelper.updatePlanPricing(
+        plans = plans,
+        googleProducts = productDetails,
+        offerId = offerId
+    )

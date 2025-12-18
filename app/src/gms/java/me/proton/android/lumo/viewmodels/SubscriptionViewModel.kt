@@ -4,30 +4,21 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.BillingFlowParams
-import com.android.billingclient.api.BillingResult
-import com.android.billingclient.api.ProductDetails
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import me.proton.android.lumo.BuildConfig
 import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
-import me.proton.android.lumo.R
 import me.proton.android.lumo.data.repository.SubscriptionRepository
 import me.proton.android.lumo.data.repository.ThemeRepository
-import me.proton.android.lumo.models.JsPlanInfo
-import me.proton.android.lumo.models.PlanFeature
-import me.proton.android.lumo.models.SubscriptionItemResponse
+import me.proton.android.lumo.money_machine.BillingAction
+import me.proton.android.lumo.money_machine.BillingState
+import me.proton.android.lumo.money_machine.BillingStore
 import me.proton.android.lumo.navigation.NavRoutes
-import me.proton.android.lumo.ui.components.PaymentProcessingState
-import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.usecase.HasOfferUseCase
-import timber.log.Timber
 import javax.inject.Inject
 
 private const val TAG = "SubscriptionViewModel"
@@ -38,6 +29,7 @@ private const val TAG = "SubscriptionViewModel"
 @HiltViewModel
 class SubscriptionViewModel @Inject constructor(
     private val repository: SubscriptionRepository,
+    private val billingStore: BillingStore,
     private val themeRepository: ThemeRepository,
     private val hasOfferUseCase: HasOfferUseCase,
     savedStateHandle: SavedStateHandle
@@ -47,17 +39,7 @@ class SubscriptionViewModel @Inject constructor(
         savedStateHandle.toRoute<NavRoutes.Subscription>().paymentEvent
 
     data class UiState(
-        val isLoadingSubscriptions: Boolean = false,
-        val subscriptions: List<SubscriptionItemResponse> = emptyList(),
-        val hasValidSubscription: Boolean = false,
-        val isLoadingPlans: Boolean = false,
-        val planOptions: List<JsPlanInfo> = emptyList(),
-        val selectedPlan: JsPlanInfo? = null,
-        val planFeatures: List<PlanFeature> = emptyList(),
-        val errorMessage: UiText? = null,
-        val paymentProcessingState: PaymentProcessingState? = null,
-        val isRefreshingPurchases: Boolean = false,
-        val googleProductDetails: List<ProductDetails> = emptyList(),
+        val billingState: BillingState = BillingState(),
         val theme: AppStyle? = null,
         val paymentEvent: PaymentEvent
     )
@@ -66,14 +48,25 @@ class SubscriptionViewModel @Inject constructor(
     val uiStateFlow = _uiStateFlow.asStateFlow()
 
     init {
+        observeTheme()
+        observeOffers()
+        observeBillingState()
+
+        // Kick off billing
+        billingStore.dispatch(BillingAction.Initialize)
+    }
+
+    /* ───────────────── Observers ───────────────── */
+
+    private fun observeTheme() {
         viewModelScope.launch {
-            val theme = themeRepository.getTheme()
-            _uiStateFlow.update { state ->
-                state.copy(theme = theme)
+            _uiStateFlow.update {
+                it.copy(theme = themeRepository.getTheme())
             }
         }
+    }
 
-        // Collect Google Play product details
+    private fun observeOffers() {
         viewModelScope.launch {
             hasOfferUseCase.hasOffer().collectLatest { hasOffer ->
                 _uiStateFlow.update {
@@ -83,231 +76,40 @@ class SubscriptionViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun observeBillingState() {
         viewModelScope.launch {
-            repository.getGooglePlayProducts().collectLatest { products ->
-                _uiStateFlow.update {
-                    it.copy(
-                        googleProductDetails = products,
+            billingStore.state.collectLatest { billingState ->
+
+                _uiStateFlow.update { ui ->
+                    ui.copy(
+                        billingState = billingState
                     )
                 }
-                Timber.tag(TAG).i("Received ${products.size} Google Play products")
-
-                // Update plan pricing if we have plans
-                if (_uiStateFlow.value.planOptions.isNotEmpty()) {
-                    updatePlanPricing(_uiStateFlow.value.planOptions)
-                }
-            }
-        }
-        viewModelScope.launch {
-            repository.getPaymentProcessingState().collectLatest { state ->
-                _uiStateFlow.update {
-                    it.copy(paymentProcessingState = state)
-                }
-            }
-        }
-        viewModelScope.launch {
-            repository.isRefreshingPurchases().collectLatest { isRefreshing ->
-                _uiStateFlow.update {
-                    it.copy(isRefreshing)
-                }
             }
         }
     }
 
-    /**
-     * Load user subscriptions
-     */
-    private fun loadSubscriptions() {
-        _uiStateFlow.update {
-            it.copy(
-                isLoadingSubscriptions = true,
-                errorMessage = null
-            )
-        }
-
-        viewModelScope.launch {
-            val subscriptionResult = repository.fetchSubscriptions()
-            if (!subscriptionResult.hasValidSubscription) {
-                loadPlans()
-            }
-            _uiStateFlow.update {
-                it.copy(
-                    isLoadingSubscriptions = false,
-                    subscriptions = subscriptionResult.subscriptions,
-                    hasValidSubscription = subscriptionResult.hasValidSubscription,
-                    errorMessage = it.errorMessage
-                )
-            }
-        }
+    fun selectPlan(planIndex: Int) {
+        billingStore.dispatch(BillingAction.SelectPlan(planIndex))
     }
 
-    /**
-     * Load available subscription plans
-     */
-    private fun loadPlans() {
-        _uiStateFlow.update {
-            it.copy(
-                isLoadingPlans = true,
-                errorMessage = null,
-            )
-        }
-
-        viewModelScope.launch {
-            val planResult = repository.fetchPlans()
-
-            if (planResult.error == null) {
-                updatePlanPricing(planResult.planOptions)
-            }
-
-            _uiStateFlow.update {
-                it.copy(
-                    isLoadingPlans = false,
-                    planFeatures = planResult.planFeatures,
-                    errorMessage = planResult.error
-                )
-            }
-        }
-    }
-
-    /**
-     * Update plan pricing with Google Play product details
-     */
-    private fun updatePlanPricing(planOptions: List<JsPlanInfo>) {
-        if (planOptions.isEmpty() || _uiStateFlow.value.googleProductDetails.isEmpty()) {
-            _uiStateFlow.update {
-                it.copy(
-                    errorMessage = UiText.ResText(R.string.error_problem_loading_subscriptions)
-                )
-            }
-            return
-        }
-
-        Timber.tag(TAG).i("Updating plan pricing from Google Play")
-
-        val updatedPlans = repository.updatePlanPricing(
-            plans = planOptions,
-            productDetails = _uiStateFlow.value.googleProductDetails,
-            offerId = BuildConfig.OFFER_ID
-        ).let {
-            when (_uiStateFlow.value.paymentEvent) {
-                PaymentEvent.Default -> it
-                PaymentEvent.BlackFriday -> it.reversed()
-            }
-        }
-
-        // Only update if we have pricing info
-        if (updatedPlans.any { it.totalPrice.isNotEmpty() }) {
-            _uiStateFlow.update {
-                it.copy(
-                    planOptions = updatedPlans.toList()
-                )
-            }
-
-            val selectedPlan = _uiStateFlow.value.selectedPlan
-
-            // Re-select the current plan or select first if none selected
-            if (selectedPlan == null) {
-                _uiStateFlow.update {
-                    it.copy(
-                        selectedPlan = updatedPlans.firstOrNull()
-                    )
-                }
-            } else {
-                // Find and update the currently selected plan
-                val currentPlanId = selectedPlan.id
-                _uiStateFlow.update {
-                    it.copy(selectedPlan = updatedPlans.find { plan -> plan.id == currentPlanId }
-                        ?: updatedPlans.firstOrNull())
-                }
-            }
-        } else {
-            Timber.tag(TAG).e("No valid plans found")
-            _uiStateFlow.update {
-                it.copy(
-                    errorMessage = UiText.ResText(R.string.error_no_plans_with_pricing)
-                )
-            }
-        }
-    }
-
-    /**
-     * Select a plan
-     */
-    fun selectPlan(plan: JsPlanInfo) {
-        _uiStateFlow.update {
-            it.copy(selectedPlan = plan)
-        }
-    }
-
-    /**
-     * Refresh subscription status
-     */
-    fun refreshSubscriptionStatus() {
-        repository.refreshGooglePlaySubscriptionStatus()
-        loadSubscriptions()
-    }
-
-    /**
-     * Clear error message
-     */
-    fun clearError() {
-        _uiStateFlow.update {
-            it.copy(errorMessage = null)
-        }
-    }
-
-    /**
-     * Check for subscription sync mismatch between API and Google Play
-     * Returns true if there's a mismatch that needs recovery
-     */
-    fun checkSubscriptionSyncMismatch(): Boolean {
-        val hasValidSubscriptions = _uiStateFlow.value.hasValidSubscription
-        // Get Google Play subscription status
-        val (hasGooglePlaySubscription, isAutoRenewing) = getGooglePlaySubscriptionStatus()
-
-        Timber.tag(TAG).i(
-            "Subscription sync check - API hasValid: $hasValidSubscriptions, GooglePlay hasActive: $hasGooglePlaySubscription, isRenewing: $isAutoRenewing"
-        )
-
-        // Check for mismatch: No valid subscription from API but active subscription on Google Play
-        val hasMismatch = !hasValidSubscriptions && hasGooglePlaySubscription
-
-        if (hasMismatch) {
-            Timber.tag(TAG).i("SUBSCRIPTION SYNC MISMATCH DETECTED!")
-            Timber.tag(TAG)
-                .i("API shows no valid subscription, but Google Play shows active subscription")
-            Timber.tag(TAG).i("This indicates a sync issue that needs recovery")
-        }
-
-        return hasMismatch
-    }
-
-    fun getGooglePlaySubscriptionStatus(): Triple<Boolean, Boolean, Long> =
-        repository.getGooglePlaySubscriptionStatus()
-
-    fun launchBillingFlowForProduct(
+    fun launchBillingFlow(
         productId: String,
         offerToken: String?,
-        customerID: String? = null,
-        getBillingResult: (BillingClient?, BillingFlowParams) -> BillingResult?
+        customerId: String
     ) {
-        repository.launchBillingFlowForProduct(
-            productId = productId,
-            offerToken = offerToken,
-            customerID = customerID,
-            getBillingResult = getBillingResult,
+        billingStore.dispatch(
+            BillingAction.LaunchPurchase(
+                productId = productId,
+                offerToken = offerToken,
+                customerId = customerId
+            )
         )
-    }
-
-    fun triggerSubscriptionRecovery() {
-        repository.triggerSubscriptionRecovery()
     }
 
     fun retryPaymentVerification() {
-        repository.retryPaymentVerification()
-    }
-
-    fun resetPaymentState() {
-        repository.resetPaymentState()
+        billingStore.dispatch(BillingAction.RetryVerification)
     }
 }

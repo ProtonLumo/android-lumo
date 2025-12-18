@@ -6,13 +6,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.android.billingclient.api.ProductDetails
 import me.proton.android.lumo.models.SubscriptionItemResponse
+import me.proton.android.lumo.money_machine.SubscriptionState
 import me.proton.android.lumo.ui.theme.LumoTheme
 
 @Composable
 fun SubscriptionOverviewDialog(
     googleProductDetails: List<ProductDetails>,
-    getSubscriptionPaymentStatus: () -> Triple<Boolean, Boolean, Long>,
-    subscriptions: List<SubscriptionItemResponse>,
+    activeSubscriptions: SubscriptionState.Active,
     onClose: () -> Unit
 ) {
     Surface(
@@ -20,9 +20,8 @@ fun SubscriptionOverviewDialog(
         color = LumoTheme.colors.backgroundNorm
     ) {
         SubscriptionOverviewSection(
-            subscriptions = subscriptions,
+            activeSubscriptions = activeSubscriptions,
             googleProductDetails = googleProductDetails,
-            getSubscriptionPaymentStatus = getSubscriptionPaymentStatus,
             onClose = onClose
         )
     }

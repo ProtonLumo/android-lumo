@@ -12,7 +12,9 @@ fun billingReducer(
             state.copy(
                 connection = ConnectionState.Connecting,
                 error = null,
-                payment = PaymentState.Idle,
+                subscriptionState = SubscriptionState.Loading,
+                plansState = PlansState.Loading,
+                paymentState = PaymentState.Idle,
             ) to listOf(BillingEffect.ConnectBilling)
         }
 
@@ -31,10 +33,7 @@ fun billingReducer(
             } else {
                 state.copy(
                     connection = ConnectionState.Connected
-                ) to listOf(
-                    BillingEffect.QueryPurchases,
-                    BillingEffect.QueryProducts,
-                )
+                ) to listOf(BillingEffect.QueryProducts, BillingEffect.QueryPurchases)
             }
         }
 
@@ -46,41 +45,58 @@ fun billingReducer(
 
         is BillingAction.ProductDetailsLoaded -> {
             state.copy(
-                products = action.products,
-                selectedPlanIndex = 0
+                plansState = PlansState.Success(
+                    planOptions = action.planOptions,
+                    planFeatures = action.planFeatures,
+                    googleProductDetails = action.products,
+                ),
             ) to emptyList()
         }
 
         is BillingAction.PurchasesLoaded -> {
-            val purchase = action.purchases.firstOrNull()
+            val purchase = action.purchase
+            val subscriptionResult = action.subscriptionResult
 
-            if (purchase == null) {
-                state.copy(
-                    subscription = SubscriptionState.None
-                ) to emptyList()
-            } else {
-                val (renewing, expiry) = parseSubscription(purchase)
-                state.copy(
-                    subscription = SubscriptionState.Active(
-                        renewing = renewing,
-                        expiryTimeMillis = expiry
+            val subscriptionState = when {
+                purchase == null && !subscriptionResult.hasValidSubscription ->
+                    SubscriptionState.None
+
+                purchase == null && subscriptionResult.hasValidSubscription ->
+                    SubscriptionState.Active(subscriptions = subscriptionResult.subscriptions)
+
+                purchase != null && !subscriptionResult.hasValidSubscription ->
+                    SubscriptionState.Mismatch(purchase = purchase)
+
+                purchase != null && subscriptionResult.hasValidSubscription -> {
+                    SubscriptionState.Active(
+                        subscriptions = subscriptionResult.subscriptions,
+                        renewing = action.renewing,
+                        expiryTimeMillis = action.expiry,
+                        internal = false,
                     )
-                ) to emptyList()
+                }
+
+                else -> SubscriptionState.None
             }
+
+            state.copy(subscriptionState = subscriptionState) to emptyList()
         }
 
         is BillingAction.PurchaseUpdated -> {
-            val product = state.products.getOrNull(state.selectedPlanIndex)
+            val product = when (val planState = state.plansState) {
+                is PlansState.Loading -> null
+                is PlansState.Success -> planState.googleProductDetails.getOrNull(planState.selectedPlanIndex)
+            }
 
             if (product == null) {
                 state.copy(
-                    payment = PaymentState.Error(
+                    paymentState = PaymentState.Error(
                         UiText.StringText("Product details missing")
                     )
                 ) to emptyList()
             } else {
                 state.copy(
-                    payment = PaymentState.Verifying
+                    paymentState = PaymentState.Verifying
                 ) to listOf(
                     BillingEffect.SendPaymentToken(
                         buildPaymentPayload(
@@ -97,27 +113,64 @@ fun billingReducer(
         }
 
         is BillingAction.SelectPlan -> {
-            state.copy(
-                selectedPlanIndex = action.index
-            ) to emptyList()
+            when (val planState = state.plansState) {
+                is PlansState.Loading -> state to emptyList()
+                is PlansState.Success ->
+                    state.copy(
+                        plansState = planState.copy(selectedPlanIndex = action.index)
+                    ) to emptyList()
+            }
         }
 
         is BillingAction.LaunchPurchase -> {
-            val product = state.products.first { it.productId == action.productId }
+            val product = when (val planState = state.plansState) {
+                is PlansState.Loading -> null
+                is PlansState.Success ->
+                    planState.googleProductDetails.firstOrNull() { it.productId == action.productId }
+            }
 
-            state.copy(
-                customerId = action.customerId
-            ) to listOf(
-                BillingEffect.LaunchBillingFlow(
-                    productDetails = product,
-                    offerToken = action.offerToken,
+            if (product == null) {
+                state to emptyList()
+            } else {
+                state.copy(
                     customerId = action.customerId
+                ) to listOf(
+                    BillingEffect.LaunchBillingFlow(
+                        productDetails = product,
+                        offerToken = action.offerToken,
+                        customerId = action.customerId
+                    )
                 )
-            )
+            }
         }
-        // TODO: fix me
+
         BillingAction.RetryVerification -> {
-            state to listOf(BillingEffect.QueryPurchases)
+            if (state.subscriptionState is SubscriptionState.Mismatch &&
+                state.plansState is PlansState.Success) {
+                val purchase = state.subscriptionState.purchase
+                val productId = purchase.products.first()
+                val customerId = purchase.accountIdentifiers?.obfuscatedAccountId ?: ""
+                state.plansState.googleProductDetails
+                    .find { it.productId == productId }
+                    ?.let { product ->
+                        state.copy(
+                            paymentState = PaymentState.Verifying,
+                            subscriptionState = SubscriptionState.None,
+                            customerId = customerId,
+                        ) to listOf(
+                            BillingEffect.SendPaymentToken(
+                                buildPaymentPayload(
+                                    purchase = state.subscriptionState.purchase,
+                                    product = product,
+                                    customerId = customerId
+                                )
+                            )
+                        )
+                    } ?: (state.copy(error = UiText.StringText("Unable to retry")) to emptyList())
+
+            } else {
+                state.copy(error = UiText.StringText("Unable to retry")) to emptyList()
+            }
         }
 
         is BillingAction.Error -> {
@@ -126,7 +179,7 @@ fun billingReducer(
 
         is BillingAction.BackendVerificationSucceeded -> {
             state.copy(
-                payment = PaymentState.Success,
+                paymentState = PaymentState.Success,
                 customerId = "",
                 error = null
             ) to emptyList()
@@ -134,7 +187,7 @@ fun billingReducer(
 
         is BillingAction.BackendVerificationFailed -> {
             state.copy(
-                payment = PaymentState.Error(
+                paymentState = PaymentState.Error(
                     message = action.message,
                 )
             ) to emptyList()

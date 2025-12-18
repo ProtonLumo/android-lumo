@@ -2,6 +2,9 @@ package me.proton.android.lumo.money_machine
 
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
+import me.proton.android.lumo.data.SubscriptionResult
+import me.proton.android.lumo.models.JsPlanInfo
+import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.ui.text.UiText
 
 sealed interface BillingAction {
@@ -16,11 +19,16 @@ sealed interface BillingAction {
 
     /* Data loaded from Play */
     data class ProductDetailsLoaded(
-        val products: List<ProductDetails>
+        val products: List<ProductDetails>,
+        val planFeatures: List<PlanFeature>,
+        val planOptions: List<JsPlanInfo>
     ) : BillingAction
 
     data class PurchasesLoaded(
-        val purchases: List<Purchase>
+        val purchase: Purchase?,
+        val renewing: Boolean = false,
+        val expiry: Long = 0L,
+        val subscriptionResult: SubscriptionResult,
     ) : BillingAction
 
     data class PurchaseUpdated(

@@ -39,6 +39,7 @@ import com.android.billingclient.api.ProductDetails
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.SubscriptionEntitlement
 import me.proton.android.lumo.models.SubscriptionItemResponse
+import me.proton.android.lumo.money_machine.SubscriptionState
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.utils.PriceFormatter
 import timber.log.Timber
@@ -48,8 +49,8 @@ import java.util.Locale
 
 @Composable
 fun SubscriptionComponent(
+    subscriptionState: SubscriptionState.Active,
     subscription: SubscriptionItemResponse,
-    googlePlayRenewalStatus: Triple<Boolean, Boolean, Long>? = null,
     googlePlayProductDetails: List<ProductDetails>? = null,
     onManageSubscription: (Context) -> Unit
 ) {
@@ -61,29 +62,17 @@ fun SubscriptionComponent(
         Timber.tag("SubscriptionComponent").i(
             "Mobile plan detected: ${subscription.title}, External=${subscription.external}"
         )
-        if (googlePlayRenewalStatus != null) {
-            val (isActive, isAutoRenewing, expiryTime) = googlePlayRenewalStatus
-            Timber.tag("SubscriptionComponent").i(
-                "Google Play Status: isActive=$isActive, isAutoRenewing=$isAutoRenewing, expiryTime=${
-                    Date(expiryTime)
-                }"
-            )
-        } else {
-            Timber.tag("SubscriptionComponent").i(
-                "WARNING: googlePlayRenewalStatus is null for mobile plan"
-            )
-        }
     }
 
     // Check if plan is cancelled
-    val isCancelled = if (isMobilePlan && googlePlayRenewalStatus != null) {
+    val isCancelled = if (isMobilePlan && !subscriptionState.internal) {
         // For mobile plans, use Google Play status
         // A subscription is considered "cancelled" if the user has disabled auto-renewal,
         // even if it's still active until the end of the current billing period
-        val (isActive, isAutoRenewing, _) = googlePlayRenewalStatus
-        val cancelled = !isAutoRenewing
+        val isActive = true
+        val cancelled = !subscriptionState.renewing
         Timber.tag("SubscriptionComponent").i(
-            "Mobile plan cancellation check: isCancelled=$cancelled (!isAutoRenewing=${!isAutoRenewing}), isActive=$isActive"
+            "Mobile plan cancellation check: isCancelled=$cancelled (!isAutoRenewing=${!subscriptionState.renewing}), isActive=$isActive"
         )
         cancelled
     } else {
@@ -218,10 +207,10 @@ fun SubscriptionComponent(
                     // Determine renewal date and status:
                     // For mobile plans, use Google Play status if available
                     // For web plans, use the API subscription information
-                    val (renewalDate, isRenewing) = if (isMobilePlan && googlePlayRenewalStatus != null) {
+                    val (renewalDate, isRenewing) = if (isMobilePlan && !subscriptionState.internal) {
                         // Use Google Play subscription info for mobile plans
-                        val (isActive, isAutoRenewing, expiryTimeMillis) = googlePlayRenewalStatus
-
+                        val isAutoRenewing = subscriptionState.renewing
+                        val expiryTimeMillis = subscriptionState.expiryTimeMillis
                         // Format the expiry date
                         val date = if (expiryTimeMillis > 0) {
                             val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
@@ -380,97 +369,97 @@ fun SubscriptionComponent(
     }
 }
 
-@Preview(showBackground = true)
-@Preview(name = "Dark - Loading Plans", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
-@Composable
-fun SubscriptionComponentPreview() {
-    // Preview both types of subscription structures based on the real API format
-    val previewSubscriptions = listOf(
-        // Web subscription (Mail Plus)
-        SubscriptionItemResponse(
-            id = "aaa==",
-            invoiceId = "-aaa-7gm5YLf215MEgZCdzOtLW5psxgB8oNc8OnoFRykab4Z23EGEW1ka3GtQPF9xwx9-VUA==",
-            title = "Mail Plus",
-            description = "Current plan",
-            name = "mail2022",
-            cycle = 12,
-            cycleDescription = "For 1 year",
-            currency = "CHF",
-            amount = 4788,
-            offer = "default",
-            periodStart = System.currentTimeMillis() / 1000,
-            periodEnd = (System.currentTimeMillis() + 365 * 24 * 60 * 60) / 1000,
-            createTime = System.currentTimeMillis() / 1000,
-            couponCode = null,
-            discount = 0,
-            renewDiscount = 0,
-            renewAmount = 4788,
-            renew = 0,
-            external = 0,
-            billingPlatform = 1,
-            entitlements = listOf(
-                SubscriptionEntitlement(
-                    type = "description",
-                    iconName = "checkmark",
-                    text = "And the free features of all other Proton products!"
-                )
-            ),
-            decorations = emptyList(),
-            isTrial = false,
-            customerID = null
-        ),
-        // Mobile subscription (Lumo Plus)
-        SubscriptionItemResponse(
-            id = "nNTtf0H8g-aaa==",
-            invoiceId = "aaa-ZTD8H8F6LvNaSjMaPxB5ecFkA7y-5kc3q38cGumJENGHjtSoUndkYFUx0_xlJeg==",
-            title = "Lumo Plus",
-            description = "Current plan",
-            name = "lumo2024",
-            cycle = 1,
-            cycleDescription = "For 1 month",
-            currency = "CHF",
-            amount = 1299,
-            offer = "default",
-            periodStart = System.currentTimeMillis() / 1000,
-            periodEnd = (System.currentTimeMillis() + 30 * 24 * 60 * 60) / 1000,
-            createTime = System.currentTimeMillis() / 1000,
-            couponCode = null,
-            discount = 0,
-            renewDiscount = 0,
-            renewAmount = 1299,
-            renew = 1,
-            external = 2,
-            billingPlatform = 1,
-            entitlements = emptyList(),
-            decorations = emptyList(),
-            isTrial = false,
-            customerID = null
-        )
-    )
-
-    // Add mock Google Play subscription status
-    val mockGooglePlayStatus = Triple(
-        true, // isActive
-        false, // isAutoRenewing (auto-renewal disabled but subscription still active)
-        System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000 // expiryTimeMillis (30 days from now)
-    )
-
-    LumoTheme {
-        Surface(
-            modifier = Modifier.padding(16.dp),
-            color = Color.White
-        ) {
-            Column {
-                previewSubscriptions.forEach { subscription ->
-                    SubscriptionComponent(
-                        subscription = subscription,
-                        googlePlayRenewalStatus = if (subscription.external == 2) mockGooglePlayStatus else null,
-                        googlePlayProductDetails = null, // No product details in preview
-                        onManageSubscription = {}
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-            }
-        }
-    }
-} 
+//@Preview(showBackground = true)
+//@Preview(name = "Dark - Loading Plans", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
+//@Composable
+//fun SubscriptionComponentPreview() {
+//    // Preview both types of subscription structures based on the real API format
+//    val previewSubscriptions = listOf(
+//        // Web subscription (Mail Plus)
+//        SubscriptionItemResponse(
+//            id = "aaa==",
+//            invoiceId = "-aaa-7gm5YLf215MEgZCdzOtLW5psxgB8oNc8OnoFRykab4Z23EGEW1ka3GtQPF9xwx9-VUA==",
+//            title = "Mail Plus",
+//            description = "Current plan",
+//            name = "mail2022",
+//            cycle = 12,
+//            cycleDescription = "For 1 year",
+//            currency = "CHF",
+//            amount = 4788,
+//            offer = "default",
+//            periodStart = System.currentTimeMillis() / 1000,
+//            periodEnd = (System.currentTimeMillis() + 365 * 24 * 60 * 60) / 1000,
+//            createTime = System.currentTimeMillis() / 1000,
+//            couponCode = null,
+//            discount = 0,
+//            renewDiscount = 0,
+//            renewAmount = 4788,
+//            renew = 0,
+//            external = 0,
+//            billingPlatform = 1,
+//            entitlements = listOf(
+//                SubscriptionEntitlement(
+//                    type = "description",
+//                    iconName = "checkmark",
+//                    text = "And the free features of all other Proton products!"
+//                )
+//            ),
+//            decorations = emptyList(),
+//            isTrial = false,
+//            customerID = null
+//        ),
+//        // Mobile subscription (Lumo Plus)
+//        SubscriptionItemResponse(
+//            id = "nNTtf0H8g-aaa==",
+//            invoiceId = "aaa-ZTD8H8F6LvNaSjMaPxB5ecFkA7y-5kc3q38cGumJENGHjtSoUndkYFUx0_xlJeg==",
+//            title = "Lumo Plus",
+//            description = "Current plan",
+//            name = "lumo2024",
+//            cycle = 1,
+//            cycleDescription = "For 1 month",
+//            currency = "CHF",
+//            amount = 1299,
+//            offer = "default",
+//            periodStart = System.currentTimeMillis() / 1000,
+//            periodEnd = (System.currentTimeMillis() + 30 * 24 * 60 * 60) / 1000,
+//            createTime = System.currentTimeMillis() / 1000,
+//            couponCode = null,
+//            discount = 0,
+//            renewDiscount = 0,
+//            renewAmount = 1299,
+//            renew = 1,
+//            external = 2,
+//            billingPlatform = 1,
+//            entitlements = emptyList(),
+//            decorations = emptyList(),
+//            isTrial = false,
+//            customerID = null
+//        )
+//    )
+//
+//    // Add mock Google Play subscription status
+//    val mockGooglePlayStatus = Triple(
+//        true, // isActive
+//        false, // isAutoRenewing (auto-renewal disabled but subscription still active)
+//        System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000 // expiryTimeMillis (30 days from now)
+//    )
+//
+//    LumoTheme {
+//        Surface(
+//            modifier = Modifier.padding(16.dp),
+//            color = Color.White
+//        ) {
+//            Column {
+//                previewSubscriptions.forEach { subscription ->
+//                    SubscriptionComponent(
+//                        subscription = subscription,
+//                        googlePlayRenewalStatus = if (subscription.external == 2) mockGooglePlayStatus else null,
+//                        googlePlayProductDetails = null, // No product details in preview
+//                        onManageSubscription = {}
+//                    )
+//                    Spacer(modifier = Modifier.height(16.dp))
+//                }
+//            }
+//        }
+//    }
+//}

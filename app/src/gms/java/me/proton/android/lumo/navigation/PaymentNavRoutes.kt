@@ -4,14 +4,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import me.proton.android.lumo.ui.components.PaymentScreen
 
-fun NavGraphBuilder.paymentRoutes(
-    isReady: Boolean,
-    onDismiss: () -> Unit,
-) {
+fun NavGraphBuilder.paymentRoutes(onDismiss: () -> Unit) {
     composable<NavRoutes.Subscription> {
-        PaymentScreen(
-            isReady = isReady,
-            onDismiss = onDismiss
-        )
+        PaymentScreen(onDismiss = onDismiss)
     }
 }

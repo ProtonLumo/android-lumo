@@ -12,92 +12,43 @@ import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.utils.ErrorClassifier
 import timber.log.Timber
 
-class PaymentTokenMapper(private val billingManager: BillingManager) {
+class PaymentTokenMapper {
 
-    fun parsePaymentToken(
+    fun parse(
         jsResult: Result<PaymentJsResponse>,
         currencyCode: String,
-    ): Subscription? {
-        // Now within the call back we can do whatever else we need to do...
-        jsResult.onSuccess { paymentJsResponse ->
-            // Now we can access the data from the successful PaymentJsResponse
-            Timber.tag(TAG).i("JavaScript result success: $paymentJsResponse")
+    ): Result<Subscription> {
 
-            // Check for error status in response
-            if (paymentJsResponse.status == "error") {
-                Timber.tag(TAG)
-                    .e(
-                        "Error in payment token response: ${paymentJsResponse.message}"
-                    )
-                billingManager._paymentProcessingState.value = PaymentProcessingState.Error(
-                    UiText.StringText(
-                        paymentJsResponse.message
-                            ?: "Unknown error creating payment token"
-                    )
+        return jsResult.mapCatching { response ->
+
+            if (response.status == "error") {
+                error(
+                    response.message ?: "Unknown error creating payment token"
                 )
-                return null
             }
 
-            val token: String? = try {
-                when (paymentJsResponse.data) {
-                    is JsonObject -> paymentJsResponse.data["Token"]?.jsonPrimitive?.contentOrNull
-                    is JsonPrimitive -> paymentJsResponse.data.contentOrNull
-                    else -> null
-                }
-            } catch (e: Exception) {
-                Timber.tag(TAG).e(
-                    e, "Error parsing token from response"
-                )
-                billingManager._paymentProcessingState.value = PaymentProcessingState.Error(
-                    UiText.StringText(
-                        "Error processing payment response: ${e.message}"
-                    )
-                )
-                null
-            }
+            val token = extractToken(response)
+                ?: error("Payment token not found in server response")
 
-            if (token != null) {
-                return Subscription(
-                    paymentToken = token,
-                    currency = currencyCode,
-                    cycle = 1,
-                    plans = mapOf("lumo2024" to 1),
-                    couponCode = null,
-                    billingAddress = null
-                )
-            } else {
-                Timber.tag(TAG).e(
-                    "Token was null in payment response"
-                )
-                billingManager._paymentProcessingState.value = PaymentProcessingState.Error(
-                    UiText.StringText(
-                        "Payment token was not found in the server response"
-                    )
-                )
-            }
-        }.onFailure { error ->
-            Timber.tag(TAG).e(
-                error, "Payment token request failed "
+            Subscription(
+                paymentToken = token,
+                currency = currencyCode,
+                cycle = 1,
+                plans = mapOf("lumo2024" to 1),
+                couponCode = null,
+                billingAddress = null
             )
-            // Use professional error classification
-            val errorInfo = ErrorClassifier.classify(error)
-            billingManager._paymentProcessingState.value = when (errorInfo.type) {
-                ErrorClassifier.ErrorType.Network,
-                ErrorClassifier.ErrorType.Timeout,
-                ErrorClassifier.ErrorType.SSL -> PaymentProcessingState.NetworkError(
-                    errorInfo.getUserMessage()
-                )
-
-                else -> PaymentProcessingState.Error(
-                    errorInfo.getUserMessage()
-                )
-            }
         }
-
-        return null
     }
 
-    companion object {
-        private const val TAG = "PaymentTokenMapper"
-    }
+    private fun extractToken(response: PaymentJsResponse): String? =
+        try {
+            when (val data = response.data) {
+                is JsonObject -> data["Token"]?.jsonPrimitive?.contentOrNull
+                is JsonPrimitive -> data.contentOrNull
+                else -> null
+            }
+        } catch (e: Exception) {
+            null
+        }
 }

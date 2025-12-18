@@ -26,6 +26,7 @@ import androidx.core.net.toUri
 import com.android.billingclient.api.ProductDetails
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.SubscriptionItemResponse
+import me.proton.android.lumo.money_machine.SubscriptionState
 import me.proton.android.lumo.ui.theme.LumoTheme
 import timber.log.Timber
 import java.util.Date
@@ -35,24 +36,10 @@ import java.util.Date
  */
 @Composable
 fun SubscriptionOverviewSection(
-    subscriptions: List<SubscriptionItemResponse>,
+    activeSubscriptions: SubscriptionState.Active,
     googleProductDetails: List<ProductDetails>,
-    getSubscriptionPaymentStatus: () -> Triple<Boolean, Boolean, Long>,
     onClose: () -> Unit
 ) {
-    // Get Google Play subscription information
-    val (isActive, isAutoRenewing, expiryTimeMillis) = getSubscriptionPaymentStatus()
-
-    // Log Google Play status
-    Timber.tag(TAG).i(
-        "Google Play Status: isActive=$isActive, isAutoRenewing=$isAutoRenewing, expiryTime=${
-            Date(expiryTimeMillis)
-        }"
-    )
-    Timber.tag(TAG).i(
-        "Google Play Products: ${googleProductDetails.size} available"
-    )
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -60,29 +47,6 @@ fun SubscriptionOverviewSection(
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Close Button
-        IconButton(
-            onClick = onClose,
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Icon(
-                Icons.Default.Close,
-                contentDescription = "Close",
-                tint = LumoTheme.colors.textWeak
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Lumo+ Image
-        Image(
-            painter = painterResource(id = R.drawable.lumo_cat_on_laptop),
-            contentDescription = "Lumo Plus",
-            modifier = Modifier.height(100.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         Text(
             text = "Subscription Overview",
             style = MaterialTheme.typography.titleLarge,
@@ -92,7 +56,7 @@ fun SubscriptionOverviewSection(
         )
 
         // Use the SubscriptionComponent for each subscription
-        for (subscription in subscriptions) {
+        for (subscription in activeSubscriptions.subscriptions) {
             // Debug log the subscription info
             Timber.tag(TAG).i(
                 "Subscription: Name=${subscription.name}, External=${subscription.external}, Renew=${subscription.renew}"
@@ -110,14 +74,8 @@ fun SubscriptionOverviewSection(
             }
 
             SubscriptionComponent(
+                subscriptionState = activeSubscriptions,
                 subscription = subscription,
-                // Always pass Google Play status for Lumo plans with External==2
-                googlePlayRenewalStatus = if (isGooglePlayPlan) Triple(
-                    isActive,
-                    isAutoRenewing,
-                    expiryTimeMillis
-                ) else null,
-                // Pass Google Play product details for mobile plans to get accurate pricing
                 googlePlayProductDetails = if (isGooglePlayPlan) googleProductDetails else null,
                 onManageSubscription = {
                     openSubscriptionManagementScreen(it)

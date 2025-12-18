@@ -14,61 +14,15 @@ import me.proton.android.lumo.ui.components.PaymentProcessingState
  * Repository interface for handling subscription-related operations
  */
 interface SubscriptionRepository {
-    /**
-     * Get Google Play product details
-     *
-     * @return Flow of Google Play product details
-     */
-    fun getGooglePlayProducts(): Flow<List<ProductDetails>>
 
-    /**
-     * Update plan pricing information with Google Play data
-     *
-     * @param plans List of plans to update
-     * @param productDetails List of Google Play product details
-     * @return Updated plans with pricing information
-     */
+    /* Backend data */
+    suspend fun fetchSubscriptions(): SubscriptionResult
+    suspend fun fetchPlans(): PlanResult
+
+    /* Mapping helpers */
     fun updatePlanPricing(
         plans: List<JsPlanInfo>,
         productDetails: List<ProductDetails>,
-        offerId: String?,
+        offerId: String?
     ): List<JsPlanInfo>
-
-    /**
-     * Get Google Play subscription status
-     *
-     * @return Triple of (isActive, isAutoRenewing, expiryTimeMillis)
-     */
-    fun getGooglePlaySubscriptionStatus(): Triple<Boolean, Boolean, Long>
-
-    /**
-     * Refresh subscription status from Google Play
-     */
-    fun refreshGooglePlaySubscriptionStatus()
-
-    /**
-     * Invalidate cached subscription data and force fresh queries
-     */
-    fun invalidateSubscriptionCache()
-
-    fun getPaymentProcessingState(): Flow<PaymentProcessingState?>
-
-    fun isRefreshingPurchases(): Flow<Boolean>
-
-    fun triggerSubscriptionRecovery()
-
-    fun retryPaymentVerification()
-
-    fun resetPaymentState()
-
-    fun launchBillingFlowForProduct(
-        productId: String,
-        offerToken: String?,
-        customerID: String? = null,
-        getBillingResult: (BillingClient?, BillingFlowParams) -> BillingResult?
-    )
-
-    suspend fun fetchSubscriptions(): SubscriptionResult
-
-    suspend fun fetchPlans(): PlanResult
 }

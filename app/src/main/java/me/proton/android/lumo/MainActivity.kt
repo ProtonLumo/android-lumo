@@ -38,6 +38,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.managers.WebViewManager
+import me.proton.android.lumo.money_machine.ActivityProvider
 import me.proton.android.lumo.navigation.NavRoutes
 import me.proton.android.lumo.navigation.paymentRoutes
 import me.proton.android.lumo.permission.rememberSinglePermission
@@ -67,6 +68,8 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var isPaymentAvailable: IsPaymentAvailableUseCase
+    @Inject
+    lateinit var activityProvider: ActivityProvider
 
     @Inject
     lateinit var inAppReviewManager: InAppReviewManager
@@ -278,10 +281,7 @@ class MainActivity : ComponentActivity() {
                     },
                 )
             }
-            paymentRoutes(
-                isReady = !uiState.isLoading && uiState.hasSeenLumoContainer,
-                onDismiss = { navController.popBackStack() }
-            )
+            paymentRoutes(onDismiss = { navController.popBackStack() })
             dialog<NavRoutes.NoPayment> {
                 PurchaseLinkDialog(
                     onOpenUrl = {
@@ -325,6 +325,12 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.tryHideBf()
+        activityProvider.onActivityResumed(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        activityProvider.onActivityPaused(this)
     }
 
     override fun onStop() {
