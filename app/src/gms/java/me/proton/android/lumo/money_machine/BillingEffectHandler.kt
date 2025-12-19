@@ -8,16 +8,14 @@ import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PendingPurchasesParams
-import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.BuildConfig
-import me.proton.android.lumo.billing.BillingManager.Companion.SUBSCRIPTION_PLANS
 import me.proton.android.lumo.models.PaymentTokenPayload
+import me.proton.android.lumo.models.SubscriptionPlan
 import me.proton.android.lumo.ui.text.UiText
 
 class BillingEffectHandler(
@@ -127,7 +125,6 @@ class BillingEffectHandler(
 
         scope.launch {
             val planResult = backend.fetchPlans()
-            delay(3000)
             if (planResult.error != null) {
                 dispatch(BillingAction.Error(planResult.error))
             } else {
@@ -166,7 +163,6 @@ class BillingEffectHandler(
 
         scope.launch {
             val subscriptionResult = backend.fetchSubscriptions()
-            delay(3000)
             if (subscriptionResult.error != null) {
                 dispatch(BillingAction.Error(subscriptionResult.error))
             } else {
@@ -269,5 +265,23 @@ class BillingEffectHandler(
                 }
             }
         }
+    }
+
+    companion object {
+        private val SUBSCRIPTION_PLANS = listOf(
+            SubscriptionPlan(
+                productId = "giaplumo_lumo2025_1_renewing",
+                planName = "1 Month",
+                durationMonths = 1,
+                description = "Monthly subscription" // Note: This is a constant, localized descriptions are handled in UI
+            ),
+            SubscriptionPlan(
+                productId = "giaplumo_lumo2025_12_renewing",
+                planName = "12 Months",
+                durationMonths = 12,
+                description = "Annual subscription (save 20%)" // Note: This is a constant, localized descriptions are handled in UI
+            )
+        )
+
     }
 }

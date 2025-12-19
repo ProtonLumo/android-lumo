@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
@@ -25,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -47,7 +47,10 @@ import me.proton.android.lumo.viewmodels.SubscriptionViewModel
 private const val TAG = "PaymentDialog"
 
 @Composable
-fun PaymentScreen(onDismiss: () -> Unit) {
+fun PaymentScreen(
+    paymentEvent: PaymentEvent,
+    onDismiss: () -> Unit,
+) {
     val context = LocalContext.current
     val viewModel: SubscriptionViewModel = hiltViewModel()
     val uiState by viewModel.uiStateFlow.collectAsStateWithLifecycle()
@@ -58,11 +61,13 @@ fun PaymentScreen(onDismiss: () -> Unit) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .background(color = LumoTheme.colors.backgroundNorm)
+            .fillMaxSize()
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Header(
-                paymentEvent = uiState.paymentEvent,
+                paymentEvent = paymentEvent,
                 isDarkTheme = uiState.theme.isDarkTheme()
             )
 
@@ -80,53 +85,67 @@ fun PaymentScreen(onDismiss: () -> Unit) {
             }
         }
 
-        when (subscriptionState) {
-            is SubscriptionState.Active -> {
-                SubscriptionOverviewDialog(
-                    activeSubscriptions = subscriptionState,
-                    googleProductDetails = if (plansState is PlansState.Success) {
-                        plansState.googleProductDetails
-                    } else {
-                        emptyList()
-                    },
-                    onClose = onDismiss
-                )
-            }
+        if (billingState.error != null) {
 
-            is SubscriptionState.Loading -> Loader(messageRes = R.string.payment_checking)
-            is SubscriptionState.Mismatch -> SubscriptionRecoveryContent(
-                onClose = onDismiss,
-                onRetry = {viewModel.retryPaymentVerification()}
-            )
+        } else {
+            when (paymentState) {
+                is PaymentState.Idle ->
+                    when (subscriptionState) {
+                        is SubscriptionState.Active -> {
+                            SubscriptionOverviewDialog(
+                                activeSubscriptions = subscriptionState,
+                                googleProductDetails = if (plansState is PlansState.Success) {
+                                    plansState.googleProductDetails
+                                } else {
+                                    emptyList()
+                                },
+                                onClose = onDismiss
+                            )
+                        }
 
-            is SubscriptionState.None -> {
-                when (paymentState) {
-                    is PaymentState.Error -> PaymentErrorContent(
-                        message = paymentState.message.getText(context),
-                        onRetry = {},
-                        onClose = onDismiss
-                    )
+                        is SubscriptionState.Loading ->
+                            Loader(
+                                modifier = Modifier.padding(24.dp),
+                                messageRes = R.string.payment_checking
+                            )
 
-                    is PaymentState.Idle -> {
-                        PlanSelectionScreen(
-                            plansState = plansState,
-                            paymentEvent = uiState.paymentEvent,
-                            isDarkTheme = uiState.theme.isDarkTheme(),
-                            onDismiss = onDismiss,
-                            onPlanSelected = { viewModel.selectPlan(it) },
-                            onPurchaseClicked = { planToPurchase ->
-                                viewModel.launchBillingFlow(
-                                    productId = planToPurchase.productId,
-                                    offerToken = planToPurchase.offerToken,
-                                    customerId = planToPurchase.customerId!!,
-                                )
-                            },
+                        is SubscriptionState.Mismatch -> SubscriptionRecoveryContent(
+                            modifier = Modifier.padding(24.dp),
+                            onClose = onDismiss,
+                            onRetry = { viewModel.retryPaymentVerification() }
                         )
+
+                        is SubscriptionState.None ->
+                            PlanSelectionScreen(
+                                plansState = plansState,
+                                paymentEvent = paymentEvent,
+                                isDarkTheme = uiState.theme.isDarkTheme(),
+                                onDismiss = onDismiss,
+                                onPlanSelected = { viewModel.selectPlan(it) },
+                                onPurchaseClicked = { planToPurchase ->
+                                    viewModel.launchBillingFlow(
+                                        productId = planToPurchase.productId,
+                                        offerToken = planToPurchase.offerToken,
+                                        customerId = planToPurchase.customerId!!,
+                                    )
+                                },
+                            )
                     }
 
-                    is PaymentState.Success -> PaymentSuccessContent(onClose = onDismiss)
-                    is PaymentState.Verifying -> PaymentVerifyingContent()
-                }
+                is PaymentState.Success -> PaymentSuccessContent(
+                    modifier = Modifier.padding(24.dp),
+                    onClose = onDismiss
+                )
+
+                is PaymentState.Verifying ->
+                    PaymentVerifyingContent(modifier = Modifier.padding(24.dp))
+
+                is PaymentState.Error -> PaymentErrorContent(
+                    modifier = Modifier.padding(24.dp),
+                    message = paymentState.message.getText(context),
+                    onRetry = { viewModel.retryPaymentVerification() },
+                    onClose = onDismiss
+                )
             }
         }
     }

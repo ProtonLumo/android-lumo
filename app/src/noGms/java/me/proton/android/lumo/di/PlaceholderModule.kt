@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import me.proton.android.lumo.review.InAppReviewManager
 import me.proton.android.lumo.tracer.LumoTracer
-import me.proton.android.lumo.usecase.HasOfferUseCase
 import me.proton.android.lumo.usecase.IsPaymentAvailableUseCase
 import me.proton.android.lumo.webview.WebAppInterface
 import javax.inject.Singleton
@@ -27,12 +26,6 @@ object PlaceholderModule {
     fun isPaymentAvailable(): IsPaymentAvailableUseCase =
         object : IsPaymentAvailableUseCase {
             override fun invoke(): Boolean = false
-        }
-
-    @Provides
-    fun hasOffer() : HasOfferUseCase =
-        object : HasOfferUseCase {
-            override fun hasOffer(): Flow<Boolean> = flowOf(false)
         }
 
     @Provides

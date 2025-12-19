@@ -6,7 +6,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import me.proton.android.lumo.billing.BillingManagerWrapper.PaymentRequestType
 import me.proton.android.lumo.models.PaymentJsResponse
 import timber.log.Timber
 import java.util.UUID

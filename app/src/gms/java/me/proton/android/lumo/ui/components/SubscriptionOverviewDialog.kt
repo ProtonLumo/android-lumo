@@ -5,7 +5,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.android.billingclient.api.ProductDetails
-import me.proton.android.lumo.models.SubscriptionItemResponse
 import me.proton.android.lumo.money_machine.SubscriptionState
 import me.proton.android.lumo.ui.theme.LumoTheme
 

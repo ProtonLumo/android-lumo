@@ -1,5 +1,6 @@
 package me.proton.android.lumo.money_machine
 
+import me.proton.android.lumo.BuildConfig
 import me.proton.android.lumo.R
 import me.proton.android.lumo.ui.text.UiText
 
@@ -44,11 +45,19 @@ fun billingReducer(
         }
 
         is BillingAction.ProductDetailsLoaded -> {
+            val products = action.products
+            val hasOffer = products.any { product ->
+                product.subscriptionOfferDetails?.any {
+                    it.offerId == BuildConfig.OFFER_ID
+                } == true
+            }
+            val planOptions = action.planOptions
             state.copy(
                 plansState = PlansState.Success(
-                    planOptions = action.planOptions,
+                    planOptions = if (hasOffer) planOptions.reversed() else planOptions,
                     planFeatures = action.planFeatures,
-                    googleProductDetails = action.products,
+                    googleProductDetails = products,
+                    hasOffer = hasOffer
                 ),
             ) to emptyList()
         }
@@ -67,7 +76,7 @@ fun billingReducer(
                 purchase != null && !subscriptionResult.hasValidSubscription ->
                     SubscriptionState.Mismatch(purchase = purchase)
 
-                purchase != null && subscriptionResult.hasValidSubscription -> {
+                else -> {
                     SubscriptionState.Active(
                         subscriptions = subscriptionResult.subscriptions,
                         renewing = action.renewing,
@@ -75,8 +84,6 @@ fun billingReducer(
                         internal = false,
                     )
                 }
-
-                else -> SubscriptionState.None
             }
 
             state.copy(subscriptionState = subscriptionState) to emptyList()
@@ -146,7 +153,8 @@ fun billingReducer(
 
         BillingAction.RetryVerification -> {
             if (state.subscriptionState is SubscriptionState.Mismatch &&
-                state.plansState is PlansState.Success) {
+                state.plansState is PlansState.Success
+            ) {
                 val purchase = state.subscriptionState.purchase
                 val productId = purchase.products.first()
                 val customerId = purchase.accountIdentifiers?.obfuscatedAccountId ?: ""
@@ -155,7 +163,6 @@ fun billingReducer(
                     ?.let { product ->
                         state.copy(
                             paymentState = PaymentState.Verifying,
-                            subscriptionState = SubscriptionState.None,
                             customerId = customerId,
                         ) to listOf(
                             BillingEffect.SendPaymentToken(

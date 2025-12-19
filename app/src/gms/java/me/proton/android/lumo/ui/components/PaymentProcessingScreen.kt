@@ -26,12 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -150,10 +148,12 @@ private fun PaymentLoadingContent() {
 }
 
 @Composable
-fun PaymentVerifyingContent() {
+fun PaymentVerifyingContent(
+    modifier: Modifier = Modifier,
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Text(
             text = "Verifying Subscription",
@@ -191,13 +191,14 @@ fun PaymentVerifyingContent() {
 
 @Composable
 fun PaymentErrorContent(
+    modifier: Modifier = Modifier,
     message: String,
     onRetry: () -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Icon(
             imageVector = Icons.Default.Error,
@@ -282,11 +283,13 @@ fun PaymentErrorContent(
 
 @Composable
 fun SubscriptionRecoveryContent(
-    onRetry: () -> Unit, onClose: () -> Unit
+    modifier: Modifier = Modifier,
+    onRetry: () -> Unit,
+    onClose: () -> Unit,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Icon(
             imageVector = Icons.Default.Warning,
@@ -363,10 +366,13 @@ fun SubscriptionRecoveryContent(
 }
 
 @Composable
-fun PaymentSuccessContent(onClose: () -> Unit) {
+fun PaymentSuccessContent(
+    modifier: Modifier = Modifier,
+    onClose: () -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Text(
             text = "Payment Successful!",

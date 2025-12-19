@@ -4,13 +4,8 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
-import me.proton.android.lumo.billing.BillingManager
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.Subscription
-import me.proton.android.lumo.ui.components.PaymentProcessingState
-import me.proton.android.lumo.ui.text.UiText
-import me.proton.android.lumo.utils.ErrorClassifier
-import timber.log.Timber
 
 class PaymentTokenMapper {
 

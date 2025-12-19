@@ -44,6 +44,7 @@ sealed interface PlansState {
         val planOptions: List<JsPlanInfo> = emptyList(),
         val planFeatures: List<PlanFeature> = emptyList(),
         val googleProductDetails: List<ProductDetails> = emptyList(),
+        val hasOffer: Boolean = false
     ) : PlansState
 }
 
