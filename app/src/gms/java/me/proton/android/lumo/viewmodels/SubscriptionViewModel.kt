@@ -38,11 +38,8 @@ class SubscriptionViewModel @Inject constructor(
         observeTheme()
         observeBillingState()
 
-        // Kick off billing
         billingStore.dispatch(BillingAction.Initialize)
     }
-
-    /* ───────────────── Observers ───────────────── */
 
     private fun observeTheme() {
         viewModelScope.launch {
@@ -55,9 +52,8 @@ class SubscriptionViewModel @Inject constructor(
     private fun observeBillingState() {
         viewModelScope.launch {
             billingStore.state.collectLatest { billingState ->
-
-                _uiStateFlow.update { ui ->
-                    ui.copy(
+                _uiStateFlow.update { uiState ->
+                    uiState.copy(
                         billingState = billingState
                     )
                 }

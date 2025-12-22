@@ -11,6 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.ActivityProvider
+import me.proton.android.lumo.LumoBillingClient
+import me.proton.android.lumo.LumoBillingClientImpl
 import me.proton.android.lumo.data.mapper.PaymentTokenMapper
 import me.proton.android.lumo.data.mapper.PlanMapper
 import me.proton.android.lumo.data.mapper.SubscriptionMapper
@@ -37,18 +39,29 @@ object BillingModule {
 
     @Provides
     @Singleton
-    fun billingEffectHandler(
+    fun lumoBillingClient(
         @ApplicationContext context: Context,
+        billingStore: BillingStore
+    ): LumoBillingClient =
+        LumoBillingClientImpl(
+            context = context,
+            dispatch = billingStore::dispatch
+        )
+
+    @Provides
+    @Singleton
+    fun billingEffectHandler(
         activityProvider: ActivityProvider,
         backend: BillingBackend,
+        billingClient: LumoBillingClient,
         billingStore: BillingStore,
         scope: CoroutineScope
     ): BillingEffectHandler =
         BillingEffectHandler(
-            context = context,
             activityProvider = activityProvider,
             backend = backend,
             scope = scope,
+            billingClient = billingClient,
             dispatch = billingStore::dispatch
         ).also { handler ->
             scope.launch {

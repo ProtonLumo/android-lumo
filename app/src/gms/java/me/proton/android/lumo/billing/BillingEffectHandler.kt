@@ -1,12 +1,10 @@
 package me.proton.android.lumo.billing
 
-import android.content.Context
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
-import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
@@ -14,14 +12,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.ActivityProvider
 import me.proton.android.lumo.BuildConfig
+import me.proton.android.lumo.LumoBillingClient
 import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.models.SubscriptionPlan
 import me.proton.android.lumo.ui.text.UiText
 
 class BillingEffectHandler(
-    context: Context,
     private val activityProvider: ActivityProvider,
     private val backend: BillingBackend,
+    private val billingClient: LumoBillingClient,
     private val scope: CoroutineScope,
     private val dispatch: (BillingAction) -> Unit
 ) {
@@ -54,26 +53,6 @@ class BillingEffectHandler(
             }
         }
 
-    private val billingClient: BillingClient? = try {
-        BillingClient.newBuilder(context)
-            .setListener(purchasesUpdatedListener)
-            .enablePendingPurchases(
-                PendingPurchasesParams.newBuilder()
-                    .enableOneTimeProducts()
-                    .build()
-            )
-            .enableAutoServiceReconnection()
-            .build()
-    } catch (e: Exception) {
-        dispatch(
-            BillingAction.Error(
-                UiText.StringText("Google Play Billing not available")
-            )
-        )
-        null
-    }
-
-
     fun handle(effect: BillingEffect) {
         when (effect) {
             is BillingEffect.ConnectBilling -> connect()
@@ -86,31 +65,30 @@ class BillingEffectHandler(
     }
 
     private fun connect() {
-        val client = billingClient ?: return
         if (connecting) return
 
         connecting = true
 
-        client.startConnection(object : BillingClientStateListener {
-            override fun onBillingSetupFinished(result: BillingResult) {
-                connecting = false
-                dispatch(
-                    BillingAction.BillingConnected(
-                        result.responseCode == BillingClient.BillingResponseCode.OK
+        billingClient.start(
+            purchasesUpdatedListener = purchasesUpdatedListener,
+            stateListener = object : BillingClientStateListener {
+                override fun onBillingSetupFinished(result: BillingResult) {
+                    connecting = false
+                    dispatch(
+                        BillingAction.BillingConnected(
+                            result.responseCode == BillingClient.BillingResponseCode.OK
+                        )
                     )
-                )
-            }
+                }
 
-            override fun onBillingServiceDisconnected() {
-                connecting = false
-                dispatch(BillingAction.BillingDisconnected(null))
-            }
-        })
+                override fun onBillingServiceDisconnected() {
+                    connecting = false
+                    dispatch(BillingAction.BillingDisconnected(null))
+                }
+            })
     }
 
     private fun queryProducts() {
-        val client = billingClient ?: return
-
         val products = SUBSCRIPTION_PLANS.map {
             QueryProductDetailsParams.Product.newBuilder()
                 .setProductId(it.productId)
@@ -127,7 +105,7 @@ class BillingEffectHandler(
             if (planResult.error != null) {
                 dispatch(BillingAction.Error(planResult.error))
             } else {
-                client.queryProductDetailsAsync(params) { result, details ->
+                billingClient.queryProductsAsync(params) { result, details ->
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                         val updatePlans = updatePlanPricing(
                             plans = planResult.planOptions,
@@ -154,8 +132,6 @@ class BillingEffectHandler(
     }
 
     private fun queryPurchases() {
-        val client = billingClient ?: return
-
         val params = QueryPurchasesParams.newBuilder()
             .setProductType(BillingClient.ProductType.SUBS)
             .build()
@@ -165,7 +141,7 @@ class BillingEffectHandler(
             if (subscriptionResult.error != null) {
                 dispatch(BillingAction.Error(subscriptionResult.error))
             } else {
-                client.queryPurchasesAsync(params) { result, purchases ->
+                billingClient.queryPurchasesAsync(queryPurchasesParams = params) { result, purchases ->
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                         purchases.firstOrNull().let {
                             val (renewing, expiry) = if (it != null) {
@@ -202,9 +178,7 @@ class BillingEffectHandler(
         }
     }
 
-
     private fun launchBillingFlow(effect: BillingEffect.LaunchBillingFlow) {
-        val client = billingClient ?: return
         val activity = activityProvider.currentActivity()
             ?: run {
                 dispatch(
@@ -227,17 +201,15 @@ class BillingEffectHandler(
             .setObfuscatedAccountId(effect.customerId)
             .build()
 
-        client.launchBillingFlow(activity, params)
+        billingClient.launchBilling(activity, params)
     }
 
     private fun acknowledge(token: String) {
-        val client = billingClient ?: return
-
         val params = AcknowledgePurchaseParams.newBuilder()
             .setPurchaseToken(token)
             .build()
 
-        client.acknowledgePurchase(params) { result ->
+        billingClient.acknowledge(params) { result ->
             if (result.responseCode != BillingClient.BillingResponseCode.OK) {
                 dispatch(
                     BillingAction.Error(
@@ -267,20 +239,18 @@ class BillingEffectHandler(
     }
 
     companion object {
-        private val SUBSCRIPTION_PLANS = listOf(
-            SubscriptionPlan(
-                productId = "giaplumo_lumo2025_1_renewing",
-                planName = "1 Month",
-                durationMonths = 1,
-                description = "Monthly subscription" // Note: This is a constant, localized descriptions are handled in UI
-            ),
-            SubscriptionPlan(
-                productId = "giaplumo_lumo2025_12_renewing",
-                planName = "12 Months",
-                durationMonths = 12,
-                description = "Annual subscription (save 20%)" // Note: This is a constant, localized descriptions are handled in UI
-            )
+        val MONTHLY_PLAN = SubscriptionPlan(
+            productId = "giaplumo_lumo2025_1_renewing",
+            planName = "1 Month",
+            durationMonths = 1,
+            description = "Monthly subscription" // Note: This is a constant, localized descriptions are handled in UI
         )
-
+        val YEARLY_PLAN = SubscriptionPlan(
+            productId = "giaplumo_lumo2025_12_renewing",
+            planName = "12 Months",
+            durationMonths = 12,
+            description = "Annual subscription (save 20%)" // Note: This is a constant, localized descriptions are handled in UI
+        )
+        private val SUBSCRIPTION_PLANS = listOf(MONTHLY_PLAN, YEARLY_PLAN)
     }
 }
