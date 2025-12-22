@@ -1,6 +1,5 @@
-package me.proton.android.lumo.money_machine
+package me.proton.android.lumo.billing
 
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,7 +32,6 @@ class DefaultBillingStore(
         scope.launch {
             actions
                 .scan(_state.value to emptyList<BillingEffect>()) { (state, _), action ->
-                    Log.e("WTF", "Reducing: $action")
                     billingReducer(state, action)
                 }
                 .collect { (newState, effects) ->

@@ -1,4 +1,4 @@
-package me.proton.android.lumo.ui.components
+package me.proton.android.lumo.ui.components.plan
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState

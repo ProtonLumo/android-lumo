@@ -1,4 +1,4 @@
-package me.proton.android.lumo.ui.components
+package me.proton.android.lumo.ui.components.subscription
 
 import android.content.Context
 import android.content.Intent
@@ -18,7 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.android.billingclient.api.ProductDetails
-import me.proton.android.lumo.money_machine.SubscriptionState
+import me.proton.android.lumo.billing.SubscriptionState
 import me.proton.android.lumo.ui.theme.LumoTheme
 import timber.log.Timber
 

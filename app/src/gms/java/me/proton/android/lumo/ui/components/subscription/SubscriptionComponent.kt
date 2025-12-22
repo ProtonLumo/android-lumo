@@ -1,4 +1,4 @@
-package me.proton.android.lumo.ui.components
+package me.proton.android.lumo.ui.components.subscription
 
 import android.content.Context
 import androidx.compose.foundation.background
@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.android.billingclient.api.ProductDetails
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.SubscriptionItemResponse
-import me.proton.android.lumo.money_machine.SubscriptionState
+import me.proton.android.lumo.billing.SubscriptionState
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.utils.PriceFormatter
 import timber.log.Timber
@@ -363,98 +363,3 @@ fun SubscriptionComponent(
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Preview(name = "Dark - Loading Plans", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
-//@Composable
-//fun SubscriptionComponentPreview() {
-//    // Preview both types of subscription structures based on the real API format
-//    val previewSubscriptions = listOf(
-//        // Web subscription (Mail Plus)
-//        SubscriptionItemResponse(
-//            id = "aaa==",
-//            invoiceId = "-aaa-7gm5YLf215MEgZCdzOtLW5psxgB8oNc8OnoFRykab4Z23EGEW1ka3GtQPF9xwx9-VUA==",
-//            title = "Mail Plus",
-//            description = "Current plan",
-//            name = "mail2022",
-//            cycle = 12,
-//            cycleDescription = "For 1 year",
-//            currency = "CHF",
-//            amount = 4788,
-//            offer = "default",
-//            periodStart = System.currentTimeMillis() / 1000,
-//            periodEnd = (System.currentTimeMillis() + 365 * 24 * 60 * 60) / 1000,
-//            createTime = System.currentTimeMillis() / 1000,
-//            couponCode = null,
-//            discount = 0,
-//            renewDiscount = 0,
-//            renewAmount = 4788,
-//            renew = 0,
-//            external = 0,
-//            billingPlatform = 1,
-//            entitlements = listOf(
-//                SubscriptionEntitlement(
-//                    type = "description",
-//                    iconName = "checkmark",
-//                    text = "And the free features of all other Proton products!"
-//                )
-//            ),
-//            decorations = emptyList(),
-//            isTrial = false,
-//            customerID = null
-//        ),
-//        // Mobile subscription (Lumo Plus)
-//        SubscriptionItemResponse(
-//            id = "nNTtf0H8g-aaa==",
-//            invoiceId = "aaa-ZTD8H8F6LvNaSjMaPxB5ecFkA7y-5kc3q38cGumJENGHjtSoUndkYFUx0_xlJeg==",
-//            title = "Lumo Plus",
-//            description = "Current plan",
-//            name = "lumo2024",
-//            cycle = 1,
-//            cycleDescription = "For 1 month",
-//            currency = "CHF",
-//            amount = 1299,
-//            offer = "default",
-//            periodStart = System.currentTimeMillis() / 1000,
-//            periodEnd = (System.currentTimeMillis() + 30 * 24 * 60 * 60) / 1000,
-//            createTime = System.currentTimeMillis() / 1000,
-//            couponCode = null,
-//            discount = 0,
-//            renewDiscount = 0,
-//            renewAmount = 1299,
-//            renew = 1,
-//            external = 2,
-//            billingPlatform = 1,
-//            entitlements = emptyList(),
-//            decorations = emptyList(),
-//            isTrial = false,
-//            customerID = null
-//        )
-//    )
-//
-//    // Add mock Google Play subscription status
-//    val mockGooglePlayStatus = Triple(
-//        true, // isActive
-//        false, // isAutoRenewing (auto-renewal disabled but subscription still active)
-//        System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000 // expiryTimeMillis (30 days from now)
-//    )
-//
-//    LumoTheme {
-//        Surface(
-//            modifier = Modifier.padding(16.dp),
-//            color = Color.White
-//        ) {
-//            Column {
-//                previewSubscriptions.forEach { subscription ->
-//                    SubscriptionComponent(
-//                        subscription = subscription,
-//                        googlePlayRenewalStatus = if (subscription.external == 2) mockGooglePlayStatus else null,
-//                        googlePlayProductDetails = null, // No product details in preview
-//                        onManageSubscription = {}
-//                    )
-//                    Spacer(modifier = Modifier.height(16.dp))
-//                }
-//            }
-//        }
-//    }
-//}

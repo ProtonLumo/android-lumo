@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.data.repository.ThemeRepository
-import me.proton.android.lumo.money_machine.BillingAction
-import me.proton.android.lumo.money_machine.BillingEffectHandler
-import me.proton.android.lumo.money_machine.BillingState
-import me.proton.android.lumo.money_machine.BillingStore
+import me.proton.android.lumo.billing.BillingAction
+import me.proton.android.lumo.billing.BillingEffectHandler
+import me.proton.android.lumo.billing.BillingState
+import me.proton.android.lumo.billing.BillingStore
 import me.proton.android.lumo.ui.theme.AppStyle
 import javax.inject.Inject
 

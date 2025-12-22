@@ -1,4 +1,4 @@
-package me.proton.android.lumo.money_machine
+package me.proton.android.lumo.billing
 
 import me.proton.android.lumo.data.PlanResult
 import me.proton.android.lumo.data.SubscriptionResult

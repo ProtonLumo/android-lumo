@@ -1,4 +1,4 @@
-package me.proton.android.lumo.ui.components
+package me.proton.android.lumo.ui.components.plan
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -30,7 +30,9 @@ import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
-import me.proton.android.lumo.money_machine.PlansState
+import me.proton.android.lumo.billing.PlansState
+import me.proton.android.lumo.ui.components.FeatureComparisonItem
+import me.proton.android.lumo.ui.components.payment.Loader
 import me.proton.android.lumo.ui.theme.LumoTheme
 
 private const val TAG = "PlanSelectionDialog"
@@ -49,7 +51,11 @@ fun PlanSelectionScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (plansState) {
-            is PlansState.Loading -> Loader(messageRes = R.string.payment_loading_plans)
+            is PlansState.Loading -> Loader(
+                messageRes = R.string.payment_loading_plans,
+                modifier = Modifier.padding(24.dp)
+            )
+
             is PlansState.Success -> Content(
                 planOptions = plansState.planOptions,
                 planFeatures = plansState.planFeatures,
@@ -120,7 +126,8 @@ private fun Content(
         Text(
             text = stringResource(id = R.string.payment_no_plans_available),
             color = LumoTheme.colors.textWeak,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(vertical = 24.dp),
         )
     }
 }
@@ -228,82 +235,3 @@ private fun Header(
         modifier = Modifier.padding(top = 8.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
     )
 }
-
-
-//@Preview(name = "Plan Selection - Loading Plans", showBackground = true)
-//@Composable
-//fun PlanSelectionDialogLoadingPreview() {
-//    LumoTheme {
-//        PlanSelectionScreen(
-//            uiState = UiState(
-//                isLoadingPlans = true,
-//                paymentEvent = PaymentEvent.Default,
-//            ),
-//            onDismiss = {},
-//            onPlanSelected = {},
-//            onPurchaseClicked = {}
-//        ) {}
-//    }
-//}
-
-//@Preview(name = "Plan Selection - Plans Available", showBackground = true)
-//@Composable
-//fun PlanSelectionDialogPlansPreview() {
-//    val mockPlans = listOf(
-//        JsPlanInfo(
-//            id = "lumo-plus-monthly",
-//            name = "Lumo Plus",
-//            duration = UiText.StringText("1 month"),
-//            cycle = 1,
-//            description = "Monthly subscription",
-//            productId = "lumo_plus_monthly",
-//            customerId = "customer123",
-//            pricePerMonth = "$9.99",
-//            totalPrice = "$9.99",
-//            savings = null,
-//            offerToken = "token123"
-//        ),
-//        JsPlanInfo(
-//            id = "lumo-plus-annual",
-//            name = "Lumo Plus",
-//            duration = UiText.StringText("12 months"),
-//            cycle = 12,
-//            description = "Annual subscription",
-//            productId = "lumo_plus_annual",
-//            customerId = "customer123",
-//            pricePerMonth = "$7.99",
-//            totalPrice = "$95.99",
-//            savings = "Save 20%",
-//            offerToken = "token456"
-//        )
-//    )
-//
-//    val mockFeatures = listOf(
-//        PlanFeature(
-//            name = "AI Responses",
-//            freeText = "Limited",
-//            paidText = "Unlimited",
-//            iconName = "ai-responses"
-//        ),
-//        PlanFeature(
-//            name = "Priority Support",
-//            freeText = "Standard",
-//            paidText = "Priority",
-//            iconName = "priority-support"
-//        )
-//    )
-//
-//    LumoTheme {
-//        PlanSelectionScreen(
-//            uiState = UiState(
-//                planOptions = mockPlans,
-//                planFeatures = mockFeatures,
-//                selectedPlan = mockPlans.first(),
-//                paymentEvent = PaymentEvent.Default,
-//            ),
-//            onDismiss = {},
-//            onPlanSelected = {},
-//            onPurchaseClicked = {}
-//        ) {}
-//    }
-//}

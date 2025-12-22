@@ -1,7 +1,6 @@
-package me.proton.android.lumo.money_machine
+package me.proton.android.lumo.billing
 
 import android.content.Context
-import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -76,7 +75,6 @@ class BillingEffectHandler(
 
 
     fun handle(effect: BillingEffect) {
-        Log.e("WTF", "Effect handler: $effect")
         when (effect) {
             is BillingEffect.ConnectBilling -> connect()
             is BillingEffect.QueryProducts -> queryProducts()

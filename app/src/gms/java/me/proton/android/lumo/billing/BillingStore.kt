@@ -1,4 +1,4 @@
-package me.proton.android.lumo.money_machine
+package me.proton.android.lumo.billing
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
