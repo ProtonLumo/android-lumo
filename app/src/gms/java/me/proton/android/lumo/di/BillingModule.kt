@@ -10,15 +10,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import me.proton.android.lumo.ActivityProvider
 import me.proton.android.lumo.data.mapper.PaymentTokenMapper
 import me.proton.android.lumo.data.mapper.PlanMapper
 import me.proton.android.lumo.data.mapper.SubscriptionMapper
-import me.proton.android.lumo.money_machine.ActivityProvider
 import me.proton.android.lumo.money_machine.BillingBackend
 import me.proton.android.lumo.money_machine.BillingEffectHandler
 import me.proton.android.lumo.money_machine.BillingStore
 import me.proton.android.lumo.money_machine.ConnectionState
-import me.proton.android.lumo.money_machine.DefaultActivityProvider
 import me.proton.android.lumo.money_machine.DefaultBillingStore
 import me.proton.android.lumo.money_machine.JsBillingBackend
 import me.proton.android.lumo.usecase.IsPaymentAvailableUseCase
@@ -32,7 +31,7 @@ object BillingModule {
     @Provides
     @Singleton
     fun billingStore(
-        scope: CoroutineScope
+        scope: CoroutineScope,
     ): BillingStore =
         DefaultBillingStore(scope)
 
@@ -61,11 +60,6 @@ object BillingModule {
     @Singleton
     fun provideApplicationCoroutineScope(): CoroutineScope =
         CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-
-    @Provides
-    @Singleton
-    fun activityProvider(): ActivityProvider =
-        DefaultActivityProvider()
 
     @Provides
     @Singleton

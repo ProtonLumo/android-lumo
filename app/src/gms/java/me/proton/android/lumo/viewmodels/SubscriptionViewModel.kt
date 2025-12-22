@@ -10,12 +10,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.money_machine.BillingAction
+import me.proton.android.lumo.money_machine.BillingEffectHandler
 import me.proton.android.lumo.money_machine.BillingState
 import me.proton.android.lumo.money_machine.BillingStore
 import me.proton.android.lumo.ui.theme.AppStyle
 import javax.inject.Inject
-
-private const val TAG = "SubscriptionViewModel"
 
 /**
  * ViewModel that manages subscription data
@@ -24,6 +23,7 @@ private const val TAG = "SubscriptionViewModel"
 class SubscriptionViewModel @Inject constructor(
     private val billingStore: BillingStore,
     private val themeRepository: ThemeRepository,
+    private val billingEffectHandler: BillingEffectHandler,
 ) : ViewModel() {
 
     data class UiState(

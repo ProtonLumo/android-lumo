@@ -13,6 +13,7 @@ import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import me.proton.android.lumo.ActivityProvider
 import me.proton.android.lumo.BuildConfig
 import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.models.SubscriptionPlan

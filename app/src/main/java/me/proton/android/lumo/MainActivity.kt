@@ -38,7 +38,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.managers.WebViewManager
-import me.proton.android.lumo.money_machine.ActivityProvider
 import me.proton.android.lumo.navigation.NavRoutes
 import me.proton.android.lumo.navigation.paymentRoutes
 import me.proton.android.lumo.permission.rememberSinglePermission
@@ -65,12 +64,10 @@ import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var webBridge: WebAppInterface
-
     @Inject
     lateinit var isPaymentAvailable: IsPaymentAvailableUseCase
     @Inject
     lateinit var activityProvider: ActivityProvider
-
     @Inject
     lateinit var inAppReviewManager: InAppReviewManager
     private val viewModel: MainActivityViewModel by viewModels()
