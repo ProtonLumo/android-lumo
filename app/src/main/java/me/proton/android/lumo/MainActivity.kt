@@ -319,7 +319,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        inAppReviewManager.start(this)
+//        inAppReviewManager.start(this) todo; keep disabled til further notice
     }
 
     override fun onResume() {
@@ -329,7 +329,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        inAppReviewManager.stop()
+//        inAppReviewManager.stop() todo; keep disabled til further notice
     }
 
     override fun onDestroy() {

@@ -26,7 +26,7 @@ class FeatureGatekeeperImpl @Inject constructor(
 ) : FeatureGatekeeper {
 
     override fun start() {
-        legacyFeatureFlagDataSource.start()
+//        legacyFeatureFlagDataSource.start() todo; keep disabled til further notice
     }
 
     override fun getFeature(featureId: FeatureId): FeatureFlag =

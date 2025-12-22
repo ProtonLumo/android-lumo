@@ -17,7 +17,7 @@ interface UnleashDataSource {
 class UnleashDataSourceImpl @Inject constructor(
     private val unleash: Unleash,
 ) : UnleashDataSource {
-    private var isReady = false
+    private var isReady = true // todo; keep disabled til further notice
 
     init {
         if (!isReady) {
