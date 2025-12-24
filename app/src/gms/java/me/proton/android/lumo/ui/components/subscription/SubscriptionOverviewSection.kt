@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import com.android.billingclient.api.ProductDetails
+import me.proton.android.lumo.billing.GoogleProductDetails
 import me.proton.android.lumo.billing.SubscriptionState
 import me.proton.android.lumo.ui.theme.LumoTheme
 import timber.log.Timber
@@ -28,7 +28,7 @@ import timber.log.Timber
 @Composable
 fun SubscriptionOverviewSection(
     activeSubscriptions: SubscriptionState.Active,
-    googleProductDetails: List<ProductDetails>,
+    googleProductDetails: List<GoogleProductDetails>,
     onClose: () -> Unit
 ) {
     Column(

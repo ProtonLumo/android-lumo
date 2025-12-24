@@ -1,7 +1,6 @@
 package me.proton.android.lumo.billing
 
 import me.proton.android.lumo.BuildConfig
-import me.proton.android.lumo.R
 import me.proton.android.lumo.ui.text.UiText
 
 fun billingReducer(
@@ -26,16 +25,9 @@ fun billingReducer(
         }
 
         is BillingAction.BillingConnected -> {
-            if (!action.success) {
-                state.copy(
-                    connection = ConnectionState.Unavailable,
-                    error = UiText.ResText(R.string.billing_unavailable_generic)
-                ) to emptyList()
-            } else {
-                state.copy(
-                    connection = ConnectionState.Connected
-                ) to listOf(BillingEffect.QueryProducts, BillingEffect.QueryPurchases)
-            }
+            state.copy(
+                connection = ConnectionState.Connected
+            ) to listOf(BillingEffect.QueryProducts, BillingEffect.QueryPurchases)
         }
 
         is BillingAction.BillingDisconnected -> {
@@ -45,11 +37,11 @@ fun billingReducer(
         }
 
         is BillingAction.ProductDetailsLoaded -> {
-            val products = action.products
+            val products = action.googleProductDetails
             val hasOffer = products.any { product ->
-                product.subscriptionOfferDetails?.any {
+                product.subscriptionOfferDetails.any {
                     it.offerId == BuildConfig.OFFER_ID
-                } == true
+                }
             }
             val planOptions = action.planOptions
             state.copy(
@@ -57,7 +49,8 @@ fun billingReducer(
                     planOptions = if (hasOffer) planOptions.reversed() else planOptions,
                     planFeatures = action.planFeatures,
                     googleProductDetails = products,
-                    hasOffer = hasOffer
+                    hasOffer = hasOffer,
+                    productDetails = action.products,
                 ),
             ) to emptyList()
         }
@@ -132,12 +125,11 @@ fun billingReducer(
         is BillingAction.LaunchPurchase -> {
             val product = when (val planState = state.plansState) {
                 is PlansState.Loading -> null
-                is PlansState.Success ->
-                    planState.googleProductDetails.firstOrNull() { it.productId == action.productId }
+                is PlansState.Success -> planState.getProductDetail(action.productId)
             }
 
             if (product == null) {
-                state to emptyList()
+                state to emptyList() // todo: handle error
             } else {
                 state.copy(
                     customerId = action.customerId
@@ -157,7 +149,7 @@ fun billingReducer(
             ) {
                 val purchase = state.subscriptionState.purchase
                 val productId = purchase.products.first()
-                val customerId = purchase.accountIdentifiers?.obfuscatedAccountId ?: ""
+                val customerId = purchase.accountIdentifiers
                 state.plansState.googleProductDetails
                     .find { it.productId == productId }
                     ?.let { product ->

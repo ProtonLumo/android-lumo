@@ -1,6 +1,5 @@
 package me.proton.android.lumo.billing
 
-import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -21,23 +20,21 @@ fun parseSubscription(purchase: Purchase): Pair<Boolean, Long> {
 }
 
 fun buildPaymentPayload(
-    purchase: Purchase,
-    product: ProductDetails,
-    customerId: String
+    purchase: GooglePurchase,
+    product: GoogleProductDetails,
+    customerId: String?
 ): PaymentTokenPayload {
     val priceMicros =
         product.subscriptionOfferDetails
-            ?.firstOrNull()
+            .firstOrNull()
             ?.pricingPhases
-            ?.pricingPhaseList
             ?.firstOrNull()
             ?.priceAmountMicros ?: 0L
 
     val currency =
         product.subscriptionOfferDetails
-            ?.firstOrNull()
+            .firstOrNull()
             ?.pricingPhases
-            ?.pricingPhaseList
             ?.firstOrNull()
             ?.priceCurrencyCode ?: "USD"
 
@@ -59,7 +56,7 @@ fun buildPaymentPayload(
 
 fun updatePlanPricing(
     plans: List<JsPlanInfo>,
-    productDetails: List<ProductDetails>,
+    productDetails: List<GoogleProductDetails>,
     offerId: String?
 ): List<JsPlanInfo> =
     PlanPricingHelper.updatePlanPricing(

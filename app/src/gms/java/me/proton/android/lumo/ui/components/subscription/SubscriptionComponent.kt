@@ -31,10 +31,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.android.billingclient.api.ProductDetails
 import me.proton.android.lumo.R
-import me.proton.android.lumo.models.SubscriptionItemResponse
+import me.proton.android.lumo.billing.GoogleProductDetails
 import me.proton.android.lumo.billing.SubscriptionState
+import me.proton.android.lumo.models.SubscriptionItemResponse
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.utils.PriceFormatter
 import timber.log.Timber
@@ -46,7 +46,7 @@ import java.util.Locale
 fun SubscriptionComponent(
     subscriptionState: SubscriptionState.Active,
     subscription: SubscriptionItemResponse,
-    googlePlayProductDetails: List<ProductDetails>? = null,
+    googlePlayProductDetails: List<GoogleProductDetails>? = null,
     onManageSubscription: (Context) -> Unit
 ) {
     // Check if this is a mobile plan (External == 2 indicates a Google Play Store subscription)
@@ -97,7 +97,7 @@ fun SubscriptionComponent(
         val matchingProduct = googlePlayProductDetails.find { product ->
             val hasMatchingCycle = expectedPeriod?.let { period ->
                 product.subscriptionOfferDetails?.any { offer ->
-                    offer.pricingPhases.pricingPhaseList.any { phase ->
+                    offer.pricingPhases.any { phase ->
                         phase.billingPeriod == period
                     }
                 }
@@ -115,8 +115,8 @@ fun SubscriptionComponent(
         }
 
         if (matchingProduct?.subscriptionOfferDetails != null) {
-            val offer = matchingProduct.subscriptionOfferDetails!!.firstOrNull()
-            val pricingPhase = offer?.pricingPhases?.pricingPhaseList?.firstOrNull()
+            val offer = matchingProduct.subscriptionOfferDetails.firstOrNull()
+            val pricingPhase = offer?.pricingPhases?.firstOrNull()
 
             if (pricingPhase != null) {
                 val totalPrice = pricingPhase.formattedPrice

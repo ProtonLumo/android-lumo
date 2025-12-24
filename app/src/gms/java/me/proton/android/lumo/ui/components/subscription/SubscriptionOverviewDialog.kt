@@ -4,13 +4,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.android.billingclient.api.ProductDetails
+import me.proton.android.lumo.billing.GoogleProductDetails
 import me.proton.android.lumo.billing.SubscriptionState
 import me.proton.android.lumo.ui.theme.LumoTheme
 
 @Composable
 fun SubscriptionOverviewDialog(
-    googleProductDetails: List<ProductDetails>,
+    googleProductDetails: List<GoogleProductDetails>,
     activeSubscriptions: SubscriptionState.Active,
     onClose: () -> Unit
 ) {

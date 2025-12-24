@@ -27,7 +27,7 @@ fun PaymentScreen(
             viewModel.launchBillingFlow(
                 productId = planToPurchase.productId,
                 offerToken = planToPurchase.offerToken,
-                customerId = planToPurchase.customerId!!,
+                customerId = planToPurchase.customerId,
             )
         },
         selectPlan = { viewModel.selectPlan(it) }

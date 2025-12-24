@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.billing.BillingAction
 import me.proton.android.lumo.billing.BillingEffectHandler
 import me.proton.android.lumo.billing.BillingState
 import me.proton.android.lumo.billing.BillingStore
+import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.ui.theme.AppStyle
 import javax.inject.Inject
 
@@ -68,7 +68,7 @@ class SubscriptionViewModel @Inject constructor(
     fun launchBillingFlow(
         productId: String,
         offerToken: String?,
-        customerId: String
+        customerId: String?
     ) {
         billingStore.dispatch(
             BillingAction.LaunchPurchase(

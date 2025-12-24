@@ -1,7 +1,6 @@
 package me.proton.android.lumo.billing
 
 import com.android.billingclient.api.ProductDetails
-import com.android.billingclient.api.Purchase
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.models.SubscriptionItemResponse
@@ -13,7 +12,7 @@ data class BillingState(
     val plansState: PlansState = PlansState.Loading,
     val paymentState: PaymentState = PaymentState.Idle,
     val error: UiText? = null,
-    val customerId: String = ""
+    val customerId: String? = null,
 )
 
 sealed interface ConnectionState {
@@ -27,8 +26,9 @@ sealed interface SubscriptionState {
     data object Loading : SubscriptionState
     data object None : SubscriptionState
     data class Mismatch(
-        val purchase: Purchase,
+        val purchase: GooglePurchase,
     ) : SubscriptionState
+
     data class Active(
         val subscriptions: List<SubscriptionItemResponse>,
         val renewing: Boolean = false,
@@ -43,9 +43,13 @@ sealed interface PlansState {
         val selectedPlanIndex: Int = 0,
         val planOptions: List<JsPlanInfo> = emptyList(),
         val planFeatures: List<PlanFeature> = emptyList(),
-        val googleProductDetails: List<ProductDetails> = emptyList(),
-        val hasOffer: Boolean = false
-    ) : PlansState
+        val googleProductDetails: List<GoogleProductDetails> = emptyList(),
+        val hasOffer: Boolean = false,
+        private val productDetails: List<ProductDetails> = emptyList()
+    ) : PlansState {
+        fun getProductDetail(id: String): ProductDetails? =
+            productDetails.firstOrNull() { it.productId == id }
+    }
 }
 
 sealed interface PaymentState {

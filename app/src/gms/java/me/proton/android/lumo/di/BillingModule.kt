@@ -13,15 +13,15 @@ import kotlinx.coroutines.launch
 import me.proton.android.lumo.ActivityProvider
 import me.proton.android.lumo.LumoBillingClient
 import me.proton.android.lumo.LumoBillingClientImpl
-import me.proton.android.lumo.data.mapper.PaymentTokenMapper
-import me.proton.android.lumo.data.mapper.PlanMapper
-import me.proton.android.lumo.data.mapper.SubscriptionMapper
 import me.proton.android.lumo.billing.BillingBackend
 import me.proton.android.lumo.billing.BillingEffectHandler
 import me.proton.android.lumo.billing.BillingStore
 import me.proton.android.lumo.billing.ConnectionState
 import me.proton.android.lumo.billing.DefaultBillingStore
 import me.proton.android.lumo.billing.JsBillingBackend
+import me.proton.android.lumo.data.mapper.PaymentTokenMapper
+import me.proton.android.lumo.data.mapper.PlanMapper
+import me.proton.android.lumo.data.mapper.SubscriptionMapper
 import me.proton.android.lumo.usecase.IsPaymentAvailableUseCase
 import me.proton.android.lumo.webview.WebAppWithPaymentsInterface
 import javax.inject.Singleton
@@ -41,24 +41,23 @@ object BillingModule {
     @Singleton
     fun lumoBillingClient(
         @ApplicationContext context: Context,
+        activityProvider: ActivityProvider,
         billingStore: BillingStore
     ): LumoBillingClient =
         LumoBillingClientImpl(
             context = context,
-            dispatch = billingStore::dispatch
+            activityProvider = activityProvider,
         )
 
     @Provides
     @Singleton
     fun billingEffectHandler(
-        activityProvider: ActivityProvider,
         backend: BillingBackend,
         billingClient: LumoBillingClient,
         billingStore: BillingStore,
         scope: CoroutineScope
     ): BillingEffectHandler =
         BillingEffectHandler(
-            activityProvider = activityProvider,
             backend = backend,
             scope = scope,
             billingClient = billingClient,

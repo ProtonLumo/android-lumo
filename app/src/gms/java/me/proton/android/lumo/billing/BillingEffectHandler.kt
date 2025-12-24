@@ -1,24 +1,15 @@
 package me.proton.android.lumo.billing
 
-import com.android.billingclient.api.AcknowledgePurchaseParams
-import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.BillingClientStateListener
-import com.android.billingclient.api.BillingFlowParams
-import com.android.billingclient.api.BillingResult
-import com.android.billingclient.api.PurchasesUpdatedListener
-import com.android.billingclient.api.QueryProductDetailsParams
-import com.android.billingclient.api.QueryPurchasesParams
+import com.android.billingclient.api.ProductDetails
+import com.android.billingclient.api.Purchase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import me.proton.android.lumo.ActivityProvider
 import me.proton.android.lumo.BuildConfig
 import me.proton.android.lumo.LumoBillingClient
 import me.proton.android.lumo.models.PaymentTokenPayload
-import me.proton.android.lumo.models.SubscriptionPlan
 import me.proton.android.lumo.ui.text.UiText
 
 class BillingEffectHandler(
-    private val activityProvider: ActivityProvider,
     private val backend: BillingBackend,
     private val billingClient: LumoBillingClient,
     private val scope: CoroutineScope,
@@ -26,32 +17,19 @@ class BillingEffectHandler(
 ) {
     @Volatile
     private var connecting = false
-    private val purchasesUpdatedListener =
-        PurchasesUpdatedListener { result, purchases ->
-            when (result.responseCode) {
-                BillingClient.BillingResponseCode.OK -> {
-                    purchases?.forEach {
-                        dispatch(BillingAction.PurchaseUpdated(it))
-                    }
-                }
-
-                BillingClient.BillingResponseCode.USER_CANCELED -> {
-                    dispatch(
-                        BillingAction.Error(
-                            UiText.StringText("R.string.billing_user_cancelled")
-                        )
-                    )
-                }
-
-                else -> {
-                    dispatch(
-                        BillingAction.Error(
-                            UiText.StringText(result.debugMessage)
-                        )
-                    )
-                }
-            }
+    private val purchasesUpdatedListener = object : GooglePurchasesUpdatedListener {
+        override fun onSuccess(googlePurchase: GooglePurchase) {
+            dispatch(BillingAction.PurchaseUpdated(googlePurchase))
         }
+
+        override fun onError(message: String) {
+            dispatch(
+                BillingAction.Error(
+                    UiText.StringText(message)
+                )
+            )
+        }
+    }
 
     fun handle(effect: BillingEffect) {
         when (effect) {
@@ -71,153 +49,119 @@ class BillingEffectHandler(
 
         billingClient.start(
             purchasesUpdatedListener = purchasesUpdatedListener,
-            stateListener = object : BillingClientStateListener {
-                override fun onBillingSetupFinished(result: BillingResult) {
+            stateListener = object : GoogleBillingClientStateListener {
+                override fun onConnected() {
                     connecting = false
-                    dispatch(
-                        BillingAction.BillingConnected(
-                            result.responseCode == BillingClient.BillingResponseCode.OK
-                        )
-                    )
+                    dispatch(BillingAction.BillingConnected)
                 }
 
-                override fun onBillingServiceDisconnected() {
+                override fun onDisconnected(reason: String?) {
                     connecting = false
-                    dispatch(BillingAction.BillingDisconnected(null))
+                    dispatch(BillingAction.BillingDisconnected(reason))
                 }
             })
     }
 
     private fun queryProducts() {
-        val products = SUBSCRIPTION_PLANS.map {
-            QueryProductDetailsParams.Product.newBuilder()
-                .setProductId(it.productId)
-                .setProductType(BillingClient.ProductType.SUBS)
-                .build()
-        }
-
-        val params = QueryProductDetailsParams.newBuilder()
-            .setProductList(products)
-            .build()
-
         scope.launch {
             val planResult = backend.fetchPlans()
             if (planResult.error != null) {
                 dispatch(BillingAction.Error(planResult.error))
             } else {
-                billingClient.queryProductsAsync(params) { result, details ->
-                    if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                        val updatePlans = updatePlanPricing(
-                            plans = planResult.planOptions,
-                            productDetails = details.productDetailsList,
-                            offerId = BuildConfig.OFFER_ID
-                        )
-                        dispatch(
-                            BillingAction.ProductDetailsLoaded(
-                                products = details.productDetailsList,
-                                planFeatures = planResult.planFeatures,
-                                planOptions = updatePlans,
+                billingClient.queryProductsAsync(
+                    object : GoogleProductDetailsResponseListener {
+                        override fun onSuccess(
+                            googleProductDetails: List<GoogleProductDetails>,
+                            productDetails: List<ProductDetails>
+                        ) {
+
+                            val updatePlans = updatePlanPricing(
+                                plans = planResult.planOptions,
+                                productDetails = googleProductDetails,
+                                offerId = BuildConfig.OFFER_ID
                             )
-                        )
-                    } else {
-                        dispatch(
-                            BillingAction.Error(
-                                UiText.StringText(result.debugMessage)
+                            dispatch(
+                                BillingAction.ProductDetailsLoaded(
+                                    googleProductDetails = googleProductDetails,
+                                    products = productDetails,
+                                    planFeatures = planResult.planFeatures,
+                                    planOptions = updatePlans,
+                                )
                             )
-                        )
-                    }
-                }
+                        }
+
+                        override fun onError(message: String) {
+                            dispatch(
+                                BillingAction.Error(
+                                    UiText.StringText(message)
+                                )
+                            )
+                        }
+                    })
             }
         }
     }
 
     private fun queryPurchases() {
-        val params = QueryPurchasesParams.newBuilder()
-            .setProductType(BillingClient.ProductType.SUBS)
-            .build()
-
         scope.launch {
             val subscriptionResult = backend.fetchSubscriptions()
             if (subscriptionResult.error != null) {
                 dispatch(BillingAction.Error(subscriptionResult.error))
             } else {
-                billingClient.queryPurchasesAsync(queryPurchasesParams = params) { result, purchases ->
-                    if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                        purchases.firstOrNull().let {
-                            val (renewing, expiry) = if (it != null) {
-                                parseSubscription(it)
-                            } else {
-                                false to 0L
-                            }
-
-                            dispatch(
-                                BillingAction.PurchasesLoaded(
-                                    purchase = it,
-                                    renewing = renewing,
-                                    expiry = expiry,
-                                    subscriptionResult = subscriptionResult,
-                                )
-                            )
-                        }
-                    } else if (subscriptionResult.hasValidSubscription) {
+                billingClient.queryPurchasesAsync(object : GooglePurchaseResponseListener {
+                    override fun onSuccess(
+                        googlePurchase: GooglePurchase?,
+                        renewing: Boolean,
+                        expiry: Long
+                    ) {
                         dispatch(
                             BillingAction.PurchasesLoaded(
-                                purchase = null,
-                                renewing = false,
-                                expiry = 0L,
+                                purchase = googlePurchase,
+                                renewing = renewing,
+                                expiry = expiry,
                                 subscriptionResult = subscriptionResult,
                             )
                         )
-                    } else {
+                    }
+
+                    override fun onError(message: String) {
                         dispatch(
-                            BillingAction.Error(UiText.StringText(result.debugMessage))
+                            BillingAction.Error(UiText.StringText(message))
                         )
                     }
-                }
+                })
             }
         }
     }
 
     private fun launchBillingFlow(effect: BillingEffect.LaunchBillingFlow) {
-        val activity = activityProvider.currentActivity()
-            ?: run {
-                dispatch(
-                    BillingAction.Error(
-                        UiText.StringText("No active screen to launch billing")
-                    )
-                )
-                return
-            }
-
-        val params = BillingFlowParams.newBuilder()
-            .setProductDetailsParamsList(
-                listOf(
-                    BillingFlowParams.ProductDetailsParams.newBuilder()
-                        .setProductDetails(effect.productDetails)
-                        .apply { effect.offerToken?.let { setOfferToken(it) } }
-                        .build()
+        val result = billingClient.launchBilling(
+            productDetails = effect.productDetails,
+            offerToken = effect.offerToken,
+            customerId = effect.customerId
+        )
+        if (!result) {
+            dispatch(
+                BillingAction.Error(
+                    UiText.StringText("No active screen to launch billing")
                 )
             )
-            .setObfuscatedAccountId(effect.customerId)
-            .build()
-
-        billingClient.launchBilling(activity, params)
+        }
     }
 
     private fun acknowledge(token: String) {
-        val params = AcknowledgePurchaseParams.newBuilder()
-            .setPurchaseToken(token)
-            .build()
-
-        billingClient.acknowledge(params) { result ->
-            if (result.responseCode != BillingClient.BillingResponseCode.OK) {
-                dispatch(
-                    BillingAction.Error(
-                        UiText.StringText("Failed to acknowledge purchase")
+        billingClient.acknowledge(
+            token = token,
+            acknowledgePurchaseResponseListener = object :
+                GoogleAcknowledgePurchaseResponseListener {
+                override fun onError(message: String) {
+                    dispatch(
+                        BillingAction.Error(
+                            UiText.StringText(message)
+                        )
                     )
-                )
-            }
-        }
+                }
+            })
     }
 
     private fun sendToBackend(payload: PaymentTokenPayload) {
@@ -237,20 +181,127 @@ class BillingEffectHandler(
             }
         }
     }
+}
+
+interface GooglePurchasesUpdatedListener {
+    fun onSuccess(googlePurchase: GooglePurchase)
+    fun onError(message: String)
+}
+
+data class GooglePurchase(
+    val orderId: String = "",
+    val packageName: String = "",
+    val productId: String = "",
+    val purchaseTime: Long = 0L,
+    val purchaseState: Int = 0,
+    val purchaseToken: String = "",
+    val quantity: Int = 0,
+    val isAutoRenewing: Boolean = false,
+    val isAcknowledged: Boolean = false,
+    val obfuscatedAccountId: String? = null,
+    val developerPayload: String = "",
+    val products: List<String> = emptyList(),
+    val accountIdentifiers: String = "",
+) {
+    companion object {
+        fun from(purchase: Purchase): GooglePurchase {
+            return GooglePurchase(
+                orderId = purchase.orderId ?: "",
+                packageName = purchase.packageName,
+                productId = purchase.products.firstOrNull() ?: "",
+                purchaseTime = purchase.purchaseTime,
+                purchaseState = purchase.purchaseState,
+                purchaseToken = purchase.purchaseToken,
+                quantity = purchase.quantity,
+                isAutoRenewing = purchase.isAutoRenewing,
+                isAcknowledged = purchase.isAcknowledged,
+                obfuscatedAccountId = purchase.accountIdentifiers?.obfuscatedAccountId,
+                developerPayload = purchase.developerPayload,
+                products = purchase.products,
+                accountIdentifiers = purchase.accountIdentifiers?.obfuscatedAccountId ?: ""
+            )
+        }
+    }
+}
+
+interface GooglePurchaseResponseListener {
+    fun onSuccess(
+        googlePurchase: GooglePurchase?,
+        renewing: Boolean,
+        expiry: Long
+    )
+
+    fun onError(message: String)
+}
+
+interface GoogleProductDetailsResponseListener {
+    fun onSuccess(
+        googleProductDetails: List<GoogleProductDetails>,
+        productDetails: List<ProductDetails>
+    )
+
+    fun onError(message: String)
+}
+
+data class GoogleProductDetails(
+    val productId: String,
+    val productType: String,
+    val title: String,
+    val name: String,
+    val description: String,
+    val subscriptionOfferDetails: List<GoogleSubscriptionOfferDetails>
+) {
+    data class GoogleSubscriptionOfferDetails(
+        val offerToken: String,
+        val basePlanId: String,
+        val pricingPhases: List<GooglePricingPhase>,
+        val offerTags: List<String>,
+        val offerId: String?
+    )
+
+    data class GooglePricingPhase(
+        val priceAmountMicros: Long,
+        val priceCurrencyCode: String,
+        val formattedPrice: String,
+        val billingPeriod: String,
+        val recurrenceMode: Int
+    )
 
     companion object {
-        val MONTHLY_PLAN = SubscriptionPlan(
-            productId = "giaplumo_lumo2025_1_renewing",
-            planName = "1 Month",
-            durationMonths = 1,
-            description = "Monthly subscription" // Note: This is a constant, localized descriptions are handled in UI
-        )
-        val YEARLY_PLAN = SubscriptionPlan(
-            productId = "giaplumo_lumo2025_12_renewing",
-            planName = "12 Months",
-            durationMonths = 12,
-            description = "Annual subscription (save 20%)" // Note: This is a constant, localized descriptions are handled in UI
-        )
-        private val SUBSCRIPTION_PLANS = listOf(MONTHLY_PLAN, YEARLY_PLAN)
+        fun from(productDetails: ProductDetails): GoogleProductDetails {
+            return GoogleProductDetails(
+                productId = productDetails.productId,
+                productType = productDetails.productType,
+                title = productDetails.title,
+                name = productDetails.name,
+                description = productDetails.description,
+                subscriptionOfferDetails = productDetails.subscriptionOfferDetails?.map { offer ->
+                    GoogleSubscriptionOfferDetails(
+                        offerId = offer.offerId,
+                        offerToken = offer.offerToken,
+                        basePlanId = offer.basePlanId,
+                        pricingPhases = offer.pricingPhases.pricingPhaseList.map { phase ->
+                            GooglePricingPhase(
+                                priceAmountMicros = phase.priceAmountMicros,
+                                priceCurrencyCode = phase.priceCurrencyCode,
+                                formattedPrice = phase.formattedPrice,
+                                billingPeriod = phase.billingPeriod,
+                                recurrenceMode = phase.recurrenceMode,
+                            )
+                        },
+                        offerTags = offer.offerTags
+                    )
+                } ?: emptyList()
+            )
+        }
     }
+}
+
+interface GoogleAcknowledgePurchaseResponseListener {
+    fun onError(message: String)
+}
+
+interface GoogleBillingClientStateListener {
+    fun onConnected()
+    fun onDisconnected(reason: String?)
 }

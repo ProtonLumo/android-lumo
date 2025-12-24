@@ -1,7 +1,7 @@
 package me.proton.android.lumo.utils
 
 import android.annotation.SuppressLint
-import com.android.billingclient.api.ProductDetails
+import me.proton.android.lumo.billing.GoogleProductDetails
 import me.proton.android.lumo.models.JsPlanInfo
 import timber.log.Timber
 import java.text.NumberFormat
@@ -25,7 +25,7 @@ object PlanPricingHelper {
     @SuppressLint("DefaultLocale")
     fun updatePlanPricing(
         plans: List<JsPlanInfo>,
-        googleProducts: List<ProductDetails>,
+        googleProducts: List<GoogleProductDetails>,
         offerId: String?,
     ): List<JsPlanInfo> {
         if (googleProducts.isEmpty()) return plans
@@ -34,7 +34,7 @@ object PlanPricingHelper {
         val productMap = googleProducts.associateBy { it.productId }
 
         val offerMap = googleProducts.flatMap { product ->
-            (product.subscriptionOfferDetails ?: emptyList())
+            (product.subscriptionOfferDetails)
                 .map { offer ->
                     val key = "${product.productId}:${offer.offerId ?: "BASE"}"
                     key to offer
@@ -44,7 +44,7 @@ object PlanPricingHelper {
         // Step 2: Create updated plans
         return plans.map { plan ->
             val product = productMap[plan.productId]
-            if (product == null || product.subscriptionOfferDetails.isNullOrEmpty()) {
+            if (product == null || product.subscriptionOfferDetails.isEmpty()) {
                 Timber.tag(TAG).i("No matching Google product found for ${plan.productId}")
                 return@map plan
             }
@@ -56,7 +56,7 @@ object PlanPricingHelper {
                     ?: product.subscriptionOfferDetails?.first() // Fallback to first available
             }
 
-            val pricingPhase = bestOffer?.pricingPhases?.pricingPhaseList?.firstOrNull()
+            val pricingPhase = bestOffer?.pricingPhases?.firstOrNull()
             if (pricingPhase == null) return@map plan
 
             val updated = plan.copy(
@@ -77,7 +77,7 @@ object PlanPricingHelper {
 
     private fun computeMonthlyPrice(
         plan: JsPlanInfo,
-        pricingPhase: ProductDetails.PricingPhase
+        pricingPhase: GoogleProductDetails.GooglePricingPhase
     ): String {
         return if (plan.cycle > 1 && pricingPhase.priceAmountMicros > 0) {
             val monthlyPrice = pricingPhase.priceAmountMicros / (plan.cycle * 1_000_000.0)
@@ -90,8 +90,8 @@ object PlanPricingHelper {
     private fun computeSavings(
         plan: JsPlanInfo,
         plans: List<JsPlanInfo>,
-        productMap: Map<String, ProductDetails>,
-        yearlyPhase: ProductDetails.PricingPhase
+        productMap: Map<String, GoogleProductDetails>,
+        yearlyPhase: GoogleProductDetails.GooglePricingPhase
     ): String? {
         if (plan.cycle != 12 || yearlyPhase.priceAmountMicros <= 0) return null
 
@@ -101,7 +101,6 @@ object PlanPricingHelper {
         val monthlyPhase = monthlyProduct.subscriptionOfferDetails
             ?.firstOrNull()
             ?.pricingPhases
-            ?.pricingPhaseList
             ?.firstOrNull() ?: return null
 
         if (monthlyPhase.priceAmountMicros <= 0) return null

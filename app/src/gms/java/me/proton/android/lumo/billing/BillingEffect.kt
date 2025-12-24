@@ -13,15 +13,13 @@ sealed interface BillingEffect {
     data class LaunchBillingFlow(
         val productDetails: ProductDetails,
         val offerToken: String?,
-        val customerId: String
+        val customerId: String?
     ) : BillingEffect
 
-    /* Backend */
     data class SendPaymentToken(
         val payload: PaymentTokenPayload
     ) : BillingEffect
 
-    /* Google Play */
     data class AcknowledgePurchase(
         val purchaseToken: String
     ) : BillingEffect

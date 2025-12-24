@@ -23,18 +23,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.android.billingclient.api.Purchase
 import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.R
+import me.proton.android.lumo.billing.BillingState
+import me.proton.android.lumo.billing.ConnectionState
+import me.proton.android.lumo.billing.GooglePurchase
+import me.proton.android.lumo.billing.PaymentState
+import me.proton.android.lumo.billing.PlansState
+import me.proton.android.lumo.billing.SubscriptionState
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.models.SubscriptionEntitlement
 import me.proton.android.lumo.models.SubscriptionItemResponse
-import me.proton.android.lumo.billing.BillingState
-import me.proton.android.lumo.billing.ConnectionState
-import me.proton.android.lumo.billing.PaymentState
-import me.proton.android.lumo.billing.PlansState
-import me.proton.android.lumo.billing.SubscriptionState
 import me.proton.android.lumo.ui.components.plan.PlanSelectionScreen
 import me.proton.android.lumo.ui.components.subscription.SubscriptionOverviewDialog
 import me.proton.android.lumo.ui.text.UiText
@@ -279,7 +279,7 @@ fun SubscriptionMismatchPreview() {
                 billingState = BillingState(
                     connection = ConnectionState.Connected,
                     subscriptionState = SubscriptionState.Mismatch(
-                        purchase = Purchase("{}", "")
+                        purchase = GooglePurchase()
                     ),
                     plansState = PlansState.Loading,
                     paymentState = PaymentState.Idle,
