@@ -96,7 +96,7 @@ fun SubscriptionComponent(
         // Find matching product - look for products containing lumo and matching cycle
         val matchingProduct = googlePlayProductDetails.find { product ->
             val hasMatchingCycle = expectedPeriod?.let { period ->
-                product.subscriptionOfferDetails?.any { offer ->
+                product.subscriptionOfferDetails.any { offer ->
                     offer.pricingPhases.any { phase ->
                         phase.billingPeriod == period
                     }

@@ -42,7 +42,6 @@ object BillingModule {
     fun lumoBillingClient(
         @ApplicationContext context: Context,
         activityProvider: ActivityProvider,
-        billingStore: BillingStore
     ): LumoBillingClient =
         LumoBillingClientImpl(
             context = context,

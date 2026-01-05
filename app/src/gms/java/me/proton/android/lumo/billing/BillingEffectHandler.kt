@@ -17,19 +17,6 @@ class BillingEffectHandler(
 ) {
     @Volatile
     private var connecting = false
-    private val purchasesUpdatedListener = object : GooglePurchasesUpdatedListener {
-        override fun onSuccess(googlePurchase: GooglePurchase) {
-            dispatch(BillingAction.PurchaseUpdated(googlePurchase))
-        }
-
-        override fun onError(message: String) {
-            dispatch(
-                BillingAction.Error(
-                    UiText.StringText(message)
-                )
-            )
-        }
-    }
 
     fun handle(effect: BillingEffect) {
         when (effect) {
@@ -48,7 +35,19 @@ class BillingEffectHandler(
         connecting = true
 
         billingClient.start(
-            purchasesUpdatedListener = purchasesUpdatedListener,
+            purchasesUpdatedListener = object : GooglePurchasesUpdatedListener {
+                override fun onSuccess(googlePurchase: GooglePurchase) {
+                    dispatch(BillingAction.PurchaseUpdated(googlePurchase))
+                }
+
+                override fun onError(message: String) {
+                    dispatch(
+                        BillingAction.Error(
+                            UiText.StringText(message)
+                        )
+                    )
+                }
+            },
             stateListener = object : GoogleBillingClientStateListener {
                 override fun onConnected() {
                     connecting = false

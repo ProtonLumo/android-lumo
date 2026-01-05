@@ -1,6 +1,5 @@
 package me.proton.android.lumo.models
 
-import com.android.billingclient.api.Purchase
 import me.proton.android.lumo.LumoBillingClientImpl.Companion.MONTHLY_PLAN
 import me.proton.android.lumo.LumoBillingClientImpl.Companion.YEARLY_PLAN
 import me.proton.android.lumo.billing.GooglePurchase
