@@ -1,8 +1,6 @@
 package me.proton.android.lumo.featureflag
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
 import me.proton.android.lumo.featureflag.datasource.LegacyFeatureFlagDataSource
 import me.proton.android.lumo.featureflag.datasource.UnleashDataSource
 import me.proton.android.lumo.featureflag.model.FeatureFlag
@@ -26,7 +24,7 @@ class FeatureGatekeeperImpl @Inject constructor(
 ) : FeatureGatekeeper {
 
     override fun start() {
-        legacyFeatureFlagDataSource.start()
+//        legacyFeatureFlagDataSource.start() todo; keep disabled til further notice
     }
 
     override fun getFeature(featureId: FeatureId): FeatureFlag =
