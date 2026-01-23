@@ -42,7 +42,8 @@ data class SubscriptionItemResponse(
     @SerialName("CycleDescription") val cycleDescription: String? = null,
     @SerialName("Offer") val offer: String? = null,
     @SerialName("Entitlements") val entitlements: List<SubscriptionEntitlement>? = null,
-    @SerialName("Decorations") val decorations: List<String>? = null
+    @SerialName("Decorations") val decorations: List<String>? = null,
+    @SerialName("Plans") val plans: List<IncludedPlan> = emptyList(),
 )
 
 @Serializable
@@ -51,6 +52,18 @@ data class SubscriptionsResponse(
     @SerialName("Subscriptions") val subscriptions: List<SubscriptionItemResponse>,
     @SerialName("UpcomingSubscriptions") val upcomingSubscriptions: List<SubscriptionItemResponse>? = null,
     @SerialName("uid") val uid: String? = null
+)
+
+@Serializable
+data class IncludedPlan(
+    @SerialName("ID") val id: String,
+    @SerialName("Type") val type: Int,
+    @SerialName("Name") val name: String,
+    @SerialName("Title") val title: String,
+    @SerialName("Services") val services: Int,
+    @SerialName("Amount") val amount: Int,
+    @SerialName("Offer") val offer: String,
+    @SerialName("Quantity") val quantity: Int,
 )
 
 data class SubscriptionPlan(

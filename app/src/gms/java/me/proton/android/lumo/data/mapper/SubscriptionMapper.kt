@@ -92,6 +92,12 @@ object SubscriptionMapper {
 
     private fun hasValidSubscription(subscriptions: List<SubscriptionItemResponse>): Boolean {
         Timber.tag(TAG).e("$subscriptions")
-        return subscriptions.isNotEmpty()
+        return subscriptions
+            .any { subscription ->
+                subscription.plans.any { plan ->
+                    plan.name.contains("lumo") ||
+                            plan.name.contains("visionary")
+                }
+            }
     }
 }
