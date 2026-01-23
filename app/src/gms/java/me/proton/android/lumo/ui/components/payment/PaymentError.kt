@@ -51,7 +51,7 @@ fun PaymentError(
         Spacer(modifier = Modifier.height(8.dp))
 
         // Display a truncated error message
-        val truncatedMessage = if (message.length > 80) {
+        val truncatedMessage = if (message.length > 200) {
             message.take(80) + "..."
         } else {
             message

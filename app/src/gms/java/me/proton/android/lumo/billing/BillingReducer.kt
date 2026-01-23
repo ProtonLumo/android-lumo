@@ -31,9 +31,16 @@ fun billingReducer(
         }
 
         is BillingAction.BillingDisconnected -> {
-            state.copy(
-                connection = ConnectionState.Connecting
-            ) to listOf(BillingEffect.ConnectBilling)
+            if (action.isBillingAvailable) {
+                state.copy(
+                    connection = ConnectionState.Connecting
+                ) to listOf(BillingEffect.ConnectBilling)
+            } else {
+                state.copy(
+                    connection = ConnectionState.Unavailable,
+                    error = action.reason.fromDebugMessage()
+                ) to listOf()
+            }
         }
 
         is BillingAction.ProductDetailsLoaded -> {

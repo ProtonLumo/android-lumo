@@ -54,9 +54,17 @@ class BillingEffectHandler(
                     dispatch(BillingAction.BillingConnected)
                 }
 
-                override fun onDisconnected(reason: String?) {
+                override fun onDisconnected(
+                    reason: String?,
+                    isBillingAvailable: Boolean,
+                ) {
                     connecting = false
-                    dispatch(BillingAction.BillingDisconnected(reason))
+                    dispatch(
+                        BillingAction.BillingDisconnected(
+                            reason = reason,
+                            isBillingAvailable = isBillingAvailable
+                        )
+                    )
                 }
             })
     }
@@ -302,5 +310,8 @@ interface GoogleAcknowledgePurchaseResponseListener {
 
 interface GoogleBillingClientStateListener {
     fun onConnected()
-    fun onDisconnected(reason: String?)
+    fun onDisconnected(
+        reason: String?,
+        isBillingAvailable: Boolean,
+    )
 }

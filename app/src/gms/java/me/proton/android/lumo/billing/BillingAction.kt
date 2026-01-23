@@ -11,7 +11,10 @@ sealed interface BillingAction {
     data object Initialize : BillingAction
     data object RetryConnection : BillingAction
     data object BillingConnected : BillingAction
-    data class BillingDisconnected(val reason: String?) : BillingAction
+    data class BillingDisconnected(
+        val reason: String?,
+        val isBillingAvailable: Boolean
+    ) : BillingAction
     data class ProductDetailsLoaded(
         val googleProductDetails: List<GoogleProductDetails>,
         val products: List<ProductDetails>,

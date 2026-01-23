@@ -32,7 +32,7 @@ class SubscriptionViewModel @Inject constructor(
     )
 
     private val _uiStateFlow = MutableStateFlow(UiState())
-    val uiStateFlow = _uiStateFlow.asStateFlow()
+    val uiState = _uiStateFlow.asStateFlow()
 
     init {
         observeTheme()

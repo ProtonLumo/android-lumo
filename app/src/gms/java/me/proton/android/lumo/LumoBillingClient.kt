@@ -93,15 +93,28 @@ class LumoBillingClientImpl(
             it.startConnection(
                 object : BillingClientStateListener {
                     override fun onBillingSetupFinished(result: BillingResult) {
-                        if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                            stateListener.onConnected()
-                        } else {
-                            stateListener.onDisconnected(null)
+                        when (result.responseCode) {
+                            BillingClient.BillingResponseCode.OK ->
+                                stateListener.onConnected()
+
+                            BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->
+                                stateListener.onDisconnected(
+                                    reason = result.debugMessage,
+                                    isBillingAvailable = false,
+                                )
+
+                            else -> stateListener.onDisconnected(
+                                reason = null,
+                                isBillingAvailable = true,
+                            )
                         }
                     }
 
                     override fun onBillingServiceDisconnected() {
-                        stateListener.onDisconnected(null)
+                        stateListener.onDisconnected(
+                            reason = null,
+                            isBillingAvailable = true
+                        )
                     }
                 }
             )
@@ -227,7 +240,10 @@ class LumoBillingClientImpl(
 
     private fun handleBillingClient(handle: (BillingClient) -> Unit = {}) {
         billingClient?.let { handle(it) }
-            ?: stateListener?.onDisconnected("Google Play Billing not available")
+            ?: stateListener?.onDisconnected(
+                reason = "Google Play Billing not available",
+                isBillingAvailable = false
+            )
     }
 
     companion object {

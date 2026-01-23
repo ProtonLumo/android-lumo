@@ -16,7 +16,7 @@ fun PaymentScreen(
     onDismiss: () -> Unit,
 ) {
     val viewModel: SubscriptionViewModel = hiltViewModel()
-    val uiState by viewModel.uiStateFlow.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     PaymentContent(
         paymentEvent,
