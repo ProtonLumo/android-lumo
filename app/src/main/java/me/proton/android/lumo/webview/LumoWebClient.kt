@@ -1,11 +1,13 @@
 package me.proton.android.lumo.webview
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import me.proton.android.lumo.R
@@ -14,6 +16,7 @@ import me.proton.android.lumo.ui.text.UiText
 import timber.log.Timber
 
 class LumoWebClient(
+    private val context: Context,
     private val isDarkThemeProvider: () -> Boolean,
     private val isLoading: () -> Boolean,
     private val showLoading: () -> Unit,
@@ -176,6 +179,12 @@ class LumoWebClient(
         openExternally(view, rawUrl)
         return true
     }
+
+    override fun shouldInterceptRequest(
+        view: WebView?,
+        request: WebResourceRequest?
+    ): WebResourceResponse? =
+        request.loadFontAndType(context) ?: super.shouldInterceptRequest(view, request)
 
     private fun handleKnownDomain(
         view: WebView?,

@@ -129,6 +129,7 @@ class MainActivity : ComponentActivity() {
 
             val lumoWebClient = remember {
                 LumoWebClient(
+                    context = this,
                     isDarkThemeProvider = { isDarkTheme },
                     isLoading = { uiState.isLoading },
                     showLoading = { viewModel.showLoading() },
