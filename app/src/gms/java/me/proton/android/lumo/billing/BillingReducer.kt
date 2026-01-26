@@ -27,7 +27,7 @@ fun billingReducer(
         is BillingAction.BillingConnected -> {
             state.copy(
                 connection = ConnectionState.Connected
-            ) to listOf(BillingEffect.QueryProducts, BillingEffect.QueryPurchases)
+            ) to listOf(BillingEffect.QueryProducts)
         }
 
         is BillingAction.BillingDisconnected -> {
@@ -59,7 +59,8 @@ fun billingReducer(
                     hasOffer = hasOffer,
                     productDetails = action.products,
                 ),
-            ) to emptyList()
+                customerId = action.planOptions.firstOrNull()?.customerId
+            ) to listOf(BillingEffect.QueryPurchases)
         }
 
         is BillingAction.PurchasesLoaded -> {
@@ -69,21 +70,21 @@ fun billingReducer(
             val subscriptionState = when {
                 purchase == null && !subscriptionResult.hasValidSubscription ->
                     SubscriptionState.None
-
                 purchase == null && subscriptionResult.hasValidSubscription ->
                     SubscriptionState.Active(subscriptions = subscriptionResult.subscriptions)
-
                 purchase != null && !subscriptionResult.hasValidSubscription ->
-                    SubscriptionState.Mismatch(purchase = purchase)
-
-                else -> {
+                    if (state.customerId != null && purchase.obfuscatedAccountId != state.customerId) {
+                        SubscriptionState.None
+                    } else {
+                        SubscriptionState.Mismatch(purchase = purchase)
+                    }
+                else ->
                     SubscriptionState.Active(
                         subscriptions = subscriptionResult.subscriptions,
                         renewing = action.renewing,
                         expiryTimeMillis = action.expiry,
                         internal = false,
                     )
-                }
             }
 
             state.copy(subscriptionState = subscriptionState) to emptyList()
@@ -156,7 +157,7 @@ fun billingReducer(
             ) {
                 val purchase = state.subscriptionState.purchase
                 val productId = purchase.products.first()
-                val customerId = purchase.accountIdentifiers
+                val customerId = purchase.obfuscatedAccountId
                 state.plansState.googleProductDetails
                     .find { it.productId == productId }
                     ?.let { product ->
