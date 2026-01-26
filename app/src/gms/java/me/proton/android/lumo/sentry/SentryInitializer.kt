@@ -20,7 +20,7 @@ class SentryInitializer : Initializer<Unit> {
                 isDebug = BuildConfig.DEBUG
                 environment = BuildConfig.BASE_DOMAIN
                 isEnableUncaughtExceptionHandler = true
-                setDiagnosticLevel(SentryLevel.DEBUG)
+                setDiagnosticLevel(SentryLevel.ERROR)
                 tracesSampleRate = 0.2
                 addIntegration(
                     SentryTimberIntegration(
