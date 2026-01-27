@@ -5,9 +5,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import androidx.annotation.WorkerThread
 import timber.log.Timber
-import java.io.ByteArrayInputStream
 import java.io.IOException
-import java.io.InputStream
 
 fun String.fontUrl(): String? =
     if (endsWith(".woff") ||
@@ -24,6 +22,7 @@ fun String.fontUrl(): String? =
 @WorkerThread
 fun WebResourceRequest?.loadFontAndType(
     context: Context,
+    defaultResponse: () -> WebResourceResponse?,
 ): WebResourceResponse? =
     this?.url
         .toString()
@@ -47,12 +46,7 @@ fun WebResourceRequest?.loadFontAndType(
         ?.let { inputToExtension ->
             val input = inputToExtension.first
             if (input == null) {
-                WebResourceResponse(
-                    "font/woff2",
-                    "UTF-8",
-                    ByteArrayInputStream(ByteArray(0))
-                )
-
+                defaultResponse()
             } else {
                 WebResourceResponse(
                     "font/${inputToExtension.second.last()}",
