@@ -59,7 +59,6 @@ fun billingReducer(
                     hasOffer = hasOffer,
                     productDetails = action.products,
                 ),
-                customerId = action.planOptions.firstOrNull()?.customerId
             ) to listOf(BillingEffect.QueryPurchases)
         }
 
@@ -73,11 +72,7 @@ fun billingReducer(
                 purchase == null && subscriptionResult.hasValidSubscription ->
                     SubscriptionState.Active(subscriptions = subscriptionResult.subscriptions)
                 purchase != null && !subscriptionResult.hasValidSubscription ->
-                    if (state.customerId != null && purchase.obfuscatedAccountId != state.customerId) {
-                        SubscriptionState.None
-                    } else {
-                        SubscriptionState.Mismatch(purchase = purchase)
-                    }
+                    SubscriptionState.Mismatch(purchase = purchase)
                 else ->
                     SubscriptionState.Active(
                         subscriptions = subscriptionResult.subscriptions,
