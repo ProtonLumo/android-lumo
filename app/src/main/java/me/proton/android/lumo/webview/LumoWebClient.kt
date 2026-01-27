@@ -184,7 +184,10 @@ class LumoWebClient(
         view: WebView?,
         request: WebResourceRequest?
     ): WebResourceResponse? =
-        request.loadFontAndType(context) ?: super.shouldInterceptRequest(view, request)
+        request.loadFontAndType(
+            context = context,
+            defaultResponse = { super.shouldInterceptRequest(view, request) }
+        ) ?: super.shouldInterceptRequest(view, request)
 
     private fun handleKnownDomain(
         view: WebView?,
