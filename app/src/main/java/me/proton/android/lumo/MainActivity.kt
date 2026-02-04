@@ -78,6 +78,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        viewModel.startAnalytics()
         webViewManager = WebViewManager()
         val lumoChromeClient = LumoChromeClient(
             activity = this,
@@ -330,6 +331,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
+        viewModel.cancelAnalytics()
 //        inAppReviewManager.stop() todo; keep disabled til further notice
     }
 

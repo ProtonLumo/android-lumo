@@ -55,6 +55,20 @@ object PlaceholderModule {
         }
 
     @Provides
+    fun getMainAnalytics(): LumoAnalytics =
+        object: LumoAnalytics {
+
+            override fun start() {
+            }
+
+            override fun finish() {
+            }
+
+            override fun cancel() {
+            }
+        }
+
+    @Provides
     fun reviewManager(): InAppReviewManager =
         object : InAppReviewManager {
             override fun start(activity: Activity) {

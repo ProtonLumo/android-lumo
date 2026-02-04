@@ -8,6 +8,8 @@ interface LumoTracer {
 
     fun stopSpan(operation: Operation)
 
+    fun cancel()
+
     fun finishTransaction()
 
     sealed interface Operation {

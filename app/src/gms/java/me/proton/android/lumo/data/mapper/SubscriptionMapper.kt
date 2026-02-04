@@ -90,14 +90,12 @@ object SubscriptionMapper {
         return emptyList()
     }
 
-    private fun hasValidSubscription(subscriptions: List<SubscriptionItemResponse>): Boolean {
-        Timber.tag(TAG).e("$subscriptions")
-        return subscriptions
+    private fun hasValidSubscription(subscriptions: List<SubscriptionItemResponse>): Boolean =
+        subscriptions
             .any { subscription ->
                 subscription.plans.any { plan ->
                     plan.name.contains("lumo") ||
                             plan.name.contains("visionary")
                 }
             }
-    }
 }
