@@ -7,8 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import me.proton.android.lumo.analytics.LumoAnalytics
 import me.proton.android.lumo.review.InAppReviewManager
-import me.proton.android.lumo.tracer.LumoTracer
 import me.proton.android.lumo.usecase.HasOfferUseCase
 import me.proton.android.lumo.usecase.IsPaymentAvailableUseCase
 import me.proton.android.lumo.webview.WebAppInterface
@@ -30,27 +30,22 @@ object PlaceholderModule {
         }
 
     @Provides
-    fun hasOffer() : HasOfferUseCase =
+    fun hasOffer(): HasOfferUseCase =
         object : HasOfferUseCase {
             override fun hasOffer(): Flow<Boolean> = flowOf(false)
         }
 
     @Provides
-    fun getMainScreenTracer(): LumoTracer =
-        object: LumoTracer {
-            override fun startTransaction(name: String) {
+    fun getMainAnalytics(): LumoAnalytics =
+        object : LumoAnalytics {
+
+            override fun start() {
             }
 
-            override fun measureSpan(
-                operation: LumoTracer.Operation,
-                description: String
-            ) {
+            override fun finish() {
             }
 
-            override fun stopSpan(operation: LumoTracer.Operation) {
-            }
-
-            override fun finishTransaction() {
+            override fun cancel() {
             }
         }
 

@@ -15,12 +15,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import me.proton.android.lumo.analytics.LumoAnalytics
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.data.repository.WebAppRepository
 import me.proton.android.lumo.featureflag.FeatureGatekeeper
 import me.proton.android.lumo.permission.PermissionContract
-import me.proton.android.lumo.tracer.LumoTracer
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.usecase.HasOfferUseCase
@@ -46,7 +46,7 @@ class MainActivityViewModel @Inject constructor(
     private val themeRepository: ThemeRepository,
     private val webAppRepository: WebAppRepository,
     private val hasOfferUseCase: Lazy<HasOfferUseCase>,
-    private val measureMainScreenReady: LumoTracer,
+    private val analytics: LumoAnalytics,
     private val featureGatekeeper: FeatureGatekeeper,
 ) : ViewModel() {
 
@@ -97,12 +97,6 @@ class MainActivityViewModel @Inject constructor(
     private var audioPermissionContract: PermissionContract? = null
 
     init {
-        measureMainScreenReady.startTransaction(name = "MainReady")
-        measureMainScreenReady.measureSpan(
-            operation = LumoTracer.Operation.MainReady,
-            description = "Measure the time it took to load the main chat screen"
-        )
-
         // Don't call performInitialNetworkCheck here, call from Activity onCreate
         viewModelScope.launch {
             webAppRepository.listenToWebEvent().collect { event ->
@@ -146,8 +140,7 @@ class MainActivityViewModel @Inject constructor(
                             if (it.hasSeenLumoContainer && !it.isLoading) {
                                 it
                             } else {
-                                measureMainScreenReady.stopSpan(operation = LumoTracer.Operation.MainReady)
-                                measureMainScreenReady.finishTransaction()
+                                analytics.finish()
                                 featureGatekeeper.start()
                                 it.copy(
                                     isLoading = false,
@@ -320,5 +313,13 @@ class MainActivityViewModel @Inject constructor(
 
     fun showMissingPermission(missingPermission: String) {
         _eventChannel.trySend(UiEvent.MissingPermission(missingPermission))
+    }
+
+    fun startAnalytics() {
+        analytics.start()
+    }
+
+    fun cancelAnalytics() {
+        analytics.cancel()
     }
 }
