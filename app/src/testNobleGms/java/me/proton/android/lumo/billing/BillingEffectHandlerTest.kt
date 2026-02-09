@@ -60,7 +60,12 @@ class BillingEffectHandlerTest {
     fun `When ConnectBilling Then disconnected`() {
         effectHandler.handle(BillingEffect.ConnectBilling)
 
-        assertThat(dispatchedActions).containsExactly(BillingAction.BillingDisconnected(null))
+        assertThat(dispatchedActions).containsExactly(
+            BillingAction.BillingDisconnected(
+                reason = null,
+                isBillingAvailable = false
+            )
+        )
     }
 
     @Test

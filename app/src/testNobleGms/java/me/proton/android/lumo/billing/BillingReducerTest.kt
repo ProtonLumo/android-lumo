@@ -52,22 +52,37 @@ class BillingReducerTest {
 
         assertThat(state.connection).isEqualTo(ConnectionState.Connected)
 
-        assertThat(effects).containsExactly(
-            BillingEffect.QueryProducts,
-            BillingEffect.QueryPurchases
-        )
+        assertThat(effects).containsExactly(BillingEffect.QueryProducts)
     }
 
     @Test
-    fun `When BillingDisconnected Then retries connection`() {
+    fun `Given billing is available When BillingDisconnected Then retries connection`() {
         val (state, effects) = billingReducer(
             state = initialState,
-            action = BillingAction.BillingDisconnected(reason = null)
+            action = BillingAction.BillingDisconnected(
+                reason = null,
+                isBillingAvailable = true
+            )
         )
 
         assertThat(state.connection).isEqualTo(ConnectionState.Connecting)
 
         assertThat(effects).containsExactly(BillingEffect.ConnectBilling)
+    }
+
+    @Test
+    fun `Given billing is not available When BillingDisconnected Then connection unavailable`() {
+        val (state, effects) = billingReducer(
+            state = initialState,
+            action = BillingAction.BillingDisconnected(
+                reason = null,
+                isBillingAvailable = false
+            )
+        )
+
+        assertThat(state.connection).isEqualTo(ConnectionState.Unavailable)
+
+        assertThat(effects).isEmpty()
     }
 
     @Test
@@ -90,7 +105,7 @@ class BillingReducerTest {
         assertThat(success.googleProductDetails).isEqualTo(googleProducts)
         assertThat(success.planOptions).isEqualTo(planOptions)
 
-        assertThat(effects).isEmpty()
+        assertThat(effects).containsExactly(BillingEffect.QueryPurchases)
     }
 
     @Test
@@ -155,7 +170,6 @@ class BillingReducerTest {
             planOptions = plansOptions(),
             planFeatures = emptyList(),
             googleProductDetails = productDetails(),
-            hasOffer = false,
             productDetails = emptyList(),
             selectedPlanIndex = 0
         )

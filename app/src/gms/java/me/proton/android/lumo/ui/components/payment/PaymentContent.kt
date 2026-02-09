@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.R
 import me.proton.android.lumo.billing.BillingState
 import me.proton.android.lumo.billing.ConnectionState
@@ -45,7 +44,6 @@ import me.proton.android.lumo.viewmodels.SubscriptionViewModel
 
 @Composable
 fun PaymentContent(
-    paymentEvent: PaymentEvent,
     uiState: SubscriptionViewModel.UiState,
     onDismiss: () -> Unit,
     retryPayment: () -> Unit,
@@ -67,7 +65,7 @@ fun PaymentContent(
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Header(
-                paymentEvent = paymentEvent,
+                paymentEvent = uiState.paymentEvent,
                 isDarkTheme = uiState.theme.isDarkTheme()
             )
 
@@ -122,7 +120,7 @@ fun PaymentContent(
                         is SubscriptionState.None ->
                             PlanSelectionScreen(
                                 plansState = plansState,
-                                paymentEvent = paymentEvent,
+                                paymentEvent = uiState.paymentEvent,
                                 isDarkTheme = uiState.theme.isDarkTheme(),
                                 onDismiss = onDismiss,
                                 onPlanSelected = { selectPlan(it) },
@@ -160,7 +158,6 @@ fun PaymentContent(
 fun LoadingSubscriptionsPreview() {
     LumoTheme {
         PaymentContent(
-            paymentEvent = PaymentEvent.Default,
             uiState = SubscriptionViewModel.UiState(
                 billingState = BillingState(
                     connection = ConnectionState.Connected,
@@ -188,7 +185,6 @@ fun LoadingSubscriptionsPreview() {
 fun LoadingPlansPreview() {
     LumoTheme {
         PaymentContent(
-            paymentEvent = PaymentEvent.Default,
             uiState = SubscriptionViewModel.UiState(
                 billingState = BillingState(
                     connection = ConnectionState.Connected,
@@ -216,7 +212,6 @@ fun LoadingPlansPreview() {
 fun GeneralErrorPreview() {
     LumoTheme {
         PaymentContent(
-            paymentEvent = PaymentEvent.Default,
             uiState = SubscriptionViewModel.UiState(
                 billingState = BillingState(
                     connection = ConnectionState.Connected,
@@ -244,7 +239,6 @@ fun GeneralErrorPreview() {
 fun PaymentErrorPreview() {
     LumoTheme {
         PaymentContent(
-            paymentEvent = PaymentEvent.Default,
             uiState = SubscriptionViewModel.UiState(
                 billingState = BillingState(
                     connection = ConnectionState.Connected,
@@ -274,7 +268,6 @@ fun PaymentErrorPreview() {
 fun SubscriptionMismatchPreview() {
     LumoTheme {
         PaymentContent(
-            paymentEvent = PaymentEvent.Default,
             uiState = SubscriptionViewModel.UiState(
                 billingState = BillingState(
                     connection = ConnectionState.Connected,
@@ -304,7 +297,6 @@ fun SubscriptionMismatchPreview() {
 fun PaymentVerifyingPreview() {
     LumoTheme {
         PaymentContent(
-            paymentEvent = PaymentEvent.Default,
             uiState = SubscriptionViewModel.UiState(
                 billingState = BillingState(
                     connection = ConnectionState.Connected,
@@ -332,7 +324,6 @@ fun PaymentVerifyingPreview() {
 fun PaymentSuccessPreview() {
     LumoTheme {
         PaymentContent(
-            paymentEvent = PaymentEvent.Default,
             uiState = SubscriptionViewModel.UiState(
                 billingState = BillingState(
                     connection = ConnectionState.Connected,
@@ -392,7 +383,6 @@ fun ActiveSubscriptionPreview() {
     )
     LumoTheme {
         PaymentContent(
-            paymentEvent = PaymentEvent.Default,
             uiState = SubscriptionViewModel.UiState(
                 billingState = BillingState(
                     connection = ConnectionState.Connected,
@@ -474,7 +464,6 @@ fun SelectPlanPreview() {
     )
     LumoTheme {
         PaymentContent(
-            paymentEvent = PaymentEvent.Default,
             uiState = SubscriptionViewModel.UiState(
                 billingState = BillingState(
                     connection = ConnectionState.Connected,
@@ -484,7 +473,6 @@ fun SelectPlanPreview() {
                         planOptions = mockPlans,
                         planFeatures = mockFeatures,
                         googleProductDetails = emptyList(),
-                        hasOffer = false,
                     ),
                     paymentState = PaymentState.Idle,
                     error = null
@@ -508,7 +496,6 @@ fun SelectPlanPreview() {
 fun EmptyPlansPreview() {
     LumoTheme {
         PaymentContent(
-            paymentEvent = PaymentEvent.Default,
             uiState = SubscriptionViewModel.UiState(
                 billingState = BillingState(
                     connection = ConnectionState.Connected,
@@ -518,7 +505,6 @@ fun EmptyPlansPreview() {
                         planOptions = emptyList(),
                         planFeatures = emptyList(),
                         googleProductDetails = emptyList(),
-                        hasOffer = false,
                     ),
                     paymentState = PaymentState.Idle,
                     error = null

@@ -142,7 +142,7 @@ private fun PlanSelectorContent(
     onSelected: () -> Unit,
     borderColor: Color,
     plan: JsPlanInfo,
-    paymentEvent: PaymentEvent
+    paymentEvent: PaymentEvent,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

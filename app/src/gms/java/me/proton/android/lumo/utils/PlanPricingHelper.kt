@@ -53,11 +53,10 @@ object PlanPricingHelper {
             val bestOffer = run {
                 offerId?.let { offerMap["${plan.productId}:$it"] }
                     ?: offerMap["${plan.productId}:BASE"] // Then try base
-                    ?: product.subscriptionOfferDetails?.first() // Fallback to first available
+                    ?: product.subscriptionOfferDetails.first() // Fallback to first available
             }
 
-            val pricingPhase = bestOffer?.pricingPhases?.firstOrNull()
-            if (pricingPhase == null) return@map plan
+            val pricingPhase = bestOffer.pricingPhases.firstOrNull() ?: return@map plan
 
             val updated = plan.copy(
                 totalPrice = pricingPhase.formattedPrice,
@@ -99,7 +98,7 @@ object PlanPricingHelper {
             plans.find { it.productId.contains("_1_") && it.cycle == 1 } ?: return null
         val monthlyProduct = productMap[monthlyPlan.productId] ?: return null
         val monthlyPhase = monthlyProduct.subscriptionOfferDetails
-            ?.firstOrNull()
+            .firstOrNull()
             ?.pricingPhases
             ?.firstOrNull() ?: return null
 
@@ -134,6 +133,6 @@ object PlanPricingHelper {
                 e, "Failed to format currency $currencyCode, falling back to simple format"
             )
             // Fallback to simple format if currency formatting fails
-            String.format("%.2f %s", amount, currencyCode)
+            String.format(Locale.getDefault(), "%.2f %s", amount, currencyCode)
         }
 }

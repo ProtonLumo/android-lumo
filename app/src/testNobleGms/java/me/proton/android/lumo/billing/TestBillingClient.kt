@@ -18,7 +18,10 @@ class TestBillingClient : LumoBillingClient {
         if (connected) {
             stateListener.onConnected()
         } else {
-            stateListener.onDisconnected(null)
+            stateListener.onDisconnected(
+                reason = null,
+                isBillingAvailable = false
+            )
         }
 
         if (handleUpdate) {

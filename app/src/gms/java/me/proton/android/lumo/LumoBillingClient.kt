@@ -227,15 +227,12 @@ class LumoBillingClientImpl(
             .build()
 
         handleBillingClient {
-            it.acknowledgePurchase(
-                params,
-            ) { result ->
+            it.acknowledgePurchase(params) { result ->
                 if (result.responseCode != BillingClient.BillingResponseCode.OK) {
                     acknowledgePurchaseResponseListener.onError("Failed to acknowledge purchase")
                 }
             }
         }
-
     }
 
     private fun handleBillingClient(handle: (BillingClient) -> Unit = {}) {

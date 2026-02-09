@@ -1,7 +1,7 @@
 package me.proton.android.lumo.billing
 
-import me.proton.android.lumo.BuildConfig
 import me.proton.android.lumo.ui.text.UiText
+import me.proton.android.lumo.utils.takeIf
 
 fun billingReducer(
     state: BillingState,
@@ -45,18 +45,12 @@ fun billingReducer(
 
         is BillingAction.ProductDetailsLoaded -> {
             val products = action.googleProductDetails
-            val hasOffer = products.any { product ->
-                product.subscriptionOfferDetails.any {
-                    it.offerId == BuildConfig.OFFER_ID
-                }
-            }
             val planOptions = action.planOptions
             state.copy(
                 plansState = PlansState.Success(
-                    planOptions = if (hasOffer) planOptions.reversed() else planOptions,
+                    planOptions = planOptions,
                     planFeatures = action.planFeatures,
                     googleProductDetails = products,
-                    hasOffer = hasOffer,
                     productDetails = action.products,
                 ),
             ) to listOf(BillingEffect.QueryPurchases)
@@ -69,10 +63,13 @@ fun billingReducer(
             val subscriptionState = when {
                 purchase == null && !subscriptionResult.hasValidSubscription ->
                     SubscriptionState.None
+
                 purchase == null && subscriptionResult.hasValidSubscription ->
                     SubscriptionState.Active(subscriptions = subscriptionResult.subscriptions)
+
                 purchase != null && !subscriptionResult.hasValidSubscription ->
                     SubscriptionState.Mismatch(purchase = purchase)
+
                 else ->
                     SubscriptionState.Active(
                         subscriptions = subscriptionResult.subscriptions,
@@ -100,7 +97,7 @@ fun billingReducer(
             } else {
                 state.copy(
                     paymentState = PaymentState.Verifying
-                ) to listOf(
+                ) to listOfNotNull(
                     BillingEffect.SendPaymentToken(
                         buildPaymentPayload(
                             purchase = action.purchase,
@@ -110,7 +107,7 @@ fun billingReducer(
                     ),
                     BillingEffect.AcknowledgePurchase(
                         action.purchase.purchaseToken
-                    )
+                    ).takeIf { !action.purchase.isAcknowledged }
                 )
             }
         }
