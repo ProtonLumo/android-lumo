@@ -1,9 +1,34 @@
 package me.proton.android.lumo.models
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonNames
+
+/**
+ * Custom serializer that handles null Int values by returning a default value of 0
+ */
+object IntOrDefaultSerializer : KSerializer<Int> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("IntOrDefault", PrimitiveKind.INT)
+
+    override fun deserialize(decoder: Decoder): Int {
+        return try {
+            decoder.decodeInt()
+        } catch (e: Exception) {
+            0  // default value when null or invalid
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: Int) {
+        encoder.encodeInt(value)
+    }
+}
 
 /**
  * Represents a subscription entitlement feature description
@@ -19,20 +44,28 @@ data class SubscriptionEntitlement(
 
 @Serializable
 data class SubscriptionItemResponse(
-    @SerialName("ID") val id: String,
+    @SerialName("ID") val id: String?,
     @SerialName("InvoiceID") val invoiceId: String,
-    @SerialName("Cycle") val cycle: Int,
+    @Serializable(with = IntOrDefaultSerializer::class)
+    @SerialName("Cycle") val cycle: Int = 0,
     @SerialName("PeriodStart") val periodStart: Long,
     @SerialName("PeriodEnd") val periodEnd: Long,
     @SerialName("CreateTime") val createTime: Long,
-    @SerialName("CouponCode") val couponCode: String?,
-    @SerialName("Currency") val currency: String,
+    @SerialName("CouponCode") val couponCode: String? = null,
+    @SerialName("Currency") val currency: String? = null,
+    @Serializable(with = IntOrDefaultSerializer::class)
     @SerialName("Amount") val amount: Int,
+    @Serializable(with = IntOrDefaultSerializer::class)
     @SerialName("Discount") val discount: Int,
+    @Serializable(with = IntOrDefaultSerializer::class)
     @SerialName("RenewDiscount") val renewDiscount: Int,
+    @Serializable(with = IntOrDefaultSerializer::class)
     @SerialName("RenewAmount") val renewAmount: Int,
+    @Serializable(with = IntOrDefaultSerializer::class)
     @SerialName("Renew") val renew: Int,
+    @Serializable(with = IntOrDefaultSerializer::class)
     @SerialName("External") val external: Int,
+    @Serializable(with = IntOrDefaultSerializer::class)
     @SerialName("BillingPlatform") val billingPlatform: Int,
     @SerialName("IsTrial") val isTrial: Boolean = false,
     @SerialName("CustomerID") val customerID: String?,
