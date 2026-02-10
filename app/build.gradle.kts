@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.google.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.detekt)
     id("version-tasks")
 }
 val unleashPropsFile = rootProject.file("unleash.properties")
@@ -208,6 +209,12 @@ android {
 
     hilt {
         enableAggregatingTask = true
+    }
+
+    detekt {
+        toolVersion = libs.versions.detekt
+        config.setFrom(file("../config/detekt/detekt.yml"))
+        buildUponDefaultConfig = true
     }
 }
 
