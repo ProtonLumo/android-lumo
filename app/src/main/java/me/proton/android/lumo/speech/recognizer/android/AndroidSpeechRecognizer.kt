@@ -42,8 +42,11 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
             speechRecognizer = speechRecognizer(context)
             setupSpeechRecognizerListener()
             Timber.tag(TAG).i("SpeechRecognizer initialized.")
-        } catch (e: Exception) {
-            Timber.tag(TAG).e("SpeechRecognizer not available on this device.")
+        } catch (e: SecurityException) {
+            Timber.tag(TAG).e("SpeechRecognizer not available - security exception.")
+            speechRecognizer = null
+        } catch (e: IllegalStateException) {
+            Timber.tag(TAG).e("SpeechRecognizer not available - illegal state.")
             speechRecognizer = null
         }
     }
@@ -56,6 +59,7 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
             }
 
             override fun onBeginningOfSpeech() {
+                // No action needed - speech beginning is handled by onReadyForSpeech
             }
 
             override fun onRmsChanged(rmsdB: Float) {
@@ -147,67 +151,75 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
 
         speechRecognizer?.cancel()
 
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-            )
-            putExtra(
-                RecognizerIntent.EXTRA_PARTIAL_RESULTS,
-                true
-            )
-
-            // keep language instead of languageTag here as using language tag will provide
-            // something like en-GB and if the local speech recognizer is set to en-US it will
-            // fail to resolve and fallback to vosk. language will remove the country part of the
-            // locale so en-GB becomes en
-            putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE,
-                when (languageTag) {
-                    LanguageTag.LanguageAndCountry -> Locale.getDefault().toLanguageTag()
-                    LanguageTag.LanguageOnly -> Locale.getDefault().language
-                }
-            )
-            putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
-                Locale.getDefault().toLanguageTag()
-            )
-
-            val localesSize = LocaleList.getDefault().size()
-            val locales = Array(localesSize) { "" }
-            for (i in 0 until localesSize) {
-                locales[i] = LocaleList.getDefault().get(i).toLanguageTag()
-            }
-            putExtra(
-                RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES,
-                locales
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                putExtra(
-                    RecognizerIntent.EXTRA_ENABLE_LANGUAGE_SWITCH,
-                    RecognizerIntent.LANGUAGE_SWITCH_QUICK_RESPONSE
-                )
-            }
-            putExtra(
-                RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
-                5000
-            )
-            putExtra(
-                RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
-                5000
-            )
-        }
+        val intent = createSpeechIntent()
 
         try {
             speechRecognizer?.startListening(intent)
-        } catch (e: Exception) {
-            Timber.tag(TAG).e(e, "Exception calling speechRecognizer.startListening")
+        } catch (e: SecurityException) {
+            Timber.tag(TAG).e(e, "Security exception calling speechRecognizer.startListening")
+            listener?.onError(
+                errorMessage = UiText.ResText(R.string.speech_error_insufficient_permissions),
+                isInitialisation = true
+            )
+        } catch (e: IllegalStateException) {
+            Timber.tag(TAG).e(e, "Illegal state exception calling speechRecognizer.startListening")
             listener?.onError(
                 errorMessage = e.message?.let { UiText.StringText(it) }
                     ?: UiText.ResText(R.string.speech_error_client),
                 isInitialisation = true
             )
         }
+    }
+
+    private fun createSpeechIntent(): Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+        putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        putExtra(
+            RecognizerIntent.EXTRA_PARTIAL_RESULTS,
+            true
+        )
+
+        // keep language instead of languageTag here as using language tag will provide
+        // something like en-GB and if the local speech recognizer is set to en-US it will
+        // fail to resolve and fallback to vosk. language will remove the country part of the
+        // locale so en-GB becomes en
+        putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE,
+            when (languageTag) {
+                LanguageTag.LanguageAndCountry -> Locale.getDefault().toLanguageTag()
+                LanguageTag.LanguageOnly -> Locale.getDefault().language
+            }
+        )
+        putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
+            Locale.getDefault().toLanguageTag()
+        )
+
+        val localesSize = LocaleList.getDefault().size()
+        val locales = Array(localesSize) { "" }
+        for (i in 0 until localesSize) {
+            locales[i] = LocaleList.getDefault().get(i).toLanguageTag()
+        }
+        putExtra(
+            RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES,
+            locales
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            putExtra(
+                RecognizerIntent.EXTRA_ENABLE_LANGUAGE_SWITCH,
+                RecognizerIntent.LANGUAGE_SWITCH_QUICK_RESPONSE
+            )
+        }
+        putExtra(
+            RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+            SILENCE_LENGTH_MS
+        )
+        putExtra(
+            RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
+            SILENCE_LENGTH_MS
+        )
     }
 
     override fun cancelListening() {
@@ -223,7 +235,8 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
         return when (error) {
             SpeechRecognizer.ERROR_AUDIO -> context.getString(R.string.speech_error_audio)
             SpeechRecognizer.ERROR_CLIENT -> context.getString(R.string.speech_error_client)
-            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> context.getString(R.string.speech_error_insufficient_permissions)
+            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS ->
+                context.getString(R.string.speech_error_insufficient_permissions)
             SpeechRecognizer.ERROR_NETWORK -> context.getString(R.string.speech_error_network)
             SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> context.getString(R.string.speech_error_network_timeout)
             SpeechRecognizer.ERROR_NO_MATCH -> context.getString(R.string.speech_error_no_match)
@@ -236,5 +249,6 @@ abstract class AndroidSpeechRecognizer(private val context: Context) : LumoSpeec
 
     companion object Companion {
         private const val TAG = "OnDeviceSpeechRecognizer"
+        private const val SILENCE_LENGTH_MS = 5000
     }
 }

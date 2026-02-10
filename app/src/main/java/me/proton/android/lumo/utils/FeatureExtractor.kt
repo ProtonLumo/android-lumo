@@ -11,6 +11,7 @@ import timber.log.Timber
 object FeatureExtractor {
 
     private const val TAG = "FeatureExtractor"
+    private const val EXPECTED_TEXT_PARTS = 3
 
     /**
      * Extracts plan features from the API response
@@ -33,7 +34,7 @@ object FeatureExtractor {
                         entitlement["Text"]?.jsonPrimitive?.contentOrNull ?: return@runCatching
                     val textParts = text.split("::")
 
-                    if (textParts.size >= 3) {
+                    if (textParts.size >= EXPECTED_TEXT_PARTS) {
                         val feature = PlanFeature(
                             name = textParts[0],
                             freeText = textParts[1],

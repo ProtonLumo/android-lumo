@@ -19,4 +19,4 @@ data class JsPlanInfo(
     var totalPrice: String = "",       // To be filled from Google Play data
     var savings: String? = null,       // e.g., "Save 20%" - calculated if applicable
     var offerToken: String? = null     // To be populated from Google Play
-) 
+)

@@ -64,6 +64,7 @@ data class AppColors(
     val focus: Color,
 )
 
+@Suppress("MagicNumber")
 val LightColors = AppColors(
     primary = Color(0xFF6D4AFF),
     interactionNorm = Color(0xFF6D4AFF),
@@ -110,6 +111,7 @@ val LightColors = AppColors(
     focus = Color(0xFF6D4AFF),
 )
 
+@Suppress("MagicNumber")
 val DarkColors = AppColors(
     primary = Color(0xFF8A6EFF),
     interactionNorm = Color(0xFF6D4AFF),

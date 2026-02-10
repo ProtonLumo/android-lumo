@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 import me.proton.android.lumo.MainActivityViewModel.WebEvent as MainWebEvent
 
 @SuppressLint("StaticFieldLeak")
+@Suppress("TooManyFunctions")
 open class WebAppInterface {
 
     @Volatile
@@ -48,8 +49,10 @@ open class WebAppInterface {
                 "console.log('Android interface available:', typeof window.Android !== 'undefined');",
                 null
             )
-        } catch (e: Exception) {
-            Timber.tag(MainActivity.TAG).e(e, "Error adding JavaScript interface")
+        } catch (e: IllegalStateException) {
+            Timber.tag(MainActivity.TAG).e(e, "Illegal state adding JavaScript interface")
+        } catch (e: SecurityException) {
+            Timber.tag(MainActivity.TAG).e(e, "Security exception adding JavaScript interface")
         }
     }
 

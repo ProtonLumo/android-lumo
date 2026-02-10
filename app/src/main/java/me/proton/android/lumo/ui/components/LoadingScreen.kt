@@ -35,33 +35,32 @@ import kotlinx.coroutines.delay
 import me.proton.android.lumo.R
 import me.proton.android.lumo.ui.theme.LumoTheme
 
+private const val MESSAGE_ROTATION_DELAY_MS = 4000L // 4 seconds
+private val LOADING_MESSAGES = listOf(
+    R.string.loading_message_1,
+    R.string.loading_message_2,
+    R.string.loading_message_3,
+    R.string.loading_message_4,
+    R.string.loading_message_5,
+    R.string.loading_message_6,
+    R.string.loading_message_7,
+    R.string.loading_message_8,
+    R.string.loading_message_9,
+    R.string.loading_message_10,
+    R.string.loading_message_11
+)
+
+
 @Preview
 @Composable
 fun LoadingScreen() {
-    // Define the loading messages
-    val loadingMessages = listOf(
-        R.string.loading_message_1,
-        R.string.loading_message_2,
-        R.string.loading_message_3,
-        R.string.loading_message_4,
-        R.string.loading_message_5,
-        R.string.loading_message_6,
-        R.string.loading_message_7,
-        R.string.loading_message_8,
-        R.string.loading_message_9,
-        R.string.loading_message_10,
-        R.string.loading_message_11
-    )
-
-    // State to track current message index
     var currentMessageIndex by remember {
-        mutableIntStateOf((loadingMessages.indices).random())
+        mutableIntStateOf((LOADING_MESSAGES.indices).random())
     }
     var lottieComposition by remember {
         mutableStateOf<LottieComposition?>(null)
     }
 
-    // Effect to rotate messages every 4 seconds
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         LottieCompositionFactory
@@ -69,14 +68,12 @@ fun LoadingScreen() {
             .addListener { composition -> lottieComposition = composition }
 
         while (true) {
-            delay(4000) // 4 seconds
-            // Pick a random message that's different from the current one
-            val availableIndices = loadingMessages.indices.filter { it != currentMessageIndex }
-            if (availableIndices.isNotEmpty()) {
-                currentMessageIndex = availableIndices.random()
+            delay(MESSAGE_ROTATION_DELAY_MS)
+            val availableIndices = LOADING_MESSAGES.indices.filter { it != currentMessageIndex }
+            currentMessageIndex = if (availableIndices.isNotEmpty()) {
+                availableIndices.random()
             } else {
-                // Fallback if somehow we can't find a different index
-                currentMessageIndex = (currentMessageIndex + 1) % loadingMessages.size
+                (currentMessageIndex + 1) % LOADING_MESSAGES.size
             }
         }
     }
@@ -101,18 +98,6 @@ fun LoadingScreen() {
                     progress = { progress },
                     modifier = Modifier.size(180.dp)
                 )
-            } else {
-                val composition by rememberLottieComposition(LottieCompositionSpec.Asset("lumo-loader.json"))
-                val progress by animateLottieCompositionAsState(
-                    composition,
-                    iterations = LottieConstants.IterateForever
-                )
-
-                LottieAnimation(
-                    composition = composition,
-                    progress = { progress },
-                    modifier = Modifier.size(180.dp) // Adjust size as needed
-                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -128,7 +113,7 @@ fun LoadingScreen() {
 
             // Rotating loading message
             Text(
-                text = stringResource(id = loadingMessages[currentMessageIndex]),
+                text = stringResource(id = LOADING_MESSAGES[currentMessageIndex]),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = LumoTheme.colors.textWeak

@@ -30,6 +30,9 @@ import timber.log.Timber
 import javax.inject.Inject
 
 private const val TAG = "MainActivityViewModel"
+private const val HTTPS_PORT = 443
+private const val NETWORK_CHECK_TIMEOUT_MS = 3000 // 3 seconds
+private const val LOADING_TIMEOUT_MS = 5000 // 5 seconds
 
 // Define UI State (can be expanded later)
 data class MainUiState(
@@ -111,7 +114,8 @@ class MainActivityViewModel @Inject constructor(
                     }
 
                     is WebEvent.RetryLoadRequested -> {
-                        resetNetworkCheckFlag()
+                        Timber.tag(TAG).i("Resetting checkCompleted flag for retry.")
+                        checkCompleted = false
                         performInitialNetworkCheck()
                     }
 
@@ -218,8 +222,8 @@ class MainActivityViewModel @Inject constructor(
 
         viewModelScope.launch {
             val host = LumoConfig.LUMO_DOMAIN
-            val port = 443
-            val timeout = 3000 // 3 seconds
+            val port = HTTPS_PORT
+            val timeout = NETWORK_CHECK_TIMEOUT_MS
             Timber.tag(TAG).i("Performing initial network check for $host:$port...")
 
             val reachable = isHostReachable(host, port, timeout) // Call the suspend function
@@ -253,18 +257,13 @@ class MainActivityViewModel @Inject constructor(
 
     private fun forceHideLoadingAfterDelay() {
         viewModelScope.launch {
-            delay(5000)
+            delay(LOADING_TIMEOUT_MS.toLong())
             val currentState = _uiState.value
             if (currentState.isLoading) {
                 Timber.tag(TAG).i("Forcing loading screen to hide from global timer")
                 hideLoading()
             }
         }
-    }
-
-    fun resetNetworkCheckFlag() {
-        Timber.tag(TAG).i("Resetting checkCompleted flag for retry.")
-        checkCompleted = false
     }
 
     fun handleJavascriptResult(result: String?) {

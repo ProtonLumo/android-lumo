@@ -27,6 +27,8 @@ import me.proton.android.lumo.speech.SpeechViewModel
 import me.proton.android.lumo.ui.text.asString
 import me.proton.android.lumo.ui.theme.LumoTheme
 
+private const val SHEET_SHOW_DELAY_MS = 100L
+
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun SpeechSheet(onDismiss: () -> Unit) {
@@ -88,7 +90,7 @@ fun SpeechSheet(onDismiss: () -> Unit) {
     }
 
     LaunchedEffect(Unit) {
-        delay(100)
+        delay(SHEET_SHOW_DELAY_MS)
         showBottomSheet = true
         viewModel.onStartVoiceEntryRequested()
     }

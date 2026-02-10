@@ -11,11 +11,11 @@ import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.net.UnknownServiceException
+import java.security.cert.CertificateException
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLHandshakeException
 import javax.net.ssl.SSLPeerUnverifiedException
 import javax.net.ssl.SSLProtocolException
-import java.security.cert.CertificateException
 
 /**
  * Professional error classification system for network and other errors.
@@ -56,8 +56,9 @@ object ErrorClassifier {
     /**
      * Classifies throwables into proper error categories
      */
-    fun classify(throwable: Throwable): ErrorInfo {
-        return when (throwable) {
+    @Suppress("LongMethod")
+    fun classify(throwable: Throwable): ErrorInfo =
+        when (throwable) {
             // Network connectivity errors
             is UnknownHostException -> ErrorInfo(
                 type = ErrorType.Network,
@@ -165,7 +166,6 @@ object ErrorClassifier {
             // HTTP-specific errors (if using OkHttp or similar)
             else -> classifyHttpError(throwable)
         }
-    }
 
     /**
      * Classifies HTTP-specific errors (extend this based on your HTTP client)
