@@ -23,8 +23,8 @@ private const val CURVE_POWER = 0.7f
 
 @Composable
 fun OnDeviceAudioWaveform(
-    modifier: Modifier = Modifier,
     rmsDbValue: Float,
+    modifier: Modifier = Modifier,
     barCount: Int = 30,
     barColor: Color = Color.White,
     barWidth: Float = 6f,

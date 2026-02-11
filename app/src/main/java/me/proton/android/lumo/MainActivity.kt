@@ -150,8 +150,8 @@ class MainActivity : ComponentActivity() {
         viewModel.attachPermissionContract(
             permissionContract = rememberSinglePermission(
                 permission = Manifest.permission.RECORD_AUDIO,
-                onGranted = { viewModel.startVoiceEntry() },
-                onDenied = { viewModel.showMissingPermission(it) }
+                onGrant = { viewModel.startVoiceEntry() },
+                onDeny = { viewModel.showMissingPermission(it) }
             )
         )
         DisposableEffect(Unit) {

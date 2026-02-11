@@ -11,35 +11,35 @@ import androidx.core.app.ActivityCompat
 @Composable
 fun rememberSinglePermission(
     permission: String,
-    onGranted: () -> Unit = {},
-    onDenied: (String) -> Unit = {},
+    onGrant: () -> Unit = {},
+    onDeny: (String) -> Unit = {},
 ): SinglePermission {
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        if (isGranted) onGranted() else onDenied(permission)
+        if (isGranted) onGrant() else onDeny(permission)
     }
     return remember(permission) {
-        SinglePermission(permission, context, launcher, onGranted, onDenied)
+        SinglePermission(permission, context, launcher, onGrant, onDeny)
     }
 }
 
 @Composable
 fun rememberMultiPermission(
     permissions: Array<String>,
-    onGranted: () -> Unit,
-    onDenied: (List<String>) -> Unit
+    onGrant: () -> Unit,
+    onDeny: (List<String>) -> Unit
 ): MultiPermission {
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { resultMap: Map<String, Boolean> ->
         val denied = resultMap.filterValues { granted -> !granted }.keys.toList()
-        if (denied.isEmpty()) onGranted() else onDenied(denied)
+        if (denied.isEmpty()) onGrant() else onDeny(denied)
     }
     return remember(permissions) {
-        MultiPermission(permissions, context, launcher, onGranted, onDenied)
+        MultiPermission(permissions, context, launcher, onGrant, onDeny)
     }
 }
 

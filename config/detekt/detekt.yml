@@ -855,3 +855,131 @@ style:
     active: true
     excludeImports:
       - 'java.util.*'
+
+Compose:
+  ComposableAnnotationNaming:
+    active: true
+  ComposableNaming:
+    active: true
+    # -- You can optionally disable the checks in this rule for regex matches against the composable name (e.g. molecule presenters)
+    # allowedComposableFunctionNames: .*Presenter,.*MoleculePresenter
+  ComposableParamOrder:
+    active: true
+    # -- You can optionally have a list of types to be treated as lambdas (e.g. typedefs or fun interfaces not picked up automatically)
+    # treatAsLambda: MyLambdaType
+  CompositionLocalAllowlist:
+    active: true
+    # -- You can optionally define a list of CompositionLocals that are allowed here
+    # allowedCompositionLocals: LocalSomething,LocalSomethingElse
+  CompositionLocalNaming:
+    active: true
+  ContentEmitterReturningValues:
+    active: true
+    # -- You can optionally add your own composables here
+    # contentEmitters: MyComposable,MyOtherComposable
+  ContentTrailingLambda:
+    active: true
+    # -- You can optionally have a list of types to be treated as lambdas (e.g. typedefs or fun interfaces not picked up automatically)
+    # treatAsLambda: MyLambdaType
+    # -- You can optionally have a list of types to be treated as composable lambdas (e.g. typedefs or fun interfaces not picked up automatically).
+    # -- The difference with treatAsLambda is that those need `@Composable` MyLambdaType in the definition, while these won't.
+    # treatAsComposableLambda: MyComposableLambdaType
+  ContentSlotReused:
+    active: true
+    # -- You can optionally have a list of types to be treated as composable lambdas (e.g. typedefs or fun interfaces not picked up automatically).
+    # -- The difference with treatAsLambda is that those need `@Composable` MyLambdaType in the definition, while these won't.
+    # treatAsComposableLambda: MyComposableLambdaType
+  DefaultsVisibility:
+    active: true
+  LambdaParameterEventTrailing:
+    active: true
+    # -- You can optionally add your own composables here
+    # contentEmitters: MyComposable,MyOtherComposable
+    # -- You can add composables here that you don't want to count as content emitters (e.g. custom dialogs or modals)
+    # contentEmittersDenylist: MyNonEmitterComposable
+  LambdaParameterInRestartableEffect:
+    active: true
+    # -- You can optionally have a list of types to be treated as lambdas (e.g. typedefs or fun interfaces not picked up automatically)
+    # treatAsLambda: MyLambdaType
+  Material2:
+    active: false # Opt-in, disabled by default. Turn on if you want to disallow Material 2 usages.
+    # -- You can optionally allow parts of it, if you are in the middle of a migration.
+    # allowedFromM2: icons.Icons,TopAppBar
+  ModifierClickableOrder:
+    active: true
+    # -- You can optionally add your own Modifier types
+    # customModifiers: BananaModifier,PotatoModifier
+  ModifierComposed:
+    active: true
+    # -- You can optionally add your own Modifier types
+    # customModifiers: BananaModifier,PotatoModifier
+  ModifierMissing:
+    active: true
+    # -- You can optionally control the visibility of which composables to check for here
+    # -- Possible values are: `only_public`, `public_and_internal` and `all` (default is `only_public`)
+    # checkModifiersForVisibility: only_public
+    # -- You can optionally add your own Modifier types
+    # customModifiers: BananaModifier,PotatoModifier
+    # -- You can suppress this check in functions annotated with these annotations
+    # ignoreAnnotated: ['Potato', 'Banana']
+  ModifierNaming:
+    active: true
+    # -- You can optionally add your own Modifier types
+    # customModifiers: BananaModifier,PotatoModifier
+  ModifierNotUsedAtRoot:
+    active: true
+    # -- You can optionally add your own composables here
+    # contentEmitters: MyComposable,MyOtherComposable
+    # -- You can optionally add your own Modifier types
+    # customModifiers: BananaModifier,PotatoModifier
+  ModifierReused:
+    active: true
+    # -- You can optionally add your own Modifier types
+    # customModifiers: BananaModifier,PotatoModifier
+  ModifierWithoutDefault:
+    active: true
+  MultipleEmitters:
+    active: true
+    # -- You can optionally add your own composables here that will count as content emitters
+    # contentEmitters: MyComposable,MyOtherComposable
+    # -- You can add composables here that you don't want to count as content emitters (e.g. custom dialogs or modals)
+    # contentEmittersDenylist: MyNonEmitterComposable
+  MutableParams:
+    active: true
+  MutableStateAutoboxing:
+    active: true
+  MutableStateParam:
+    active: true
+  ParameterNaming:
+    active: true
+    # -- You can optionally have a list of types to be treated as lambdas (e.g. typedefs or fun interfaces not picked up automatically)
+    # treatAsLambda: MyLambdaType
+    # -- You can optionally add your allowed lambda names (e.g., usages from the past found in the official Compose code)
+    # allowedLambdaParameterNames: onSizeChanged, onGloballyPositioned
+  PreviewAnnotationNaming:
+    active: true
+  PreviewNaming:
+    active: false # Opt-in, disabled by default.
+    # -- You can optionally configure the naming strategy for previews.
+    # -- Possible values are: `suffix`, `prefix`, `anywhere`. By default, it will be `suffix`.
+    # previewNamingStrategy: suffix
+  PreviewPublic:
+    active: false
+  RememberMissing:
+    active: true
+  RememberContentMissing:
+    active: true
+  UnstableCollections:
+    active: false # Opt-in, disabled by default. Turn on if you want to enforce this (e.g. you have strong skipping disabled)
+  ViewModelForwarding:
+    active: true
+    # -- You can optionally use this rule on things other than types ending in "ViewModel" or "Presenter" (which are the defaults). You can add your own via a regex here:
+    # allowedStateHolderNames: .*ViewModel,.*Presenter
+    # -- You can optionally add an allowlist for Composable names that won't be affected by this rule
+    # allowedForwarding: .*Content,.*FancyStuff
+    # -- You can optionally add an allowlist for ViewModel/StateHolder names that won't be affected by this rule
+    # allowedForwardingOfTypes: PotatoViewModel,(Apple|Banana)ViewModel,.*FancyViewModel
+  ViewModelInjection:
+    active: true
+    # -- You can optionally add your own ViewModel factories here
+    # viewModelFactories: hiltViewModel,potatoViewModel

@@ -51,9 +51,10 @@ fun ChatScreen(
     shouldShowBackButton: Boolean,
     isLoading: Boolean,
     isLumoPage: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .imePadding(),
         topBar = {

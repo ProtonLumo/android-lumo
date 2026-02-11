@@ -27,10 +27,8 @@ import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.LottieCompositionFactory
 import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.delay
 import me.proton.android.lumo.R
 import me.proton.android.lumo.ui.theme.LumoTheme
@@ -51,9 +49,8 @@ private val LOADING_MESSAGES = listOf(
 )
 
 
-@Preview
 @Composable
-fun LoadingScreen() {
+fun LoadingScreen(modifier: Modifier = Modifier) {
     var currentMessageIndex by remember {
         mutableIntStateOf((LOADING_MESSAGES.indices).random())
     }
@@ -79,7 +76,7 @@ fun LoadingScreen() {
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(LumoTheme.colors.backgroundNorm),
         contentAlignment = Alignment.Center
@@ -119,5 +116,13 @@ fun LoadingScreen() {
                 color = LumoTheme.colors.textWeak
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun LoadingScreenPreview() {
+    LumoTheme {
+        LoadingScreen()
     }
 }

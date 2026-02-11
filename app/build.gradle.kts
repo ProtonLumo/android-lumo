@@ -212,9 +212,26 @@ android {
     }
 
     detekt {
-        toolVersion = libs.versions.detekt
+        toolVersion = libs.versions.detekt.asProvider().get()
         config.setFrom(file("../config/detekt/detekt.yml"))
         buildUponDefaultConfig = true
+        ignoredBuildTypes = listOf("alpha", "release")
+        ignoredFlavors = listOf("production")
+        ignoredVariants = listOf(
+            "productionNoGmsDebug",
+            "productionNoGmsAlpha",
+            "productionNoGmsRelease",
+            "productionGmsDebug",
+            "productionGmsAlpha",
+            "productionGmsRelease",
+        )
+        applicationVariants.all {
+            val variant = this
+            if (variant.name.contains("nobleGmsDebug") ||
+                variant.name.contains("nobleNoGmsDebug")) {
+                baseline = file("detekt-baseline-${variant.name}.xml")
+            }
+        }
     }
 }
 
@@ -271,6 +288,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    detektPlugins(libs.detekt.rules.compose)
 }
 
 sentry {
