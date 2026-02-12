@@ -224,7 +224,6 @@ android {
         toolVersion = libs.versions.detekt.asProvider().get()
         config.setFrom(file("../config/detekt/detekt.yml"))
         buildUponDefaultConfig = true
-//        baseline = file("../config/detekt/detekt-baseline-nobleGmsDebug.xml")
     }
 
     tasks.withType<Detekt>().configureEach {
