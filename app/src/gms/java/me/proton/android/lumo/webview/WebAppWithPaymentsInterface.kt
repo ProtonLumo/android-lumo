@@ -22,7 +22,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
     }
 
     suspend fun sendPaymentToken(payload: PaymentTokenPayload): Result<PaymentJsResponse> {
-        val webView = webView ?: throw IllegalStateException("WebView not attached")
+        val webView = webView ?: error("WebView not attached")
 
         return sendPaymentDataToWebView(
             webView = webView,
@@ -34,7 +34,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
     }
 
     suspend fun sendSubscriptionEvent(payload: Subscription): Result<PaymentJsResponse> {
-        val webView = webView ?: throw IllegalStateException("WebView not attached")
+        val webView = webView ?: error("WebView not attached")
 
         return sendPaymentDataToWebView(
             webView = webView,
@@ -46,7 +46,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
     }
 
     suspend fun fetchSubscriptions(): Result<PaymentJsResponse> {
-        val webView = webView ?: throw IllegalStateException("WebView not attached")
+        val webView = webView ?: error("WebView not attached")
 
         return sendPaymentDataToWebView<Unit>(
             webView = webView,
@@ -58,7 +58,7 @@ class WebAppWithPaymentsInterface : WebAppInterface() {
     }
 
     suspend fun fetchPlans(): Result<PaymentJsResponse> {
-        val webView = webView ?: throw IllegalStateException("WebView not attached")
+        val webView = webView ?: error("WebView not attached")
 
         return sendPaymentDataToWebView<Unit>(
             webView = webView,

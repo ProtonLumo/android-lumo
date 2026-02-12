@@ -1,0 +1,161 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>AbstractClassCanBeInterface:AppBinder.kt:AppBinder$AppBinder</ID>
+    <ID>AbstractClassCanBeInterface:ReviewBinder.kt:ReviewBinder$ReviewBinder</ID>
+    <ID>AbstractClassCanBeInterface:SpeechBinder.kt:SpeechBinder$SpeechBinder</ID>
+    <ID>AbstractClassCanBeInterface:SubscriptionBinder.kt:SubscriptionBinder$SubscriptionBinder</ID>
+    <ID>CyclomaticComplexMethod:BillingManager.kt:BillingManager$private fun queryExistingPurchases</ID>
+    <ID>CyclomaticComplexMethod:SubscriptionComponent.kt:@Composable fun SubscriptionComponent</ID>
+    <ID>ForbiddenComment:BillingManager.kt:BillingManager$// TODO: make me private</ID>
+    <ID>ImplicitDefaultLocale:OnDeviceAudioWaveform.kt:"rmsDb: %.2f -&gt; norm: %.2f -&gt; curved: %.2f -&gt; smoothed: %.2f -&gt; final: %.2f" .format( rmsDbValue, normalized, curvedValue, smoothedValue, finalValue )</ID>
+    <ID>ImplicitDefaultLocale:PlanPricingHelper.kt:PlanPricingHelper$String.format("%.2f %s", amount, currencyCode)</ID>
+    <ID>ImplicitDefaultLocale:PriceFormatter.kt:PriceFormatter$String.format("%.1f", sizeInGB)</ID>
+    <ID>ImplicitDefaultLocale:PriceFormatter.kt:PriceFormatter$String.format("%.2f", mainAmount)</ID>
+    <ID>InjectDispatcher:LegacyFeatureFlagDataSource.kt:LegacyFeatureFlagDataSourceImpl$IO</ID>
+    <ID>InjectDispatcher:MicVisualizer.kt:MicVisualizer$IO</ID>
+    <ID>InjectDispatcher:NetworkUtils.kt:IO</ID>
+    <ID>InjectDispatcher:ReviewRepository.kt:ReviewRepositoryImpl$IO</ID>
+    <ID>InjectDispatcher:ThemeRepository.kt:ThemeRepositoryImpl$IO</ID>
+    <ID>LargeClass:BillingManager.kt:BillingManager</ID>
+    <ID>LongMethod:BillingManager.kt:BillingManager$fun launchBillingFlowForProduct</ID>
+    <ID>LongMethod:BillingManager.kt:BillingManager$private fun handlePurchase</ID>
+    <ID>LongMethod:BillingManager.kt:BillingManager$private fun queryExistingPurchases</ID>
+    <ID>LongMethod:BillingManager.kt:BillingManager$private fun queryProductDetails</ID>
+    <ID>LongMethod:PaymentProcessingScreen.kt:@Composable private fun PaymentErrorContent</ID>
+    <ID>LongMethod:PaymentProcessingScreen.kt:@Composable private fun PaymentNetworkErrorContent</ID>
+    <ID>LongMethod:PaymentProcessingScreen.kt:@Composable private fun SubscriptionRecoveryContent</ID>
+    <ID>LongMethod:PaymentScreen.kt:@Composable fun PaymentScreen</ID>
+    <ID>LongMethod:PaymentScreen.kt:@Preview(name = "Plans Available", showBackground = true) @Preview(name = "Dark - Plans Available", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL) @Composable fun PaymentDialogPlansAvailablePreview</ID>
+    <ID>LongMethod:PaymentTokenMapper.kt:PaymentTokenMapper$fun parsePaymentToken: Subscription?</ID>
+    <ID>LongMethod:PlanSelectItem.kt:@Composable fun PlanSelectItem</ID>
+    <ID>LongMethod:PlanSelectItem.kt:@Composable private fun PlanSelectorContent</ID>
+    <ID>LongMethod:PlanSelectionScreen.kt:@Composable fun PlanSelectionScreen</ID>
+    <ID>LongMethod:PlanSelectionScreen.kt:@Composable private fun Footer</ID>
+    <ID>LongMethod:SubscriptionComponent.kt:@Composable fun SubscriptionComponent</ID>
+    <ID>LongMethod:SubscriptionComponent.kt:@Preview(showBackground = true) @Preview(name = "Dark - Loading Plans", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL) @Composable fun SubscriptionComponentPreview</ID>
+    <ID>LongMethod:SubscriptionOverviewSection.kt:@Composable fun SubscriptionOverviewSection</ID>
+    <ID>LongParameterList:OnDeviceAudioWaveform.kt:@Composable fun OnDeviceAudioWaveform</ID>
+    <ID>LongParameterList:PlanSelectItem.kt:@Composable fun PlanSelectItem</ID>
+    <ID>LongParameterList:SpeechInputContent.kt:@Composable fun SpeechInputContent</ID>
+    <ID>LongParameterList:SpeechInputContent.kt:@Composable private fun Content</ID>
+    <ID>LongParameterList:VoskAudioWaveform.kt:@Composable fun VoskAudioWaveform</ID>
+    <ID>LoopWithTooManyJumpStatements:PlanExtractor.kt:PlanExtractor$for</ID>
+    <ID>MagicNumber:BillingManager.kt:BillingManager$100.0</ID>
+    <ID>MagicNumber:BillingManager.kt:BillingManager$10_000</ID>
+    <ID>MagicNumber:BillingManager.kt:BillingManager.&lt;no name provided&gt;$1000</ID>
+    <ID>MagicNumber:PaymentProcessingScreen.kt:2000</ID>
+    <ID>MagicNumber:PaymentProcessingScreen.kt:80</ID>
+    <ID>MagicNumber:PlanExtractor.kt:PlanExtractor$12</ID>
+    <ID>MagicNumber:PlanPricingHelper.kt:PlanPricingHelper$100</ID>
+    <ID>MagicNumber:PlanPricingHelper.kt:PlanPricingHelper$12</ID>
+    <ID>MagicNumber:PlanPricingHelper.kt:PlanPricingHelper$1_000_000.0</ID>
+    <ID>MagicNumber:PlanSelectItem.kt:12</ID>
+    <ID>MagicNumber:PlanSelectionScreen.kt:0xFFFF9800</ID>
+    <ID>MagicNumber:PlanSelectionScreen.kt:0xFFFFC266</ID>
+    <ID>MagicNumber:PriceFormatter.kt:PriceFormatter$100.0</ID>
+    <ID>MagicNumber:PriceFormatter.kt:PriceFormatter$1024</ID>
+    <ID>MagicNumber:SentryInitializer.kt:SentryInitializer$0.2</ID>
+    <ID>MagicNumber:SubscriptionComponent.kt:0xFFE53935</ID>
+    <ID>MagicNumber:SubscriptionComponent.kt:0xFFFFECEC</ID>
+    <ID>MagicNumber:SubscriptionComponent.kt:1000</ID>
+    <ID>MagicNumber:SubscriptionComponent.kt:12</ID>
+    <ID>MagicNumber:SubscriptionComponent.kt:24</ID>
+    <ID>MagicNumber:SubscriptionComponent.kt:30L</ID>
+    <ID>MagicNumber:SubscriptionComponent.kt:60</ID>
+    <ID>MatchingDeclarationName:InAppReviewManager.kt:InAppReviewManagerImpl : InAppReviewManager</ID>
+    <ID>MatchingDeclarationName:PaymentProcessingScreen.kt:PaymentProcessingState</ID>
+    <ID>MaxLineLength:BillingManager.kt:BillingManager$"Existing purchases query result: ${billingResult.responseCode}, purchases size: ${purchases.size}"</ID>
+    <ID>MaxLineLength:BillingManager.kt:BillingManager$"Using Google Play pricing for payment: ${amountInCents / 100.0} $currencyCode (from priceAmountMicros: $priceAmountMicros)"</ID>
+    <ID>MaxLineLength:BillingManager.kt:BillingManager$.</ID>
+    <ID>MaxLineLength:BillingManager.kt:BillingManager$?:</ID>
+    <ID>MaxLineLength:BillingManager.kt:BillingManager.&lt;no name provided&gt;$"Product details supported: ${productDetailsSupported?.responseCode == BillingClient.BillingResponseCode.OK}"</ID>
+    <ID>MaxLineLength:BillingManager.kt:BillingManager.&lt;no name provided&gt;$.</ID>
+    <ID>MaxLineLength:BillingManager.kt:BillingManager.Companion$description = "Annual subscription (save 20%)"</ID>
+    <ID>MaxLineLength:BillingManager.kt:BillingManager.Companion$description = "Monthly subscription"</ID>
+    <ID>MaxLineLength:PaymentProcessingScreen.kt:text = "Click 'Recover Subscription' to sync your Google Play subscription with our servers. " + "This will restore your subscription access."</ID>
+    <ID>MaxLineLength:PaymentProcessingScreen.kt:text = "Your payment was processed but we couldn't verify it with our servers. " + "Don't worry, we'll try again."</ID>
+    <ID>MaxLineLength:PlanSelectionScreen.kt:"Purchase button clicked for plan: ${planToPurchase.id}, ProductID: ${planToPurchase.productId}, OfferToken: ${planToPurchase.offerToken}"</ID>
+    <ID>MaxLineLength:SubscriptionComponent.kt:"Mobile plan cancellation check: isCancelled=$cancelled (!isAutoRenewing=${!isAutoRenewing}), isActive=$isActive"</ID>
+    <ID>MaxLineLength:SubscriptionOverviewSection.kt:"Subscription: Name=${subscription.name}, External=${subscription.external}, Renew=${subscription.renew}"</ID>
+    <ID>MaxLineLength:SubscriptionViewModel.kt:SubscriptionViewModel$"Subscription sync check - API hasValid: $hasValidSubscriptions, GooglePlay hasActive: $hasGooglePlaySubscription, isRenewing: $isAutoRenewing"</ID>
+    <ID>MaxLineLength:WebAppWithPaymentsInterface.kt:WebAppWithPaymentsInterface$if</ID>
+    <ID>NewLineAtEndOfFile:HasOffer.kt:me.proton.android.lumo.usecase.HasOffer.kt</ID>
+    <ID>NewLineAtEndOfFile:InAppReviewManager.kt:me.proton.android.lumo.review.InAppReviewManager.kt</ID>
+    <ID>NewLineAtEndOfFile:MainScreenAnalytics.kt:me.proton.android.lumo.analytics.MainScreenAnalytics.kt</ID>
+    <ID>NewLineAtEndOfFile:PaymentProcessingScreen.kt:me.proton.android.lumo.ui.components.PaymentProcessingScreen.kt</ID>
+    <ID>NewLineAtEndOfFile:PaymentScreen.kt:me.proton.android.lumo.ui.components.PaymentScreen.kt</ID>
+    <ID>NewLineAtEndOfFile:PaymentTokenMapper.kt:me.proton.android.lumo.data.mapper.PaymentTokenMapper.kt</ID>
+    <ID>NewLineAtEndOfFile:PaymentsJsInjector.kt:me.proton.android.lumo.webview.PaymentsJsInjector.kt</ID>
+    <ID>NewLineAtEndOfFile:PlanMapper.kt:me.proton.android.lumo.data.mapper.PlanMapper.kt</ID>
+    <ID>NewLineAtEndOfFile:PlanPricingHelper.kt:me.proton.android.lumo.utils.PlanPricingHelper.kt</ID>
+    <ID>NewLineAtEndOfFile:PlanResult.kt:me.proton.android.lumo.data.PlanResult.kt</ID>
+    <ID>NewLineAtEndOfFile:PlanSelectItem.kt:me.proton.android.lumo.ui.components.PlanSelectItem.kt</ID>
+    <ID>NewLineAtEndOfFile:PriceFormatter.kt:me.proton.android.lumo.utils.PriceFormatter.kt</ID>
+    <ID>NewLineAtEndOfFile:ReviewBinder.kt:me.proton.android.lumo.di.ReviewBinder.kt</ID>
+    <ID>NewLineAtEndOfFile:ReviewRepository.kt:me.proton.android.lumo.review.ReviewRepository.kt</ID>
+    <ID>NewLineAtEndOfFile:SentryInitializer.kt:me.proton.android.lumo.sentry.SentryInitializer.kt</ID>
+    <ID>NewLineAtEndOfFile:SentryModule.kt:me.proton.android.lumo.di.SentryModule.kt</ID>
+    <ID>NewLineAtEndOfFile:SubscriptionBinder.kt:me.proton.android.lumo.di.SubscriptionBinder.kt</ID>
+    <ID>NewLineAtEndOfFile:SubscriptionComponent.kt:me.proton.android.lumo.ui.components.SubscriptionComponent.kt</ID>
+    <ID>NewLineAtEndOfFile:SubscriptionMapper.kt:me.proton.android.lumo.data.mapper.SubscriptionMapper.kt</ID>
+    <ID>NewLineAtEndOfFile:SubscriptionModule.kt:me.proton.android.lumo.di.SubscriptionModule.kt</ID>
+    <ID>NewLineAtEndOfFile:SubscriptionPurchaseHandler.kt:me.proton.android.lumo.data.mapper.SubscriptionPurchaseHandler.kt</ID>
+    <ID>NewLineAtEndOfFile:SubscriptionRepository.kt:me.proton.android.lumo.data.repository.SubscriptionRepository.kt</ID>
+    <ID>NewLineAtEndOfFile:SubscriptionRepositoryImpl.kt:me.proton.android.lumo.data.repository.SubscriptionRepositoryImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:SubscriptionResult.kt:me.proton.android.lumo.data.SubscriptionResult.kt</ID>
+    <ID>NewLineAtEndOfFile:SubscriptionViewModel.kt:me.proton.android.lumo.viewmodels.SubscriptionViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:Tracer.kt:me.proton.android.lumo.sentry.tracer.Tracer.kt</ID>
+    <ID>NewLineAtEndOfFile:WebAppWithPaymentsInterface.kt:me.proton.android.lumo.webview.WebAppWithPaymentsInterface.kt</ID>
+    <ID>NoNameShadowing:LegacyFeatureFlagDataSource.kt:LegacyFeatureFlagDataSourceImpl${ Timber.tag(TAG).d("Failure: $it") }</ID>
+    <ID>NoNameShadowing:MainActivity.kt:MainActivity${ openExternalUrl(it) }</ID>
+    <ID>NoNameShadowing:ThemeRepository.kt:ThemeRepositoryImpl$theme</ID>
+    <ID>NoNameShadowing:VoskSpeechRecognizer.kt:VoskSpeechRecognizer${ listener?.onReadyForSpeech() _speechChannel.trySend(it) }</ID>
+    <ID>ObjectLiteralToLambda:SubscriptionModule.kt:SubscriptionModule$object : IsPaymentAvailableUseCase { override fun invoke(): Boolean = billingManager.get() != null }</ID>
+    <ID>ProtectedMemberInFinalClass:BillingManager.kt:BillingManager$// Customer ID from selected plan protected var currentCustomerID: String? = null</ID>
+    <ID>ProtectedMemberInFinalClass:BillingManager.kt:BillingManager$protected var subscriptionExpiryTimeMillis: Long = 0L</ID>
+    <ID>ReturnCount:BillingManager.kt:BillingManager$fun launchBillingFlowForProduct</ID>
+    <ID>ReturnCount:BillingManager.kt:BillingManager$fun selectPlan: Boolean</ID>
+    <ID>ReturnCount:PaymentTokenMapper.kt:PaymentTokenMapper$fun parsePaymentToken: Subscription?</ID>
+    <ID>ReturnCount:PlanMapper.kt:PlanMapper$private fun extractPlanFeatures: List&lt;PlanFeature&gt;</ID>
+    <ID>ReturnCount:PlanPricingHelper.kt:PlanPricingHelper$private fun computeSavings: String?</ID>
+    <ID>ReturnCount:SubscriptionComponent.kt:fun getGooglePlayPricing: Pair&lt;String, String&gt;?</ID>
+    <ID>ReturnCount:SubscriptionMapper.kt:SubscriptionMapper$private fun parseSubscriptions: List&lt;SubscriptionItemResponse&gt;</ID>
+    <ID>SpreadOperator:UiText.kt:(res, *values.toTypedArray())</ID>
+    <ID>SuspendFunWithFlowReturnType:ReviewRepository.kt:ReviewRepository$suspend</ID>
+    <ID>SuspendFunWithFlowReturnType:ReviewRepository.kt:ReviewRepositoryImpl$suspend</ID>
+    <ID>SuspendFunWithFlowReturnType:ThemeRepository.kt:ThemeRepository$suspend</ID>
+    <ID>SuspendFunWithFlowReturnType:ThemeRepository.kt:ThemeRepositoryImpl$suspend</ID>
+    <ID>SuspendFunWithFlowReturnType:WebAppRepositoryImpl.kt:WebAppRepository$suspend</ID>
+    <ID>SuspendFunWithFlowReturnType:WebAppRepositoryImpl.kt:WebAppRepositoryImpl$suspend</ID>
+    <ID>TooGenericExceptionCaught:BillingManager.kt:BillingManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:BillingManager.kt:BillingManager.&lt;no name provided&gt;$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:BillingManagerWrapper.kt:BillingManagerWrapper$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PaymentTokenMapper.kt:PaymentTokenMapper$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PlanMapper.kt:PlanMapper$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PlanPricingHelper.kt:PlanPricingHelper$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SubscriptionMapper.kt:SubscriptionMapper$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SubscriptionOverviewSection.kt:e: Exception</ID>
+    <ID>TooGenericExceptionCaught:WebAppWithPaymentsInterface.kt:WebAppWithPaymentsInterface$e: Exception</ID>
+    <ID>TooManyFunctions:BillingManager.kt:BillingManager</ID>
+    <ID>UnsafeCallOnNullableType:BillingManager.kt:BillingManager$customerID!!</ID>
+    <ID>UnsafeCallOnNullableType:SubscriptionComponent.kt:matchingProduct.subscriptionOfferDetails!!</ID>
+    <ID>UnusedPrivateFunction:BillingManager.kt:BillingManager$private fun stopPeriodicRefresh</ID>
+    <ID>UnusedPrivateProperty:SpeechRecognitionManager.kt:private const val TAG = "SpeechRecognitionManager"</ID>
+    <ID>UnusedPrivateProperty:UnleashDataSource.kt:UnleashDataSourceImpl.Companion$private const val TAG = "UnleashRepository"</ID>
+    <ID>UnusedVariable:InAppReviewManager.kt:InAppReviewManagerImpl$@ReviewErrorCode val reviewErrorCode = (task.exception as ReviewException).errorCode</ID>
+    <ID>UnusedVariable:SpeechRecognitionManager.kt:SpeechRecognitionManager.&lt;no name provided&gt;$val state = engineState()</ID>
+    <ID>UnusedVariable:SubscriptionComponent.kt:isActive</ID>
+    <ID>UseAnyOrNoneInsteadOfFind:HasOffer.kt:HasOffer$find { it.offerId == BuildConfig.OFFER_ID }</ID>
+    <ID>UseCheckOrError:WebAppInterface.kt:WebAppInterface$throw IllegalStateException("WebView not attached")</ID>
+    <ID>UseCheckOrError:WebAppWithPaymentsInterface.kt:WebAppWithPaymentsInterface$throw IllegalStateException("WebView not attached")</ID>
+    <ID>UseOrEmpty:BillingManager.kt:BillingManager$currentCustomerID ?: ""</ID>
+    <ID>UseOrEmpty:BillingManager.kt:BillingManager$purchase.products.firstOrNull() ?: ""</ID>
+    <ID>UseOrEmpty:ErrorClassifier.kt:ErrorClassifier$throwable.message?.lowercase() ?: ""</ID>
+    <ID>UseOrEmpty:LumoChromeClient.kt:LumoChromeClient$results ?: arrayOf()</ID>
+    <ID>UseOrEmpty:MainActivity.kt:MainActivity.&lt;no name provided&gt;$webViewManager.currentUrl() ?: ""</ID>
+    <ID>UseOrEmpty:PlanPricingHelper.kt:PlanPricingHelper$product.subscriptionOfferDetails ?: emptyList()</ID>
+    <ID>VariableNaming:BillingManager.kt:BillingManager$// New state for payment processing // TODO: make me private internal val _paymentProcessingState = MutableStateFlow&lt;PaymentProcessingState?&gt;(null)</ID>
+  </CurrentIssues>
+</SmellBaseline>

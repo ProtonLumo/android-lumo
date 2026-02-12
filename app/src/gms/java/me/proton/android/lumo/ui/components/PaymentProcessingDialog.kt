@@ -12,10 +12,11 @@ import me.proton.android.lumo.ui.theme.LumoTheme
 fun PaymentProcessingDialog(
     state: PaymentProcessingState,
     onRetry: () -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         color = LumoTheme.colors.backgroundNorm
     ) {
         PaymentProcessingScreen(

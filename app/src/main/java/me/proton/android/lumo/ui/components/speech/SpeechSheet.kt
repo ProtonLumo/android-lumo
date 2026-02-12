@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -27,18 +28,22 @@ import me.proton.android.lumo.speech.SpeechViewModel
 import me.proton.android.lumo.ui.text.asString
 import me.proton.android.lumo.ui.theme.LumoTheme
 
+private const val SHEET_SHOW_DELAY_MS = 100L
+
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun SpeechSheet(onDismiss: () -> Unit) {
-    val viewModel: SpeechViewModel = hiltViewModel()
-
+fun SpeechSheet(
+    modifier: Modifier = Modifier,
+    viewModel: SpeechViewModel = hiltViewModel(),
+    onDismiss: () -> Unit,
+) {
     val context = LocalContext.current
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(Unit) {
+    LaunchedEffect(onDismiss) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.errors.collectLatest { error ->
                 Toast.makeText(
@@ -66,6 +71,7 @@ fun SpeechSheet(onDismiss: () -> Unit) {
 
     if (showBottomSheet) {
         ModalBottomSheet(
+            modifier = modifier,
             onDismissRequest = { onDismiss() },
             sheetState = sheetState,
             containerColor = LumoTheme.colors.primary,
@@ -88,7 +94,7 @@ fun SpeechSheet(onDismiss: () -> Unit) {
     }
 
     LaunchedEffect(Unit) {
-        delay(100)
+        delay(SHEET_SHOW_DELAY_MS)
         showBottomSheet = true
         viewModel.onStartVoiceEntryRequested()
     }

@@ -10,12 +10,13 @@ import android.webkit.WebView
 import timber.log.Timber
 
 private const val TAG = "WebViewManager"
+private const val LOG_TRUNCATE_LENGTH = 100
 
 /**
  * Manager class that handles WebView-related operations including file chooser functionality.
  * Separates WebView concerns from MainActivity.
  */
-class WebViewManager() {
+class WebViewManager {
 
     // File chooser callback
     var filePathCallback: ValueCallback<Array<Uri>>? = null
@@ -46,7 +47,7 @@ class WebViewManager() {
      */
     fun evaluateJavaScript(script: String, callback: ((String?) -> Unit)? = null) {
         _webView?.evaluateJavascript(script, callback)
-        Timber.tag(TAG).i("JavaScript executed: ${script.take(100)}...")
+        Timber.tag(TAG).i("JavaScript executed: ${script.take(LOG_TRUNCATE_LENGTH)}...")
     }
 
     /**

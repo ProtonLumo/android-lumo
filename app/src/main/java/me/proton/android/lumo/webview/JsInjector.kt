@@ -1,9 +1,10 @@
+@file:Suppress("TooManyFunctions")
 package me.proton.android.lumo.webview
-
 
 import android.webkit.WebView
 import me.proton.android.lumo.config.LumoConfig
 import timber.log.Timber
+
 
 private const val TAG = "JsInjector"
 
@@ -11,6 +12,7 @@ private const val TAG = "JsInjector"
  * Injects essential JavaScript into the WebView to monitor Lumo container visibility
  * and handle navigation.
  */
+@Suppress("LongMethod")
 fun injectEssentialJavascript(webView: WebView) {
     val js = """
         (function() {
@@ -267,6 +269,7 @@ fun injectEssentialJavascript(webView: WebView) {
 /**
  * Injects JavaScript to handle promotion buttons for payment
  */
+@Suppress("LongMethod")
 fun injectPromotionButtonHandlers(webView: WebView) {
     val js = """
         (function() {
@@ -354,6 +357,7 @@ fun injectPromotionButtonHandlers(webView: WebView) {
     }
 }
 
+@Suppress("LongMethod")
 fun injectSignupPlanParamFix(webView: WebView) {
     val js = """
         (function() {
@@ -487,6 +491,7 @@ fun injectLumoContainerCheck(webView: WebView) {
 /**
  * Injects JavaScript to handle links containing 'lumo/upgrade' in the href
  */
+@Suppress("LongMethod")
 fun injectUpgradeLinkHandlers(webView: WebView) {
 
     val js = """
@@ -569,6 +574,7 @@ fun injectUpgradeLinkHandlers(webView: WebView) {
 /**
  * Injects JavaScript to handle keyboard visibility and adjust composer positioning
  */
+@Suppress("LongMethod")
 fun injectKeyboardHandling(webView: WebView) {
     Timber.tag(TAG).i("🎯 injectKeyboardHandling() called - about to inject JavaScript")
     val js = """
@@ -886,6 +892,7 @@ fun injectKeyboardHandling(webView: WebView) {
 /**
  * Injects JavaScript to modify account pages by removing unwanted sections
  */
+@Suppress("LongMethod")
 fun injectAccountPageModifier(webView: WebView) {
     val js = """
         (function() {
@@ -955,6 +962,7 @@ fun injectAccountPageModifier(webView: WebView) {
 /**
  * Injects Android interface availability checking and retry logic to make interface calls robust
  */
+@Suppress("LongMethod")
 fun injectAndroidInterfacePolyfill(webView: WebView) {
     val js = """
         (function() {
@@ -1099,6 +1107,7 @@ fun injectTheme(webView: WebView, theme: Int, mode: Int) {
     webView.evaluateJavascript(js, null)
 }
 
+@Suppress("LongMethod")
 fun themeChangeListener(webView: WebView) {
     val js = """
         (function() {
@@ -1229,6 +1238,7 @@ fun themeStyleChangedListener(webView: WebView) {
 /**
  * Injects JavaScript to handle Black Friday 2025 promotion button clicks
  */
+@Suppress("LongMethod")
 fun injectBF2025PromotionHandler(webView: WebView) {
     val js = """
         (function() {

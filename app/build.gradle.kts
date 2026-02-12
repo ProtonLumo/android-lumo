@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.google.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.detekt)
     id("version-tasks")
 }
 val unleashPropsFile = rootProject.file("unleash.properties")
@@ -209,6 +210,13 @@ android {
     hilt {
         enableAggregatingTask = true
     }
+
+    detekt {
+        toolVersion = libs.versions.detekt.asProvider().get()
+        config.setFrom(file("../config/detekt/detekt.yml"))
+        buildUponDefaultConfig = true
+        baseline = file("../config/detekt/detekt-baseline-nobleGmsDebug.xml")
+    }
 }
 
 dependencies {
@@ -264,6 +272,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    detektPlugins(libs.detekt.rules.compose)
 }
 
 sentry {

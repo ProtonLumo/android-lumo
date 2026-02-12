@@ -10,6 +10,8 @@ import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
 
+private const val MIN_BANDWIDTH_KBPS = 6000
+
 // --- Network Reachability Check ---
 suspend fun isHostReachable(host: String, port: Int, timeoutMs: Int): Boolean {
     return withContext(Dispatchers.IO) { // Run on IO dispatcher
@@ -30,9 +32,13 @@ suspend fun isHostReachable(host: String, port: Int, timeoutMs: Int): Boolean {
                 "Host $host:$port not reachable within ${timeoutMs}ms: ${e.message}"
             )
             false
-        } catch (e: Exception) {
-            // Other potential exceptions
-            Timber.tag("NetworkCheck").e(e, "Error checking reachability for $host:$port")
+        } catch (e: SecurityException) {
+            Timber.tag("NetworkCheck")
+                .e(e, "Security exception checking reachability for $host:$port")
+            false
+        } catch (e: IllegalArgumentException) {
+            Timber.tag("NetworkCheck")
+                .e(e, "Invalid argument checking reachability for $host:$port")
             false
         }
     }
@@ -40,9 +46,11 @@ suspend fun isHostReachable(host: String, port: Int, timeoutMs: Int): Boolean {
 
 fun Context.isNetworkStable(): Boolean {
     val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val network = cm.activeNetwork ?: return false
-    val caps = cm.getNetworkCapabilities(network) ?: return false
-    return caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-            caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) &&
-            caps.linkDownstreamBandwidthKbps >= 6000
+    return cm.activeNetwork?.let { network ->
+        val caps = cm.getNetworkCapabilities(network)
+        caps != null &&
+                (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                        caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) &&
+                        caps.linkDownstreamBandwidthKbps >= MIN_BANDWIDTH_KBPS)
+    } ?: false
 }

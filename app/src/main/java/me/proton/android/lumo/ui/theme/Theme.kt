@@ -1,3 +1,5 @@
+@file:Suppress("CompositionLocalAllowlist")
+
 package me.proton.android.lumo.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme

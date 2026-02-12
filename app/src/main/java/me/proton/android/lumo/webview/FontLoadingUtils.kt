@@ -7,17 +7,22 @@ import androidx.annotation.WorkerThread
 import timber.log.Timber
 import java.io.IOException
 
-fun String.fontUrl(): String? =
-    if (endsWith(".woff") ||
-        endsWith(".woff2") ||
-        endsWith(".ttf") ||
-        endsWith(".otf") ||
-        endsWith(".eot")
-    ) {
+private val fontExtensions = setOf(
+    "woff",
+    "woff2",
+    "ttf",
+    "otf",
+    "eot",
+)
+
+fun String.fontUrl(): String? {
+    val extension = this.split(".").lastOrNull()
+    return if (extension != null && fontExtensions.contains(extension)) {
         this
     } else {
         null
     }
+}
 
 @WorkerThread
 fun WebResourceRequest?.loadFontAndType(

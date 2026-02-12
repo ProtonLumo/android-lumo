@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.view.ViewGroup
 import android.webkit.WebSettings
 import android.webkit.WebView
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import me.proton.android.lumo.BuildConfig
@@ -80,9 +81,13 @@ fun createWebView(
 
         try {
             onAttach(this)
-        } catch (e: Exception) {
+        } catch (e: IllegalStateException) {
             Timber.tag(MainActivity.Companion.TAG).e(
-                e, "WebView factory: Error adding JavascriptInterface"
+                e, "WebView factory: Illegal state adding JavascriptInterface"
+            )
+        } catch (e: SecurityException) {
+            Timber.tag(MainActivity.Companion.TAG).e(
+                e, "WebView factory: Security exception adding JavascriptInterface"
             )
         }
 
@@ -131,20 +136,19 @@ private fun generateCustomUserAgent(): String {
  */
 private fun injectSafeAreaInsets(
     webView: WebView,
-    systemBarsInsets: androidx.core.graphics.Insets,
+    systemBarsInsets: Insets,
     imeHeight: Int,
     density: Float
 ) {
-    try {
-        // Convert pixels to density-independent pixels for CSS
-        val topDp = (systemBarsInsets.top / density)
-        val rightDp = (systemBarsInsets.right / density)
-        val bottomDp =
-            maxOf(systemBarsInsets.bottom, imeHeight) / density // Use larger of nav bar or keyboard
-        val leftDp = (systemBarsInsets.left / density)
+    // Convert pixels to density-independent pixels for CSS
+    val topDp = (systemBarsInsets.top / density)
+    val rightDp = (systemBarsInsets.right / density)
+    val bottomDp =
+        maxOf(systemBarsInsets.bottom, imeHeight) / density // Use larger of nav bar or keyboard
+    val leftDp = (systemBarsInsets.left / density)
 
-        // Inject CSS variables for safe area insets
-        val safeAreaJs = """
+    // Inject CSS variables for safe area insets
+    val safeAreaJs = """
             document.documentElement.style.setProperty('--safe-area-inset-top', '${topDp}px');
             document.documentElement.style.setProperty('--safe-area-inset-right', '${rightDp}px');
             document.documentElement.style.setProperty('--safe-area-inset-bottom', '${bottomDp}px');
@@ -161,12 +165,8 @@ private fun injectSafeAreaInsets(
             console.log('Safe area insets injected:', {top: ${topDp}, right: ${rightDp}, bottom: ${bottomDp}, left: ${leftDp}});
         """.trimIndent()
 
-        webView.evaluateJavascript(safeAreaJs, null)
-        Timber.tag(TAG).i(
-            "Safe area insets injected: top=${topDp}dp, right=${rightDp}dp, bottom=${bottomDp}dp, left=${leftDp}dp"
-        )
-
-    } catch (e: Exception) {
-        Timber.tag(TAG).e(e, "Error injecting safe area insets")
-    }
+    webView.evaluateJavascript(safeAreaJs, null)
+    Timber.tag(TAG).i(
+        "Safe area insets injected: top=${topDp}dp, right=${rightDp}dp, bottom=${bottomDp}dp, left=${leftDp}dp"
+    )
 }

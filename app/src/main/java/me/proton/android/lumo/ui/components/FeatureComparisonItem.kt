@@ -24,6 +24,9 @@ import coil.request.ImageRequest
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.ui.theme.LumoTheme
 
+private const val FEATURE_NAME_WEIGHT = 0.8f
+private const val FEATURE_VALUE_WEIGHT = 0.2f
+
 /**
  * Displays a feature comparison row between free and paid plans
  */
@@ -47,7 +50,7 @@ fun FeatureComparisonItem(
         // Icon - using AsyncImage with fallback
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(0.8f),
+            modifier = Modifier.weight(FEATURE_NAME_WEIGHT),
         ) {
             Box(
                 modifier =
@@ -88,7 +91,7 @@ fun FeatureComparisonItem(
             color = LumoTheme.colors.focus,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
-            modifier = Modifier.weight(0.2f),
+            modifier = Modifier.weight(FEATURE_VALUE_WEIGHT),
         )
     }
 } 

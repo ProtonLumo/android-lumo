@@ -31,6 +31,8 @@ ksp = "2.2.20-2.0.4"
 timber = "5.0.1"
 unleash = "3.2.3"
 inapp-review = "2.0.2"
+detekt = "2.0.0-alpha.2"
+detekt-rules-compose = "0.5.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -77,6 +79,7 @@ timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "tim
 unleash = { group = "io.getunleash", name = "unleash-android", version.ref = "unleash" }
 inapp-review = { group = "com.google.android.play", name = "review", version.ref = "inapp-review" }
 inapp-review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "inapp-review" }
+detekt-rules-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "detekt-rules-compose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -89,4 +92,5 @@ baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprof
 sentry-android-gradle = { id = "io.sentry.android.gradle", version.ref = "sentry-android-gradle" }
 google-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 

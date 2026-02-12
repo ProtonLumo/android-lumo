@@ -15,6 +15,10 @@ import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.ui.text.UiText
 import timber.log.Timber
 
+private const val INSETS_DELAY_MS = 300L
+private const val INTERFACE_VERIFICATION_DELAY_MS = 1000L
+private const val LOADING_SAFETY_TIMEOUT_MS = 2000L
+
 class LumoWebClient(
     private val context: Context,
     private val isDarkThemeProvider: () -> Boolean,
@@ -51,7 +55,10 @@ class LumoWebClient(
             Timber.tag(TAG).i("✅ Keyboard handler injection completed in onPageStarted")
         } else {
             Timber.tag(TAG)
-                .i("❌ Skipping keyboard injection - isLumoDomain=$isLumoDomain, isAccountDomain=$isAccountDomain, view=$view")
+                .i(
+                    "❌ Skipping keyboard injection - " +
+                            "isLumoDomain=$isLumoDomain, isAccountDomain=$isAccountDomain, view=$view"
+                )
         }
 
         // Only show loading screen when navigating to Lumo pages
@@ -96,12 +103,12 @@ class LumoWebClient(
                 // Use a small delay to ensure the page is fully loaded
                 Handler(Looper.getMainLooper()).postDelayed({
                     view.requestApplyInsets() // Trigger inset application
-                }, 300)
+                }, INSETS_DELAY_MS)
 
                 // Verify Android interface is working after a brief delay
                 Handler(Looper.getMainLooper()).postDelayed({
                     verifyAndroidInterface(view)
-                }, 1000) // Wait 1 second for all injections to complete
+                }, INTERFACE_VERIFICATION_DELAY_MS)
 
                 // Inject account page modifier only for account domain pages
                 if (isAccountDomain(url)) {
@@ -120,12 +127,10 @@ class LumoWebClient(
                         hideLoading(true)
                         Timber.tag(TAG).i("State updated via ViewModel")
                     }
-                }, 2000) // Reduced to 2 seconds for faster response
+                }, LOADING_SAFETY_TIMEOUT_MS)
             }
-        } catch (e: Exception) {
-            Timber.tag(TAG).e(e, "Error during onPageFinished setup ")
-            // Ensure loading state is cleared even on error
-
+        } catch (e: IllegalStateException) {
+            Timber.tag(TAG).e(e, "Illegal state during onPageFinished setup")
             hideLoading(false)
         }
     }
@@ -168,17 +173,17 @@ class LumoWebClient(
     override fun shouldOverrideUrlLoading(
         view: WebView?,
         request: WebResourceRequest?
-    ): Boolean {
-        val rawUrl = request?.url ?: return false
-        val url = rawUrl.toString()
+    ): Boolean =
+        request?.url?.let { rawUrl ->
+            val url = rawUrl.toString()
 
-        if (LumoConfig.isKnownDomain(url) && !LumoConfig.isBusinessPage(url)) {
-            return handleKnownDomain(view, rawUrl, url)
-        }
-
-        openExternally(view, rawUrl)
-        return true
-    }
+            if (LumoConfig.isKnownDomain(url) && !LumoConfig.isBusinessPage(url)) {
+                handleKnownDomain(view, rawUrl, url)
+            } else {
+                openExternally(view, rawUrl)
+                true
+            }
+        } ?: false
 
     override fun shouldInterceptRequest(
         view: WebView?,
@@ -221,9 +226,12 @@ class LumoWebClient(
             }
 
             context.startActivity(intent)
-        } catch (e: Exception) {
+        } catch (e: android.content.ActivityNotFoundException) {
             onError(UiText.ResText(R.string.error_open_external_link))
-            Timber.tag(TAG).e(e, "Failed to open external link: $uri")
+            Timber.tag(TAG).e(e, "No activity found to open external link: $uri")
+        } catch (e: SecurityException) {
+            onError(UiText.ResText(R.string.error_open_external_link))
+            Timber.tag(TAG).e(e, "Security exception opening external link: $uri")
         }
     }
 

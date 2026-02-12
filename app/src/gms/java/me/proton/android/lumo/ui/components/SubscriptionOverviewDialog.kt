@@ -13,10 +13,11 @@ fun SubscriptionOverviewDialog(
     googleProductDetails: List<ProductDetails>,
     getSubscriptionPaymentStatus: () -> Triple<Boolean, Boolean, Long>,
     subscriptions: List<SubscriptionItemResponse>,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         color = LumoTheme.colors.backgroundNorm
     ) {
         SubscriptionOverviewSection(

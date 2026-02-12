@@ -27,7 +27,7 @@ object LumoConfig {
      */
     val ACCOUNT_DOMAIN: String = buildDomain("account")
 
-    private val BUSINESS_PATH: String = "/business"
+    private const val BUSINESS_PATH: String = "/business"
 
     /**
      * Full Lumo URL with HTTPS
@@ -85,4 +85,4 @@ object LumoConfig {
             - ACCOUNT_URL: '$ACCOUNT_URL'
         """.trimIndent()
     }
-} 
+}
