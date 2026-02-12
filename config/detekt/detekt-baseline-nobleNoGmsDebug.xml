@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>AbstractClassCanBeInterface:AppBinder.kt:AppBinder$AppBinder</ID>
+    <ID>AbstractClassCanBeInterface:SpeechBinder.kt:SpeechBinder$SpeechBinder</ID>
+    <ID>ImplicitDefaultLocale:OnDeviceAudioWaveform.kt:"rmsDb: %.2f -&gt; norm: %.2f -&gt; curved: %.2f -&gt; smoothed: %.2f -&gt; final: %.2f" .format( rmsDbValue, normalized, curvedValue, smoothedValue, finalValue )</ID>
+    <ID>InjectDispatcher:LegacyFeatureFlagDataSource.kt:LegacyFeatureFlagDataSourceImpl$IO</ID>
+    <ID>InjectDispatcher:MicVisualizer.kt:MicVisualizer$IO</ID>
+    <ID>InjectDispatcher:NetworkUtils.kt:IO</ID>
+    <ID>InjectDispatcher:ThemeRepository.kt:ThemeRepositoryImpl$IO</ID>
+    <ID>LongParameterList:OnDeviceAudioWaveform.kt:@Composable fun OnDeviceAudioWaveform</ID>
+    <ID>LongParameterList:SpeechInputContent.kt:@Composable fun SpeechInputContent</ID>
+    <ID>LongParameterList:SpeechInputContent.kt:@Composable private fun Content</ID>
+    <ID>LongParameterList:VoskAudioWaveform.kt:@Composable fun VoskAudioWaveform</ID>
+    <ID>NoNameShadowing:LegacyFeatureFlagDataSource.kt:LegacyFeatureFlagDataSourceImpl${ Timber.tag(TAG).d("Failure: $it") }</ID>
+    <ID>NoNameShadowing:MainActivity.kt:MainActivity${ openExternalUrl(it) }</ID>
+    <ID>NoNameShadowing:ThemeRepository.kt:ThemeRepositoryImpl$theme</ID>
+    <ID>NoNameShadowing:VoskSpeechRecognizer.kt:VoskSpeechRecognizer${ listener?.onReadyForSpeech() _speechChannel.trySend(it) }</ID>
+    <ID>SpreadOperator:UiText.kt:(res, *values.toTypedArray())</ID>
+    <ID>SuspendFunWithFlowReturnType:ThemeRepository.kt:ThemeRepository$suspend</ID>
+    <ID>SuspendFunWithFlowReturnType:ThemeRepository.kt:ThemeRepositoryImpl$suspend</ID>
+    <ID>SuspendFunWithFlowReturnType:WebAppRepositoryImpl.kt:WebAppRepository$suspend</ID>
+    <ID>SuspendFunWithFlowReturnType:WebAppRepositoryImpl.kt:WebAppRepositoryImpl$suspend</ID>
+    <ID>UnusedPrivateProperty:SpeechRecognitionManager.kt:private const val TAG = "SpeechRecognitionManager"</ID>
+    <ID>UnusedPrivateProperty:UnleashDataSource.kt:UnleashDataSourceImpl.Companion$private const val TAG = "UnleashRepository"</ID>
+    <ID>UnusedVariable:SpeechRecognitionManager.kt:SpeechRecognitionManager.&lt;no name provided&gt;$val state = engineState()</ID>
+    <ID>UseOrEmpty:ErrorClassifier.kt:ErrorClassifier$throwable.message?.lowercase() ?: ""</ID>
+    <ID>UseOrEmpty:LumoChromeClient.kt:LumoChromeClient$results ?: arrayOf()</ID>
+    <ID>UseOrEmpty:MainActivity.kt:MainActivity.&lt;no name provided&gt;$webViewManager.currentUrl() ?: ""</ID>
+  </CurrentIssues>
+</SmellBaseline>

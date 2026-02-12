@@ -1,3 +1,4 @@
+import dev.detekt.gradle.Detekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
@@ -223,7 +224,15 @@ android {
         toolVersion = libs.versions.detekt.asProvider().get()
         config.setFrom(file("../config/detekt/detekt.yml"))
         buildUponDefaultConfig = true
-        baseline = file("../config/detekt/detekt-baseline-nobleGmsDebug.xml")
+    }
+
+    tasks.withType<Detekt>().configureEach {
+        if (name == "detektNobleGmsDebug") {
+            baseline = file("../config/detekt/detekt-baseline-nobleGmsDebug.xml")
+        }
+        if (name == "detektNobleNoGmsDebug") {
+            baseline = file("../config/detekt/detekt-baseline-nobleNoGmsDebug.xml")
+        }
     }
 }
 
