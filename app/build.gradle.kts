@@ -213,9 +213,9 @@ android {
 
     detekt {
         toolVersion = libs.versions.detekt.asProvider().get()
-        config.setFrom(file("../config/detekt/asdas.yml"))
+        config.setFrom(file("../config/detekt/detekt.yml"))
         buildUponDefaultConfig = true
-        baseline = file("detekt-baseline-nobleGmsDebug.xml")
+        baseline = file("../config/detekt/detekt-baseline-nobleGmsDebug.xml")
     }
 }
 
