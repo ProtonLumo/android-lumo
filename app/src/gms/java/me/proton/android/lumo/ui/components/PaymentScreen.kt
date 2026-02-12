@@ -5,6 +5,7 @@ import android.content.res.Configuration.UI_MODE_TYPE_NORMAL
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -23,11 +24,12 @@ private const val TAG = "PaymentDialog"
 @Composable
 fun PaymentScreen(
     isReady: Boolean,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: SubscriptionViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val mainActivity = context as MainActivity
-    val viewModel: SubscriptionViewModel = hiltViewModel()
     val uiState by viewModel.uiStateFlow.collectAsStateWithLifecycle()
 
     LaunchedEffect(isReady) {
@@ -68,7 +70,8 @@ fun PaymentScreen(
             onClose = {
                 onDismiss()
                 viewModel.resetPaymentState()
-            }
+            },
+            modifier = modifier,
         )
 
         return
@@ -82,28 +85,28 @@ fun PaymentScreen(
             getSubscriptionPaymentStatus = {
                 viewModel.getGooglePlaySubscriptionStatus()
             },
-            onClose = onDismiss
+            onClose = onDismiss,
+            modifier = modifier,
         )
-        return
+    } else {
+        PlanSelectionScreen(
+            uiState = uiState,
+            onDismiss = onDismiss,
+            onSelectPlan = { viewModel.selectPlan(it) },
+            onPurchaseClick = { planToPurchase ->
+                viewModel.launchBillingFlowForProduct(
+                    productId = planToPurchase.productId,
+                    offerToken = planToPurchase.offerToken,
+                    customerID = planToPurchase.customerId,
+                    getBillingResult = { billingClient, billingParams ->
+                        billingClient?.launchBillingFlow(mainActivity, billingParams)
+                    },
+                )
+            },
+            onClearError = { viewModel.clearError() },
+            modifier = modifier,
+        )
     }
-
-
-    PlanSelectionScreen(
-        uiState = uiState,
-        onDismiss = onDismiss,
-        onPlanSelected = { viewModel.selectPlan(it) },
-        onPurchaseClicked = { planToPurchase ->
-            viewModel.launchBillingFlowForProduct(
-                productId = planToPurchase.productId,
-                offerToken = planToPurchase.offerToken,
-                customerID = planToPurchase.customerId,
-                getBillingResult = { billingClient, billingParams ->
-                    billingClient?.launchBillingFlow(mainActivity, billingParams)
-                },
-            )
-        },
-        onClearError = { viewModel.clearError() }
-    )
 }
 
 // Preview Functions for Different Dialog States
@@ -132,8 +135,8 @@ fun PaymentDialogLoadingSubscriptionsPreview() {
                 paymentEvent = PaymentEvent.Default,
             ),
             onDismiss = {},
-            onPlanSelected = {},
-            onPurchaseClicked = {},
+            onSelectPlan = {},
+            onPurchaseClick = {},
             onClearError = {},
         )
     }
@@ -161,8 +164,8 @@ fun PaymentDialogLoadingPlansPreview() {
                 paymentEvent = PaymentEvent.Default,
             ),
             onDismiss = {},
-            onPlanSelected = {},
-            onPurchaseClicked = {},
+            onSelectPlan = {},
+            onPurchaseClick = {},
             onClearError = {},
         )
     }
@@ -190,8 +193,8 @@ fun PaymentDialogErrorPreview() {
                 paymentEvent = PaymentEvent.Default,
             ),
             onDismiss = {},
-            onPlanSelected = {},
-            onPurchaseClicked = {},
+            onSelectPlan = {},
+            onPurchaseClick = {},
             onClearError = {},
         )
     }
@@ -219,8 +222,8 @@ fun PaymentDialogNoPlansPreview() {
                 paymentEvent = PaymentEvent.Default,
             ),
             onDismiss = {},
-            onPlanSelected = {},
-            onPurchaseClicked = {},
+            onSelectPlan = {},
+            onPurchaseClick = {},
             onClearError = {},
         )
     }
@@ -298,8 +301,8 @@ fun PaymentDialogPlansAvailablePreview() {
                 paymentEvent = PaymentEvent.Default,
             ),
             onDismiss = {},
-            onPlanSelected = {},
-            onPurchaseClicked = {},
+            onSelectPlan = {},
+            onPurchaseClick = {},
             onClearError = {},
         )
     }
@@ -342,8 +345,8 @@ fun PaymentDialogPlansWithErrorPreview() {
                 paymentEvent = PaymentEvent.Default,
             ),
             onDismiss = {},
-            onPlanSelected = {},
-            onPurchaseClicked = {},
+            onSelectPlan = {},
+            onPurchaseClick = {},
             onClearError = {},
         )
     }

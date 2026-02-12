@@ -48,10 +48,11 @@ import java.util.Locale
 
 @Composable
 fun SubscriptionComponent(
+    onManageSubscription: (Context) -> Unit,
     subscription: SubscriptionItemResponse,
+    modifier: Modifier = Modifier,
     googlePlayRenewalStatus: Triple<Boolean, Boolean, Long>? = null,
     googlePlayProductDetails: List<ProductDetails>? = null,
-    onManageSubscription: (Context) -> Unit
 ) {
     // Check if this is a mobile plan (External == 2 indicates a Google Play Store subscription)
     val isMobilePlan = subscription.external == 2
@@ -156,7 +157,7 @@ fun SubscriptionComponent(
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .border(

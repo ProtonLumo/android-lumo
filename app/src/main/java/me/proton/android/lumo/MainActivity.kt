@@ -38,6 +38,7 @@ import me.proton.android.lumo.navigation.paymentRoutes
 import me.proton.android.lumo.permission.rememberSinglePermission
 import me.proton.android.lumo.review.InAppReviewManager
 import me.proton.android.lumo.ui.components.ChatScreen
+import me.proton.android.lumo.ui.components.ChatScreenFlags
 import me.proton.android.lumo.ui.components.dialog.PermissionDialog
 import me.proton.android.lumo.ui.components.dialog.PurchaseLinkDialog
 import me.proton.android.lumo.ui.components.speech.SpeechSheet
@@ -274,10 +275,12 @@ class MainActivity : ComponentActivity() {
             composable<NavRoutes.Chat> {
                 ChatScreen(
                     webView = webView,
-                    hasSeenLumoContainer = uiState.hasSeenLumoContainer,
-                    shouldShowBackButton = uiState.shouldShowBackButton,
-                    isLoading = uiState.isLoading,
-                    isLumoPage = uiState.isLumoPage,
+                    chatScreenFlags = ChatScreenFlags(
+                        hasSeenLumoContainer = uiState.hasSeenLumoContainer,
+                        shouldShowBackButton = uiState.shouldShowBackButton,
+                        isLoading = uiState.isLoading,
+                        isLumoPage = uiState.isLumoPage,
+                    ),
                 )
             }
             paymentRoutes(

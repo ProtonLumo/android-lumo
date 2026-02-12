@@ -3,6 +3,7 @@ package me.proton.android.lumo.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -62,10 +63,11 @@ sealed class PaymentProcessingState {
 fun PaymentProcessingScreen(
     state: PaymentProcessingState,
     onRetry: () -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(), color = LumoTheme.colors.backgroundNorm
+        modifier = modifier.fillMaxWidth(), color = LumoTheme.colors.backgroundNorm
     ) {
         Column(
             modifier = Modifier
@@ -126,7 +128,7 @@ fun PaymentProcessingScreen(
 }
 
 @Composable
-private fun PaymentLoadingContent() {
+private fun ColumnScope.PaymentLoadingContent() {
     val loadingTexts = listOf(
         "Processing your payment...",
         "This will just take a moment...",
@@ -176,7 +178,7 @@ private fun PaymentLoadingContent() {
 }
 
 @Composable
-private fun PaymentVerifyingContent() {
+private fun ColumnScope.PaymentVerifyingContent() {
     Text(
         text = "Verifying Subscription",
         style = MaterialTheme.typography.titleMedium,
@@ -210,8 +212,9 @@ private fun PaymentVerifyingContent() {
     )
 }
 
+@Suppress("LongMethod")
 @Composable
-private fun PaymentErrorContent(
+private fun ColumnScope.PaymentErrorContent(
     message: String, onRetry: () -> Unit, onClose: () -> Unit
 ) {
     var isRetrying by remember { mutableStateOf(false) }
@@ -310,9 +313,12 @@ private fun PaymentErrorContent(
     )
 }
 
+@Suppress("LongMethod")
 @Composable
-private fun PaymentNetworkErrorContent(
-    message: String, onRetry: () -> Unit, onClose: () -> Unit
+private fun ColumnScope.PaymentNetworkErrorContent(
+    message: String,
+    onRetry: () -> Unit,
+    onClose: () -> Unit,
 ) {
     var isRetrying by remember { mutableStateOf(false) }
 
@@ -411,8 +417,9 @@ private fun PaymentNetworkErrorContent(
     )
 }
 
+@Suppress("LongMethod")
 @Composable
-private fun SubscriptionRecoveryContent(
+private fun ColumnScope.SubscriptionRecoveryContent(
     message: String, onRetry: () -> Unit, onClose: () -> Unit
 ) {
     var isRetrying by remember { mutableStateOf(false) }
@@ -498,7 +505,7 @@ private fun SubscriptionRecoveryContent(
 }
 
 @Composable
-private fun PaymentSuccessContent(
+private fun ColumnScope.PaymentSuccessContent(
     onClose: () -> Unit
 ) {
     Text(

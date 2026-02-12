@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,16 +52,18 @@ import timber.log.Timber
 
 private const val TAG = "PlanSelectionDialog"
 
+@Suppress("LongParameterList", "LongMethod")
 @Composable
 fun PlanSelectionScreen(
     uiState: UiState,
     onDismiss: () -> Unit,
-    onPlanSelected: (JsPlanInfo) -> Unit,
-    onPurchaseClicked: (JsPlanInfo) -> Unit,
-    onClearError: () -> Unit
+    onSelectPlan: (JsPlanInfo) -> Unit,
+    onPurchaseClick: (JsPlanInfo) -> Unit,
+    onClearError: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .background(LumoTheme.colors.backgroundNorm)
             .fillMaxSize()
     ) {
@@ -122,7 +125,7 @@ fun PlanSelectionScreen(
                                 isDarkTheme = uiState.theme.isDarkTheme(),
                                 paymentEvent = uiState.paymentEvent,
                                 isSelected = uiState.selectedPlan?.id == plan.id,
-                                onSelected = { onPlanSelected(plan) },
+                                onSelect = { onSelectPlan(plan) },
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
                             Spacer(modifier = Modifier.height(12.dp))
@@ -145,7 +148,7 @@ fun PlanSelectionScreen(
                     Footer(
                         uiState = uiState,
                         onClearError = onClearError,
-                        onPurchaseClicked = onPurchaseClicked,
+                        onPurchaseClick = onPurchaseClick,
                         onDismiss = onDismiss,
                     )
                 }
@@ -179,7 +182,7 @@ fun PlanSelectionScreen(
 private fun Footer(
     uiState: UiState,
     onClearError: () -> Unit,
-    onPurchaseClicked: (JsPlanInfo) -> Unit,
+    onPurchaseClick: (JsPlanInfo) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -208,7 +211,7 @@ private fun Footer(
                     Timber.tag(TAG).i(
                         "Purchase button clicked for plan: ${planToPurchase.id}, ProductID: ${planToPurchase.productId}, OfferToken: ${planToPurchase.offerToken}"
                     )
-                    onPurchaseClicked(planToPurchase)
+                    onPurchaseClick(planToPurchase)
                 } ?: run {
                     Timber.tag(TAG).i("Purchase clicked but no plan selected.")
                 }
@@ -264,7 +267,7 @@ private fun Footer(
 }
 
 @Composable
-private fun Header(
+private fun ColumnScope.Header(
     paymentEvent: PaymentEvent,
     isDarkTheme: Boolean,
 ) {
@@ -344,9 +347,10 @@ fun PlanSelectionDialogLoadingPreview() {
                 paymentEvent = PaymentEvent.Default,
             ),
             onDismiss = {},
-            onPlanSelected = {},
-            onPurchaseClicked = {}
-        ) {}
+            onSelectPlan = {},
+            onPurchaseClick = {},
+            onClearError = {},
+        )
     }
 }
 
@@ -406,8 +410,9 @@ fun PlanSelectionDialogPlansPreview() {
                 paymentEvent = PaymentEvent.Default,
             ),
             onDismiss = {},
-            onPlanSelected = {},
-            onPurchaseClicked = {}
-        ) {}
+            onSelectPlan = {},
+            onPurchaseClick = {},
+            onClearError = {},
+        )
     }
 }

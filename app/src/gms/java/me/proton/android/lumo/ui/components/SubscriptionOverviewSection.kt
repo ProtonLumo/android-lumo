@@ -38,7 +38,8 @@ fun SubscriptionOverviewSection(
     subscriptions: List<SubscriptionItemResponse>,
     googleProductDetails: List<ProductDetails>,
     getSubscriptionPaymentStatus: () -> Triple<Boolean, Boolean, Long>,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     // Get Google Play subscription information
     val (isActive, isAutoRenewing, expiryTimeMillis) = getSubscriptionPaymentStatus()
@@ -54,7 +55,7 @@ fun SubscriptionOverviewSection(
     )
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
             .padding(24.dp),

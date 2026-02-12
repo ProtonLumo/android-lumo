@@ -47,43 +47,42 @@ private const val FADE_OUT_DURATION_MS = 200
 @Composable
 fun ChatScreen(
     webView: WebView,
-    hasSeenLumoContainer: Boolean,
-    shouldShowBackButton: Boolean,
-    isLoading: Boolean,
-    isLumoPage: Boolean,
+    chatScreenFlags: ChatScreenFlags,
     modifier: Modifier = Modifier,
 ) {
-    Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .imePadding(),
-        topBar = {
-            if (shouldShowBackButton) {
-                TopBarWithNavigation {
-                    if (webView.canGoBack()) {
-                        webView.goBack()
-                    } else {
-                        webView.loadUrl(LumoConfig.LUMO_URL)
-                        webView.clearHistory()
+    with(chatScreenFlags) {
+        Scaffold(
+            modifier = modifier
+                .fillMaxSize()
+                .imePadding(),
+            topBar = {
+                if (shouldShowBackButton) {
+                    TopBarWithNavigation {
+                        if (webView.canGoBack()) {
+                            webView.goBack()
+                        } else {
+                            webView.loadUrl(LumoConfig.LUMO_URL)
+                            webView.clearHistory()
+                        }
                     }
                 }
             }
-        }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .imePadding()
-        ) {
-            AndroidView(
-                factory = { webView },
+        ) { innerPadding ->
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(innerPadding)
                     .imePadding()
-            )
-            val showLoading = isLoading && !hasSeenLumoContainer && isLumoPage
-            LoadingScreen(show = showLoading)
+            ) {
+                AndroidView(
+                    factory = { webView },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .imePadding()
+                )
+                val showLoading = isLoading && !hasSeenLumoContainer && isLumoPage
+                LoadingScreen(show = showLoading)
+            }
         }
     }
 }
@@ -143,3 +142,10 @@ private fun LoadingScreen(show: Boolean) {
         LoadingScreen()
     }
 }
+
+data class ChatScreenFlags(
+    val hasSeenLumoContainer: Boolean,
+    val shouldShowBackButton: Boolean,
+    val isLoading: Boolean,
+    val isLumoPage: Boolean,
+)
