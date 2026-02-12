@@ -300,9 +300,14 @@ The app supports multiple build variants across three dimensions to accommodate 
 
 ### Building the Project
 1. Clone the repository
-2. Open the project in Android Studio
-3. Ensure you have the required Android SDK versions installed
-4. For release builds, configure signing by setting environment variables:
+2. **Install git hooks** (recommended):
+   ```bash
+   ./hooks/install-hooks.sh
+   ```
+   This enables pre-commit checks (detekt) to ensure code quality before committing.
+3. Open the project in Android Studio
+4. Ensure you have the required Android SDK versions installed
+5. For release builds, configure signing by setting environment variables:
    ```bash
    # Option 1: Set environment variables directly
    export LUMO_KEY_ALIAS="your_key_alias"
