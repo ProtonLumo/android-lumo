@@ -36,84 +36,95 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import me.proton.android.lumo.MainActivity
 import me.proton.android.lumo.R
+import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.ui.theme.LumoTheme
 import timber.log.Timber
+
+private const val FADE_IN_DURATION_MS = 150
+private const val FADE_OUT_DURATION_MS = 200
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     webView: WebView,
-    hasSeenLumoContainer: Boolean,
-    shouldShowBackButton: Boolean,
-    isLoading: Boolean,
-    isLumoPage: Boolean,
-    handleWebViewNavigation: () -> Unit,
+    chatScreenFlags: ChatScreenFlags,
+    modifier: Modifier = Modifier,
 ) {
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .imePadding(),
-        topBar = {
-            if (shouldShowBackButton) {
-                TopAppBar(
-                    title = {},
-                    navigationIcon = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(24.dp)) // clip ripple to rounded shape
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = ripple(
-                                        // ripple params
-                                        bounded = true,
-                                    )
-                                ) {
-                                    Timber.tag(MainActivity.TAG)
-                                        .i("Back button clicked, navigating to Lumo")
-                                    handleWebViewNavigation()
-                                }
-                                .padding(all = 8.dp) // optional padding
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.lumo_icon),
-                                contentDescription = null,
-                                tint = Color.Unspecified,
-                                modifier = Modifier.height(25.dp)
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                text = stringResource(id = R.string.back_to_lumo),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = LumoTheme.colors.textNorm
-                            )
+    with(chatScreenFlags) {
+        Scaffold(
+            modifier = modifier
+                .fillMaxSize()
+                .imePadding(),
+            topBar = {
+                if (shouldShowBackButton) {
+                    TopBarWithNavigation {
+                        if (webView.canGoBack()) {
+                            webView.goBack()
+                        } else {
+                            webView.loadUrl(LumoConfig.LUMO_URL)
+                            webView.clearHistory()
                         }
                     }
+                }
+            }
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .imePadding()
+            ) {
+                AndroidView(
+                    factory = { webView },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .imePadding()
+                )
+                val showLoading = isLoading && !hasSeenLumoContainer && isLumoPage
+                LoadingScreen(show = showLoading)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopBarWithNavigation(handleBack: () -> Unit) {
+    TopAppBar(
+        title = {},
+        navigationIcon = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(24.dp)) // clip ripple to rounded shape
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(
+                            // ripple params
+                            bounded = true,
+                        )
+                    ) {
+                        Timber.tag(MainActivity.TAG)
+                            .i("Back button clicked, navigating to Lumo")
+                        handleBack()
+                    }
+                    .padding(all = 8.dp) // optional padding
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.lumo_icon),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.height(25.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = stringResource(id = R.string.back_to_lumo),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = LumoTheme.colors.textNorm
                 )
             }
         }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .imePadding()
-        ) {
-            AndroidView(
-                factory = { webView },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .imePadding()
-            )
-
-            val showLoading = isLoading && !hasSeenLumoContainer && isLumoPage
-            Timber.tag(MainActivity.TAG).i(
-                "Showing loading screen with fade transition - isLoading: $isLoading, " +
-                        "hasSeenLumoContainer: $hasSeenLumoContainer, isLumoPage: $isLumoPage"
-            )
-            LoadingScreen(show = showLoading)
-        }
-    }
+    )
 }
 
 @Composable
@@ -122,12 +133,19 @@ private fun LoadingScreen(show: Boolean) {
     AnimatedVisibility(
         visible = show,
         enter = fadeIn(
-            animationSpec = tween(150)
+            animationSpec = tween(FADE_IN_DURATION_MS)
         ),
         exit = fadeOut(
-            animationSpec = tween(200)
+            animationSpec = tween(FADE_OUT_DURATION_MS)
         )
     ) {
         LoadingScreen()
     }
 }
+
+data class ChatScreenFlags(
+    val hasSeenLumoContainer: Boolean,
+    val shouldShowBackButton: Boolean,
+    val isLoading: Boolean,
+    val isLumoPage: Boolean,
+)

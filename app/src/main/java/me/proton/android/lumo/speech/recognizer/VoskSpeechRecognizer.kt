@@ -42,8 +42,8 @@ class VoskSpeechRecognizer(
             { model: Model? ->
                 model?.let {
                     try {
-                        recognizer = Recognizer(model, 16000.0f)
-                        speechService = SpeechService(recognizer, 16000.0f).also {
+                        recognizer = Recognizer(model, SAMPLE_RATE)
+                        speechService = SpeechService(recognizer, SAMPLE_RATE).also {
                             listener?.onReadyForSpeech()
                             _speechChannel.trySend(it)
                         }
@@ -146,5 +146,9 @@ class VoskSpeechRecognizer(
         coroutineScope.cancel()
         speechService?.stop()
         speechService?.shutdown()
+    }
+
+    companion object {
+        private const val SAMPLE_RATE = 16000f // 16 kHz
     }
 }

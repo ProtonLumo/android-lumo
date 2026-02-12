@@ -4,7 +4,9 @@ platform :android do
 
   desc "Assemble debug variants for MR builds"
   lane :assemble_debugs do
+    gradle(task: "detektNobleGmsDebug")
     gradle(task: "assembleNobleGmsDebug")
+    gradle(task: "detektNobleNoGmsDebug")
     gradle(task: "assembleNobleNoGmsDebug")
   end
 

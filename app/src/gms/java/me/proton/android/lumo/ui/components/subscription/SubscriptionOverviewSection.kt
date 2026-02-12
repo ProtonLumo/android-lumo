@@ -32,7 +32,7 @@ fun SubscriptionOverviewSection(
     onClose: () -> Unit
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
             .padding(24.dp),

@@ -37,9 +37,9 @@ class ThemeRepositoryImpl @Inject constructor(
         _themeFlow
             .onEach { theme ->
                 val (theme, mode) = when (theme) {
-                    is AppStyle.System -> (if (isSystemInDarkMode) 15 else 14) to 0
-                    is AppStyle.Dark -> 15 to 1
-                    is AppStyle.Light -> 14 to 2
+                    is AppStyle.System -> (if (isSystemInDarkMode) THEME_DARK else THEME_LIGHT) to MODE_SYSTEM
+                    is AppStyle.Dark -> THEME_DARK to MODE_DARK
+                    is AppStyle.Light -> THEME_LIGHT to MODE_LIGHT
                 }
 
                 webBridge.injectTheme(theme, mode)
@@ -51,5 +51,10 @@ class ThemeRepositoryImpl @Inject constructor(
 
     companion object {
         private const val KEY_THEME = "key::lumo::theme"
+        private const val THEME_DARK = 15
+        private const val THEME_LIGHT = 14
+        private const val MODE_SYSTEM = 0
+        private const val MODE_DARK = 1
+        private const val MODE_LIGHT = 2
     }
 }

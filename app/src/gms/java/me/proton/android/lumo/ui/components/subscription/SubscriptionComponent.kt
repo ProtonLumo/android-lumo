@@ -140,7 +140,7 @@ fun SubscriptionComponent(
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .border(

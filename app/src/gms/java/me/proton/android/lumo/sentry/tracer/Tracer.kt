@@ -24,7 +24,13 @@ class Tracer(private val transactionOp: Operation) : LumoTracer {
     }
 
     override fun stopSpan(operation: Operation) {
+        spans[operation]?.status = SpanStatus.OK
         spans[operation]?.finish()
+    }
+
+    override fun cancel() {
+        transaction?.status = SpanStatus.CANCELLED
+        transaction?.finish()
     }
 
     override fun finishTransaction() {

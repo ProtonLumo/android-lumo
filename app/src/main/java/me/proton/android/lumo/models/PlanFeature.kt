@@ -12,4 +12,4 @@ data class PlanFeature(
     @SerialName("freeText") val freeText: String,          // Free tier description (second part of Text)
     @SerialName("paidText") val paidText: String,          // Paid tier description (third part of Text)
     @SerialName("iconName") val iconName: String           // From IconName field
-) 
+)

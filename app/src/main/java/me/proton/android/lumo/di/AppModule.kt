@@ -20,6 +20,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    private const val POLLING_INTERVAL_MS = 3_00_000L // 5 minutes
+    private const val METRICS_INTERVAL_MS = 3_00_000L // 5 minutes
+
     @Provides
     @Singleton
     fun appPrefers(@ApplicationContext context: Context): SharedPreferences =
@@ -47,8 +50,8 @@ object AppModule {
                         }
                         .build()
                 )
-                .pollingStrategy.interval(3_00_000) // once every 5 mins
-                .metricsStrategy.interval(3_00_000)
+                .pollingStrategy.interval(POLLING_INTERVAL_MS)
+                .metricsStrategy.interval(METRICS_INTERVAL_MS)
                 .build()
         )
     }

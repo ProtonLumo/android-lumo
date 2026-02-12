@@ -11,12 +11,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import me.proton.android.lumo.analytics.LumoAnalytics
 import me.proton.android.lumo.config.LumoConfig
 import me.proton.android.lumo.data.repository.ThemeRepository
 import me.proton.android.lumo.data.repository.WebAppRepository
 import me.proton.android.lumo.featureflag.FeatureGatekeeper
 import me.proton.android.lumo.permission.PermissionContract
-import me.proton.android.lumo.tracer.LumoTracer
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.utils.isHostReachable
@@ -24,6 +24,9 @@ import timber.log.Timber
 import javax.inject.Inject
 
 private const val TAG = "MainActivityViewModel"
+private const val HTTPS_PORT = 443
+private const val NETWORK_CHECK_TIMEOUT_MS = 3000 // 3 seconds
+private const val LOADING_TIMEOUT_MS = 5000 // 5 seconds
 
 // Define UI State (can be expanded later)
 data class MainUiState(
@@ -39,7 +42,7 @@ data class MainUiState(
 class MainActivityViewModel @Inject constructor(
     private val themeRepository: ThemeRepository,
     private val webAppRepository: WebAppRepository,
-    private val measureMainScreenReady: LumoTracer,
+    private val analytics: LumoAnalytics,
     private val featureGatekeeper: FeatureGatekeeper,
 ) : ViewModel() {
 
@@ -90,12 +93,6 @@ class MainActivityViewModel @Inject constructor(
     private var audioPermissionContract: PermissionContract? = null
 
     init {
-        measureMainScreenReady.startTransaction(name = "MainReady")
-        measureMainScreenReady.measureSpan(
-            operation = LumoTracer.Operation.MainReady,
-            description = "Measure the time it took to load the main chat screen"
-        )
-
         // Don't call performInitialNetworkCheck here, call from Activity onCreate
         viewModelScope.launch {
             webAppRepository.listenToWebEvent().collect { event ->
@@ -110,7 +107,8 @@ class MainActivityViewModel @Inject constructor(
                     }
 
                     is WebEvent.RetryLoadRequested -> {
-                        resetNetworkCheckFlag()
+                        Timber.tag(TAG).i("Resetting checkCompleted flag for retry.")
+                        checkCompleted = false
                         performInitialNetworkCheck()
                     }
 
@@ -139,8 +137,7 @@ class MainActivityViewModel @Inject constructor(
                             if (it.hasSeenLumoContainer && !it.isLoading) {
                                 it
                             } else {
-                                measureMainScreenReady.stopSpan(operation = LumoTracer.Operation.MainReady)
-                                measureMainScreenReady.finishTransaction()
+                                analytics.finish()
                                 featureGatekeeper.start()
                                 it.copy(
                                     isLoading = false,
@@ -198,8 +195,8 @@ class MainActivityViewModel @Inject constructor(
 
         viewModelScope.launch {
             val host = LumoConfig.LUMO_DOMAIN
-            val port = 443
-            val timeout = 3000 // 3 seconds
+            val port = HTTPS_PORT
+            val timeout = NETWORK_CHECK_TIMEOUT_MS
             Timber.tag(TAG).i("Performing initial network check for $host:$port...")
 
             val reachable = isHostReachable(host, port, timeout) // Call the suspend function
@@ -233,18 +230,13 @@ class MainActivityViewModel @Inject constructor(
 
     private fun forceHideLoadingAfterDelay() {
         viewModelScope.launch {
-            delay(5000)
+            delay(LOADING_TIMEOUT_MS.toLong())
             val currentState = _uiState.value
             if (currentState.isLoading) {
                 Timber.tag(TAG).i("Forcing loading screen to hide from global timer")
                 hideLoading()
             }
         }
-    }
-
-    fun resetNetworkCheckFlag() {
-        Timber.tag(TAG).i("Resetting checkCompleted flag for retry.")
-        checkCompleted = false
     }
 
     fun handleJavascriptResult(result: String?) {
@@ -293,5 +285,13 @@ class MainActivityViewModel @Inject constructor(
 
     fun showMissingPermission(missingPermission: String) {
         _eventChannel.trySend(UiEvent.MissingPermission(missingPermission))
+    }
+
+    fun startAnalytics() {
+        analytics.start()
+    }
+
+    fun cancelAnalytics() {
+        analytics.cancel()
     }
 }

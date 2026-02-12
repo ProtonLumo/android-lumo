@@ -21,6 +21,12 @@ import kotlinx.coroutines.delay
 import kotlin.math.max
 import kotlin.math.pow
 
+private const val LERP_FACTOR = 0.2f
+private const val FRAME_DELAY_MS = 16L // ~60 fps
+private const val MIN_BAR_HEIGHT = 0.05f
+private const val RMS_SCALE_FACTOR = 2000f
+private const val CURVE_POWER = 0.5f
+
 @Composable
 fun VoskAudioWaveform(
     isListening: Boolean,
@@ -57,20 +63,20 @@ fun VoskAudioWaveform(
     // Animate RMS at ~60 fps
     LaunchedEffect(Unit) {
         while (true) {
-            displayedRms = lerp(displayedRms, targetRms, 0.2f)
-            delay(16L)
+            displayedRms = lerp(displayedRms, targetRms, LERP_FACTOR)
+            delay(FRAME_DELAY_MS)
         }
     }
 
     val audioLevels = remember {
         mutableStateListOf<Float>().apply {
-            addAll(List(barCount) { 0.05f })
+            addAll(List(barCount) { MIN_BAR_HEIGHT })
         }
     }
 
     LaunchedEffect(displayedRms) {
-        val normalized = (displayedRms / 2000f).coerceIn(0f, 1f) // dynamic scale
-        val curvedValue = normalized.pow(0.5f)
+        val normalized = (displayedRms / RMS_SCALE_FACTOR).coerceIn(0f, 1f)
+        val curvedValue = normalized.pow(CURVE_POWER)
         val smoothed = audioLevels.last() * smoothingFactor + curvedValue * (1f - smoothingFactor)
         if (audioLevels.isNotEmpty()) audioLevels.removeAt(0)
         audioLevels.add(smoothed)

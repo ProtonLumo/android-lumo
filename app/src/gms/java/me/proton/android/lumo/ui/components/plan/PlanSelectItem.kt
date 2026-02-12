@@ -48,9 +48,9 @@ fun PlanSelectItem(
     plan: JsPlanInfo,
     paymentEvent: PaymentEvent,
     isSelected: Boolean,
-    onSelected: () -> Unit,
-    modifier: Modifier = Modifier,
+    onSelect: () -> Unit,
     isDarkTheme: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     val borderColor = if (isSelected) {
         if (plan.cycle == 12) {
@@ -90,13 +90,13 @@ fun PlanSelectItem(
             .clip(RoundedCornerShape(12.dp))
             .selectable(
                 selected = isSelected,
-                onClick = onSelected,
+                onClick = onSelect,
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (plan.cycle == 12 && paymentEvent == PaymentEvent.BlackFriday) {
             Column {
-                PlanSelectorContent(isSelected, onSelected, borderColor, plan, paymentEvent)
+                PlanSelectorContent(isSelected, onSelect, borderColor, plan, paymentEvent)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -130,7 +130,7 @@ fun PlanSelectItem(
                 }
             }
         } else {
-            PlanSelectorContent(isSelected, onSelected, borderColor, plan, paymentEvent)
+            PlanSelectorContent(isSelected, onSelect, borderColor, plan, paymentEvent)
         }
 
     }
@@ -139,7 +139,7 @@ fun PlanSelectItem(
 @Composable
 private fun PlanSelectorContent(
     isSelected: Boolean,
-    onSelected: () -> Unit,
+    onSelect: () -> Unit,
     borderColor: Color,
     plan: JsPlanInfo,
     paymentEvent: PaymentEvent,
@@ -150,7 +150,7 @@ private fun PlanSelectorContent(
     ) {
         RadioButton(
             selected = isSelected,
-            onClick = onSelected,
+            onClick = onSelect,
             colors = RadioButtonDefaults.colors(
                 selectedColor = borderColor,
                 unselectedColor = LumoTheme.colors.borderNorm

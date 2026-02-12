@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 import me.proton.android.lumo.MainActivityViewModel.WebEvent as MainWebEvent
 
 @SuppressLint("StaticFieldLeak")
+@Suppress("TooManyFunctions")
 open class WebAppInterface {
 
     @Volatile
@@ -48,8 +49,10 @@ open class WebAppInterface {
                 "console.log('Android interface available:', typeof window.Android !== 'undefined');",
                 null
             )
-        } catch (e: Exception) {
-            Timber.tag(MainActivity.TAG).e(e, "Error adding JavaScript interface")
+        } catch (e: IllegalStateException) {
+            Timber.tag(MainActivity.TAG).e(e, "Illegal state adding JavaScript interface")
+        } catch (e: SecurityException) {
+            Timber.tag(MainActivity.TAG).e(e, "Security exception adding JavaScript interface")
         }
     }
 
@@ -59,13 +62,13 @@ open class WebAppInterface {
     }
 
     fun injectTheme(theme: Int, mode: Int) {
-        val webView = webView ?: throw IllegalStateException("WebView not attached")
+        val webView = webView ?: error("WebView not attached")
 
         injectTheme(webView = webView, theme = theme, mode = mode)
     }
 
     fun injectSpeechOutput(spokenText: String) {
-        val webView = webView ?: throw IllegalStateException("WebView not attached")
+        val webView = webView ?: error("WebView not attached")
 
         injectSpokenText(webView, spokenText)
     }
@@ -164,7 +167,7 @@ open class WebAppInterface {
     }
 
     suspend fun getFeature(featureId: FeatureId): Result<GetFeaturesResponse> {
-        val webView = webView ?: throw IllegalStateException("WebView not attached")
+        val webView = webView ?: error("WebView not attached")
 
         return LegacyFeatureFlagJsInjector.getFeature(
             webView = webView,
@@ -175,7 +178,7 @@ open class WebAppInterface {
     }
 
     suspend fun getFeatures(featureIds: List<FeatureId>): Result<GetFeaturesResponse> {
-        val webView = webView ?: throw IllegalStateException("WebView not attached")
+        val webView = webView ?: error("WebView not attached")
 
         return LegacyFeatureFlagJsInjector.getFeatures(
             webView = webView,
@@ -189,7 +192,7 @@ open class WebAppInterface {
         featureId: FeatureId,
         isEnabled: Boolean,
     ): Result<PutFeatureResponse> {
-        val webView = webView ?: throw IllegalStateException("WebView not attached")
+        val webView = webView ?: error("WebView not attached")
 
         return LegacyFeatureFlagJsInjector.updateFeatureValue(
             webView = webView,

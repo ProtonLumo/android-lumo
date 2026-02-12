@@ -15,10 +15,16 @@ import timber.log.Timber
 import kotlin.math.max
 import kotlin.math.pow
 
+private const val MIN_BAR_HEIGHT = 0.05f
+private const val MAX_BAR_HEIGHT = 1.0f
+private const val MIN_DB = -2f
+private const val MAX_DB = 10f
+private const val CURVE_POWER = 0.7f
+
 @Composable
 fun OnDeviceAudioWaveform(
-    modifier: Modifier = Modifier,
     rmsDbValue: Float,
+    modifier: Modifier = Modifier,
     barCount: Int = 30,
     barColor: Color = Color.White,
     barWidth: Float = 6f,
@@ -28,17 +34,15 @@ fun OnDeviceAudioWaveform(
     smoothingFactor: Float = 0.6f // Adjusted smoothing again
 ) {
     val audioLevels =
-        remember { mutableStateListOf<Float>().apply { addAll(List(barCount) { 0.05f }) } }
+        remember { mutableStateListOf<Float>().apply { addAll(List(barCount) { MIN_BAR_HEIGHT }) } }
 
     LaunchedEffect(rmsDbValue) {
-        val minDb = -2f
-        val maxDb = 10f
-        val normalized = ((rmsDbValue - minDb) / (maxDb - minDb)).coerceIn(0f, 1f)
+        val normalized = ((rmsDbValue - MIN_DB) / (MAX_DB - MIN_DB)).coerceIn(0f, 1f)
 
-        val curvedValue = normalized.pow(0.7f)
-        val lastValue = audioLevels.lastOrNull() ?: 0.05f
+        val curvedValue = normalized.pow(CURVE_POWER)
+        val lastValue = audioLevels.lastOrNull() ?: MIN_BAR_HEIGHT
         val smoothedValue = lastValue * smoothingFactor + curvedValue * (1f - smoothingFactor)
-        val finalValue = smoothedValue.coerceIn(0.05f, 1.0f)
+        val finalValue = smoothedValue.coerceIn(MIN_BAR_HEIGHT, MAX_BAR_HEIGHT)
 
         // Log intermediate values
         // Limit logging frequency if needed, but let's see full data first

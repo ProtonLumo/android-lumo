@@ -1,12 +1,14 @@
 package me.proton.android.lumo.di
 
-import android.app.Activity
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import me.proton.android.lumo.analytics.DefaultLumoAnalytics
+import me.proton.android.lumo.analytics.LumoAnalytics
+import me.proton.android.lumo.review.DefaultInAppReviewManager
 import me.proton.android.lumo.review.InAppReviewManager
 import me.proton.android.lumo.tracer.LumoTracer
 import me.proton.android.lumo.usecase.IsPaymentAvailableUseCase
@@ -24,36 +26,13 @@ object PlaceholderModule {
 
     @Provides
     fun isPaymentAvailable(): IsPaymentAvailableUseCase =
-        object : IsPaymentAvailableUseCase {
-            override fun invoke(): Boolean = false
-        }
+        IsPaymentAvailableUseCase { false }
 
     @Provides
-    fun getMainScreenTracer(): LumoTracer =
-        object: LumoTracer {
-            override fun startTransaction(name: String) {
-            }
-
-            override fun measureSpan(
-                operation: LumoTracer.Operation,
-                description: String
-            ) {
-            }
-
-            override fun stopSpan(operation: LumoTracer.Operation) {
-            }
-
-            override fun finishTransaction() {
-            }
-        }
+    fun getMainAnalytics(): LumoAnalytics =
+        DefaultLumoAnalytics()
 
     @Provides
     fun reviewManager(): InAppReviewManager =
-        object : InAppReviewManager {
-            override fun start(activity: Activity) {
-            }
-
-            override fun stop() {
-            }
-        }
+        DefaultInAppReviewManager()
 }

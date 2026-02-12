@@ -15,7 +15,7 @@ fun SubscriptionOverviewDialog(
     onClose: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         color = LumoTheme.colors.backgroundNorm
     ) {
         SubscriptionOverviewSection(
