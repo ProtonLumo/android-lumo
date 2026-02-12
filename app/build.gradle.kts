@@ -213,25 +213,9 @@ android {
 
     detekt {
         toolVersion = libs.versions.detekt.asProvider().get()
-        config.setFrom(file("../config/detekt/detekt.yml"))
+        config.setFrom(file("../config/detekt/asdas.yml"))
         buildUponDefaultConfig = true
-        ignoredBuildTypes = listOf("alpha", "release")
-        ignoredFlavors = listOf("production")
-        ignoredVariants = listOf(
-            "productionNoGmsDebug",
-            "productionNoGmsAlpha",
-            "productionNoGmsRelease",
-            "productionGmsDebug",
-            "productionGmsAlpha",
-            "productionGmsRelease",
-        )
-        applicationVariants.all {
-            val variant = this
-            if (variant.name.contains("nobleGmsDebug") ||
-                variant.name.contains("nobleNoGmsDebug")) {
-                baseline = file("detekt-baseline-${variant.name}.xml")
-            }
-        }
+        baseline = file("detekt-baseline-nobleGmsDebug.xml")
     }
 }
 
