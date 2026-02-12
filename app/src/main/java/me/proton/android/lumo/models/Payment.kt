@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class InAppGooglePayload(
     @SerialName("purchaseToken") val purchaseToken: String,
-    @SerialName("customerID") val customerID: String,
+    @SerialName("customerID") val customerID: String?,
     @SerialName("packageName") val packageName: String,
     @SerialName("productID") val productID: String,
     @SerialName("orderID") val orderID: String

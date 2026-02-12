@@ -17,7 +17,7 @@ class SentryInitializer : Initializer<Unit> {
             with(options) {
                 dsn = BuildConfig.SENTRY_DSN
                 release = BuildConfig.VERSION_NAME
-                isDebug = BuildConfig.DEBUG
+                isDebug = false
                 environment = BuildConfig.BASE_DOMAIN
                 isEnableUncaughtExceptionHandler = true
                 setDiagnosticLevel(SentryLevel.ERROR)

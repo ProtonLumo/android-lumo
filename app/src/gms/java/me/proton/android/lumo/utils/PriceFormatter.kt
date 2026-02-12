@@ -15,7 +15,7 @@ object PriceFormatter {
      * @return A formatted price string with currency symbol
      */
     @SuppressLint("DefaultLocale")
-    fun formatPrice(amount: Int, currency: String): String {
+    fun formatPrice(amount: Int, currency: String?): String {
         // Format cents to dollars/euros
         val mainAmount = amount / 100.0
 

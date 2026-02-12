@@ -177,7 +177,6 @@ android {
         buildConfig = true
     }
 
-    // Optimize build performance
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -185,7 +184,6 @@ android {
         }
     }
 
-    // Custom APK naming
     applicationVariants.all {
         val variant = this
         variant.outputs.all {
@@ -209,6 +207,16 @@ android {
 
     hilt {
         enableAggregatingTask = true
+    }
+
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
+
+    tasks.withType<Test>().configureEach {
+        useJUnitPlatform()
     }
 
     detekt {
@@ -260,12 +268,17 @@ dependencies {
     "gmsImplementation"(libs.inapp.review)
     "gmsImplementation"(libs.inapp.review.ktx)
 
-    testImplementation(libs.junit)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.launcher)
+
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
+    testImplementation(libs.truth)
     testImplementation(libs.mockk)
     testImplementation(libs.mockk.android)
-    testImplementation(libs.androidx.core.testing)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

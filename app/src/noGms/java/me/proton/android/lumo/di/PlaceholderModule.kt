@@ -10,7 +10,7 @@ import me.proton.android.lumo.analytics.DefaultLumoAnalytics
 import me.proton.android.lumo.analytics.LumoAnalytics
 import me.proton.android.lumo.review.DefaultInAppReviewManager
 import me.proton.android.lumo.review.InAppReviewManager
-import me.proton.android.lumo.usecase.HasOfferUseCase
+import me.proton.android.lumo.tracer.LumoTracer
 import me.proton.android.lumo.usecase.IsPaymentAvailableUseCase
 import me.proton.android.lumo.webview.WebAppInterface
 import javax.inject.Singleton
@@ -27,12 +27,6 @@ object PlaceholderModule {
     @Provides
     fun isPaymentAvailable(): IsPaymentAvailableUseCase =
         IsPaymentAvailableUseCase { false }
-
-    @Provides
-    fun hasOffer(): HasOfferUseCase =
-        object : HasOfferUseCase {
-            override fun hasOffer(): Flow<Boolean> = flowOf(false)
-        }
 
     @Provides
     fun getMainAnalytics(): LumoAnalytics =

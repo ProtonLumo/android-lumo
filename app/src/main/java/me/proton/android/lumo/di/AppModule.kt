@@ -10,7 +10,9 @@ import dagger.hilt.components.SingletonComponent
 import io.getunleash.android.DefaultUnleash
 import io.getunleash.android.Unleash
 import io.getunleash.android.UnleashConfig
+import me.proton.android.lumo.ActivityProvider
 import me.proton.android.lumo.BuildConfig
+import me.proton.android.lumo.DefaultActivityProvider
 import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
@@ -53,4 +55,9 @@ object AppModule {
                 .build()
         )
     }
+
+    @Provides
+    @Singleton
+    fun activityProvider(): ActivityProvider =
+        DefaultActivityProvider()
 }

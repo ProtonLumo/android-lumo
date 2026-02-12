@@ -36,7 +36,7 @@ object SubscriptionMapper {
                     Timber.tag(TAG).e("Invalid subscription data format")
                 }
             }.onFailure { error ->
-                Timber.tag(TAG).e(error, "Failed to load subscriptions : $ { error.message }")
+                Timber.tag(TAG).e(error, "Failed to load subscriptions : ${error.message}")
                 subscriptionResult.copy(
                     error = UiText.ResText(R.string.error_failed_to_load_subscriptions)
                 )

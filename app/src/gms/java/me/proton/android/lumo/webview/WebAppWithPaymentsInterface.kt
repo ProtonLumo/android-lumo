@@ -3,7 +3,6 @@ package me.proton.android.lumo.webview
 import android.webkit.JavascriptInterface
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.serialization.json.Json
-import me.proton.android.lumo.billing.BillingManagerWrapper.PaymentRequestType
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.PaymentTokenPayload
 import me.proton.android.lumo.models.Subscription

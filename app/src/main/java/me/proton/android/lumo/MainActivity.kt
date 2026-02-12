@@ -62,10 +62,10 @@ import me.proton.android.lumo.MainActivityViewModel.UiEvent as MainUiEvent
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var webBridge: WebAppInterface
-
     @Inject
     lateinit var isPaymentAvailable: IsPaymentAvailableUseCase
-
+    @Inject
+    lateinit var activityProvider: ActivityProvider
     @Inject
     lateinit var inAppReviewManager: InAppReviewManager
     private val viewModel: MainActivityViewModel by viewModels()
@@ -283,10 +283,7 @@ class MainActivity : ComponentActivity() {
                     ),
                 )
             }
-            paymentRoutes(
-                isReady = !uiState.isLoading && uiState.hasSeenLumoContainer,
-                onDismiss = { navController.popBackStack() }
-            )
+            paymentRoutes(onDismiss = { navController.popBackStack() })
             dialog<NavRoutes.NoPayment> {
                 PurchaseLinkDialog(
                     onOpenUrl = { openExternalUrl(it) },
@@ -315,7 +312,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.tryHideBf()
+        activityProvider.onActivityResumed(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        activityProvider.onActivityPaused(this)
     }
 
     override fun onStop() {
