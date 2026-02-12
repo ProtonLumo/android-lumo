@@ -10,17 +10,22 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonNames
+import timber.log.Timber
 
 /**
  * Custom serializer that handles null Int values by returning a default value of 0
  */
 object IntOrDefaultSerializer : KSerializer<Int> {
+    private const val TAG = "IntOrDefaultSerializer"
+
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("IntOrDefault", PrimitiveKind.INT)
 
+    @Suppress("TooGenericExceptionCaught")
     override fun deserialize(decoder: Decoder): Int {
         return try {
             decoder.decodeInt()
         } catch (e: Exception) {
+            Timber.tag(TAG).e(e,"Unable to deserialize")
             0  // default value when null or invalid
         }
     }

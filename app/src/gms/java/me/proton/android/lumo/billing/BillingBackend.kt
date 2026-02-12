@@ -23,6 +23,7 @@ class JsBillingBackend @Inject constructor(
     private val planMapper: PlanMapper,
 ) : BillingBackend {
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun verifyPurchase(
         payload: PaymentTokenPayload
     ): BackendResult =

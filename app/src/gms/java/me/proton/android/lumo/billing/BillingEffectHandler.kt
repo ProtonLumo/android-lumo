@@ -213,9 +213,9 @@ data class GooglePurchase(
     companion object {
         fun from(purchase: Purchase): GooglePurchase {
             return GooglePurchase(
-                orderId = purchase.orderId ?: "",
+                orderId = purchase.orderId.orEmpty(),
                 packageName = purchase.packageName,
-                productId = purchase.products.firstOrNull() ?: "",
+                productId = purchase.products.firstOrNull().orEmpty(),
                 purchaseTime = purchase.purchaseTime,
                 purchaseState = purchase.purchaseState,
                 purchaseToken = purchase.purchaseToken,
@@ -225,7 +225,7 @@ data class GooglePurchase(
                 obfuscatedAccountId = purchase.accountIdentifiers?.obfuscatedAccountId,
                 developerPayload = purchase.developerPayload,
                 products = purchase.products,
-                accountIdentifiers = purchase.accountIdentifiers?.obfuscatedAccountId ?: ""
+                accountIdentifiers = purchase.accountIdentifiers?.obfuscatedAccountId.orEmpty()
             )
         }
     }
@@ -298,7 +298,7 @@ data class GoogleProductDetails(
                         },
                         offerTags = offer.offerTags
                     )
-                } ?: emptyList()
+                }.orEmpty()
             )
         }
     }

@@ -103,13 +103,12 @@ object BillingModule {
     @Provides
     @Singleton
     fun paymentTokenMapper(): PaymentTokenMapper =
-        PaymentTokenMapper()
+        PaymentTokenMapper
 
     @Provides
     @Singleton
     fun isPaymentAvailable(billingStore: BillingStore): IsPaymentAvailableUseCase =
-        object : IsPaymentAvailableUseCase {
-            override fun invoke(): Boolean =
-                billingStore.state.value.connection != ConnectionState.Unavailable
+        IsPaymentAvailableUseCase {
+            billingStore.state.value.connection != ConnectionState.Unavailable
         }
 }

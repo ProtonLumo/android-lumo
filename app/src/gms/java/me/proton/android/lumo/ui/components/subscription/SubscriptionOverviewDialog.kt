@@ -10,9 +10,10 @@ import me.proton.android.lumo.ui.theme.LumoTheme
 
 @Composable
 fun SubscriptionOverviewDialog(
+    onClose: () -> Unit,
     googleProductDetails: List<GoogleProductDetails>,
     activeSubscriptions: SubscriptionState.Active,
-    onClose: () -> Unit
+    modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier.fillMaxSize(),

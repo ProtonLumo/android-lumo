@@ -23,6 +23,7 @@ import javax.inject.Inject
 /**
  * ViewModel that manages subscription data
  */
+@Suppress("UnusedPrivateProperty")
 @HiltViewModel
 class SubscriptionViewModel @Inject constructor(
     private val billingStore: BillingStore,

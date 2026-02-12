@@ -20,9 +20,9 @@ import me.proton.android.lumo.ui.theme.LumoTheme
 
 @Composable
 fun SubscriptionRecoveryContent(
-    modifier: Modifier = Modifier,
     onRetry: () -> Unit,
     onClose: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -73,7 +73,8 @@ fun SubscriptionRecoveryContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Click 'Recover Subscription' to sync your Google Play subscription with our servers. " + "This will restore your subscription access.",
+            text = "Click 'Recover Subscription' to sync your Google Play subscription with our servers. " +
+                    "This will restore your subscription access.",
             style = MaterialTheme.typography.bodyMedium,
             color = LumoTheme.colors.textWeak,
             textAlign = TextAlign.Center

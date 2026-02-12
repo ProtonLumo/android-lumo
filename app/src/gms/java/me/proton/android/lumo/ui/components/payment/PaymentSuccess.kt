@@ -18,8 +18,8 @@ import me.proton.android.lumo.ui.theme.LumoTheme
 
 @Composable
 fun PaymentSuccessContent(
-    modifier: Modifier = Modifier,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

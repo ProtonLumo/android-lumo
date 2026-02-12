@@ -2,6 +2,7 @@ package me.proton.android.lumo.ui.components.plan
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,26 +29,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.R
+import me.proton.android.lumo.billing.PlansState
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
-import me.proton.android.lumo.billing.PlansState
 import me.proton.android.lumo.ui.components.FeatureComparisonItem
 import me.proton.android.lumo.ui.components.payment.Loader
 import me.proton.android.lumo.ui.theme.LumoTheme
 
-private const val TAG = "PlanSelectionDialog"
-
+@Suppress("LongParameterList")
 @Composable
 fun PlanSelectionScreen(
     plansState: PlansState,
     paymentEvent: PaymentEvent,
     isDarkTheme: Boolean,
     onDismiss: () -> Unit,
-    onPlanSelected: (Int) -> Unit,
-    onPurchaseClicked: (JsPlanInfo) -> Unit,
+    onSelectPlan: (Int) -> Unit,
+    onClickPurchase: (JsPlanInfo) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (plansState) {
@@ -63,13 +64,14 @@ fun PlanSelectionScreen(
                 paymentEvent = paymentEvent,
                 isDarkTheme = isDarkTheme,
                 onDismiss = onDismiss,
-                onPlanSelected = onPlanSelected,
-                onPurchaseClicked = onPurchaseClicked,
+                onSelectPlan = onSelectPlan,
+                onClickPurchase = onClickPurchase,
             )
         }
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 private fun Content(
     planOptions: List<JsPlanInfo>,
@@ -78,8 +80,8 @@ private fun Content(
     paymentEvent: PaymentEvent,
     isDarkTheme: Boolean,
     onDismiss: () -> Unit,
-    onPlanSelected: (Int) -> Unit,
-    onPurchaseClicked: (JsPlanInfo) -> Unit,
+    onSelectPlan: (Int) -> Unit,
+    onClickPurchase: (JsPlanInfo) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (planOptions.isNotEmpty()) {
@@ -108,7 +110,7 @@ private fun Content(
                         isDarkTheme = isDarkTheme,
                         paymentEvent = paymentEvent,
                         isSelected = selectedPlanIndex == index,
-                        onSelected = { onPlanSelected(index) },
+                        onSelect = { onSelectPlan(index) },
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -118,7 +120,7 @@ private fun Content(
 
             Footer(
                 paymentEvent = paymentEvent,
-                onPurchaseClicked = { onPurchaseClicked(planOptions[selectedPlanIndex]) },
+                onClickPurchase = { onClickPurchase(planOptions[selectedPlanIndex]) },
                 onDismiss = onDismiss,
             )
         }
@@ -135,7 +137,7 @@ private fun Content(
 @Composable
 private fun Footer(
     paymentEvent: PaymentEvent,
-    onPurchaseClicked: () -> Unit,
+    onClickPurchase: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -155,7 +157,7 @@ private fun Footer(
 
         // Continue Button (Purchase)
         Button(
-            onClick = { onPurchaseClicked() },
+            onClick = { onClickPurchase() },
             modifier = Modifier
                 .background(
                     brush = Brush.horizontalGradient(
@@ -207,7 +209,7 @@ private fun Footer(
 }
 
 @Composable
-private fun Header(
+private fun ColumnScope.Header(
     paymentEvent: PaymentEvent,
 ) {
     Spacer(modifier = Modifier.height(16.dp))

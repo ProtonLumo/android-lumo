@@ -42,6 +42,7 @@ import me.proton.android.lumo.ui.theme.AppStyle.Companion.isDarkTheme
 import me.proton.android.lumo.ui.theme.LumoTheme
 import me.proton.android.lumo.viewmodels.SubscriptionViewModel
 
+@Suppress("LongMethod", "LongParameterList")
 @Composable
 fun PaymentContent(
     uiState: SubscriptionViewModel.UiState,
@@ -49,6 +50,7 @@ fun PaymentContent(
     retryPayment: () -> Unit,
     launchPaymentFlow: (JsPlanInfo) -> Unit,
     selectPlan: (Int) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val billingState = uiState.billingState
     val subscriptionState = billingState.subscriptionState
@@ -59,7 +61,7 @@ fun PaymentContent(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
+        modifier = modifier
             .background(color = LumoTheme.colors.backgroundNorm)
             .fillMaxSize()
     ) {
@@ -123,8 +125,8 @@ fun PaymentContent(
                                 paymentEvent = uiState.paymentEvent,
                                 isDarkTheme = uiState.theme.isDarkTheme(),
                                 onDismiss = onDismiss,
-                                onPlanSelected = { selectPlan(it) },
-                                onPurchaseClicked = { planToPurchase ->
+                                onSelectPlan = { selectPlan(it) },
+                                onClickPurchase = { planToPurchase ->
                                     launchPaymentFlow(planToPurchase)
                                 },
                             )
@@ -406,6 +408,7 @@ fun ActiveSubscriptionPreview() {
     }
 }
 
+@Suppress("LongMethod")
 @Preview(name = "Select plan", showBackground = true)
 @Preview(
     name = "Dark - Select plan",

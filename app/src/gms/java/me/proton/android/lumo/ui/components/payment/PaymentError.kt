@@ -23,11 +23,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import me.proton.android.lumo.ui.theme.LumoTheme
 
+private const val EXCEEDING_MESSAGE_LENGTH = 200
+private const val MAX_MESSAGE_LENGTH = 80
+
 @Composable
 fun PaymentError(
-    modifier: Modifier = Modifier,
     title: String,
     message: String,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -51,8 +54,8 @@ fun PaymentError(
         Spacer(modifier = Modifier.height(8.dp))
 
         // Display a truncated error message
-        val truncatedMessage = if (message.length > 200) {
-            message.take(80) + "..."
+        val truncatedMessage = if (message.length > EXCEEDING_MESSAGE_LENGTH) {
+            message.take(MAX_MESSAGE_LENGTH) + "..."
         } else {
             message
         }
@@ -72,10 +75,10 @@ fun PaymentError(
 
 @Composable
 fun PaymentErrorContent(
-    modifier: Modifier = Modifier,
     message: String,
     onRetry: () -> Unit,
     onClose: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -124,7 +127,8 @@ fun PaymentErrorContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Your payment was processed but we couldn't verify it with our servers. " + "Don't worry, we'll try again.",
+            text = "Your payment was processed but we couldn't verify it with our servers. "
+                    + "Don't worry, we'll try again.",
             style = MaterialTheme.typography.bodyMedium,
             color = LumoTheme.colors.textWeak,
             textAlign = TextAlign.Center

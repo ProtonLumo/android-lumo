@@ -7,11 +7,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.proton.android.lumo.ui.components.payment.PaymentContent
 import me.proton.android.lumo.viewmodels.SubscriptionViewModel
 
-private const val TAG = "PaymentDialog"
-
 @Composable
-fun PaymentScreen(onDismiss: () -> Unit) {
-    val viewModel: SubscriptionViewModel = hiltViewModel()
+fun PaymentScreen(
+    onDismiss: () -> Unit,
+    viewModel: SubscriptionViewModel = hiltViewModel()
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     PaymentContent(

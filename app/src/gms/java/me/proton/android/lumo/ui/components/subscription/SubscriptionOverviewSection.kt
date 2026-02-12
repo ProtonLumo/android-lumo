@@ -27,9 +27,10 @@ import timber.log.Timber
  */
 @Composable
 fun SubscriptionOverviewSection(
+    onClose: () -> Unit,
     activeSubscriptions: SubscriptionState.Active,
     googleProductDetails: List<GoogleProductDetails>,
-    onClose: () -> Unit
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier

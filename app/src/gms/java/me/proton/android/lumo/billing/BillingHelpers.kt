@@ -48,7 +48,7 @@ fun buildPaymentPayload(
                 customerID = customerId,
                 packageName = purchase.packageName,
                 productID = purchase.products.first(),
-                orderID = purchase.orderId.orEmpty()
+                orderID = purchase.orderId
             )
         )
     )

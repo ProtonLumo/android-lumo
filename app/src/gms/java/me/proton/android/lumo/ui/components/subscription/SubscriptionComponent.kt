@@ -44,10 +44,11 @@ import java.util.Locale
 
 @Composable
 fun SubscriptionComponent(
+    onManageSubscription: (Context) -> Unit,
     subscriptionState: SubscriptionState.Active,
     subscription: SubscriptionItemResponse,
+    modifier: Modifier = Modifier,
     googlePlayProductDetails: List<GoogleProductDetails>? = null,
-    onManageSubscription: (Context) -> Unit
 ) {
     // Check if this is a mobile plan (External == 2 indicates a Google Play Store subscription)
     val isMobilePlan = subscription.external == 2
@@ -67,14 +68,16 @@ fun SubscriptionComponent(
         val isActive = true
         val cancelled = !subscriptionState.renewing
         Timber.tag("SubscriptionComponent").i(
-            "Mobile plan cancellation check: isCancelled=$cancelled (!isAutoRenewing=${!subscriptionState.renewing}), isActive=$isActive"
+            "Mobile plan cancellation check: isCancelled=$cancelled " +
+                    "(!isAutoRenewing=${!subscriptionState.renewing}), isActive=$isActive"
         )
         cancelled
     } else {
         // For web plans, check the API Renew value
         val cancelled = subscription.renew == 0
         Timber.tag("SubscriptionComponent").i(
-            "Web plan cancellation check: isCancelled=$cancelled (Renew=${subscription.renew})"
+            "Web plan cancellation check: isCancelled=$cancelled " +
+                    "(Renew=${subscription.renew})"
         )
         cancelled
     }

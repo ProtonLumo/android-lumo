@@ -6,8 +6,10 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import me.proton.android.lumo.models.PaymentJsResponse
 import me.proton.android.lumo.models.Subscription
+import timber.log.Timber
 
-class PaymentTokenMapper {
+object PaymentTokenMapper {
+    private const val TAG = "PaymentTokenMapper"
 
     fun parse(
         jsResult: Result<PaymentJsResponse>,
@@ -44,6 +46,7 @@ class PaymentTokenMapper {
                 else -> null
             }
         } catch (e: Exception) {
+            Timber.tag(TAG).e(e)
             null
         }
 }

@@ -19,6 +19,7 @@ import me.proton.android.lumo.billing.GooglePurchaseResponseListener
 import me.proton.android.lumo.billing.GooglePurchasesUpdatedListener
 import me.proton.android.lumo.billing.parseSubscription
 import me.proton.android.lumo.models.SubscriptionPlan
+import timber.log.Timber
 
 interface LumoBillingClient {
 
@@ -55,70 +56,74 @@ class LumoBillingClientImpl(
     private var billingClient: BillingClient? = null
     private var stateListener: GoogleBillingClientStateListener? = null
 
+    @Suppress("TooGenericExceptionCaught")
     override fun start(
         purchasesUpdatedListener: GooglePurchasesUpdatedListener,
         stateListener: GoogleBillingClientStateListener,
     ) {
         this.stateListener = stateListener
-        billingClient = try {
-            BillingClient.newBuilder(context)
-                .setListener { result, purchases ->
-                    when (result.responseCode) {
-                        BillingClient.BillingResponseCode.OK -> {
-                            purchases
-                                ?.map { GooglePurchase.from(it) }
-                                ?.forEach {
-                                    purchasesUpdatedListener.onSuccess(it)
-                                }
-                        }
-
-                        BillingClient.BillingResponseCode.USER_CANCELED -> {
-                            // ignored
-                        }
-
-                        else -> purchasesUpdatedListener.onError(result.debugMessage)
-                    }
-                }
-                .enablePendingPurchases(
-                    PendingPurchasesParams.newBuilder()
-                        .enableOneTimeProducts()
-                        .build()
-                )
-                .enableAutoServiceReconnection()
-                .build()
-        } catch (e: Exception) {
-            handleBillingClient()
-            null
-        }?.also {
-            it.startConnection(
-                object : BillingClientStateListener {
-                    override fun onBillingSetupFinished(result: BillingResult) {
+        billingClient =
+            try {
+                BillingClient.newBuilder(context)
+                    .setListener { result, purchases ->
                         when (result.responseCode) {
-                            BillingClient.BillingResponseCode.OK ->
-                                stateListener.onConnected()
+                            BillingClient.BillingResponseCode.OK -> {
+                                purchases
+                                    ?.map { GooglePurchase.from(it) }
+                                    ?.distinct()
+                                    ?.forEach {
+                                        purchasesUpdatedListener.onSuccess(it)
+                                    }
+                            }
 
-                            BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->
-                                stateListener.onDisconnected(
-                                    reason = result.debugMessage,
-                                    isBillingAvailable = false,
+                            BillingClient.BillingResponseCode.USER_CANCELED -> {
+                                // ignored
+                            }
+
+                            else -> purchasesUpdatedListener.onError(result.debugMessage)
+                        }
+                    }
+                    .enablePendingPurchases(
+                        PendingPurchasesParams.newBuilder()
+                            .enableOneTimeProducts()
+                            .build()
+                    )
+                    .enableAutoServiceReconnection()
+                    .build()
+            } catch (e: Exception) {
+                Timber.tag(TAG).e("Unable to setup billing: $e")
+                handleBillingClient()
+                null
+            }?.also {
+                it.startConnection(
+                    object : BillingClientStateListener {
+                        override fun onBillingSetupFinished(result: BillingResult) {
+                            when (result.responseCode) {
+                                BillingClient.BillingResponseCode.OK ->
+                                    stateListener.onConnected()
+
+                                BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->
+                                    stateListener.onDisconnected(
+                                        reason = result.debugMessage,
+                                        isBillingAvailable = false,
+                                    )
+
+                                else -> stateListener.onDisconnected(
+                                    reason = null,
+                                    isBillingAvailable = true,
                                 )
+                            }
+                        }
 
-                            else -> stateListener.onDisconnected(
+                        override fun onBillingServiceDisconnected() {
+                            stateListener.onDisconnected(
                                 reason = null,
-                                isBillingAvailable = true,
+                                isBillingAvailable = true
                             )
                         }
                     }
-
-                    override fun onBillingServiceDisconnected() {
-                        stateListener.onDisconnected(
-                            reason = null,
-                            isBillingAvailable = true
-                        )
-                    }
-                }
-            )
-        }
+                )
+            }
     }
 
     override fun queryPurchasesAsync(
@@ -133,15 +138,15 @@ class LumoBillingClientImpl(
                 params
             ) { result, purchases ->
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                    purchases.firstOrNull().let {
-                        val (renewing, expiry) = if (it != null) {
-                            parseSubscription(it)
+                    purchases.firstOrNull().let { purchase ->
+                        val (renewing, expiry) = if (purchase != null) {
+                            parseSubscription(purchase)
                         } else {
                             false to 0L
                         }
 
                         purchasesResponseListener.onSuccess(
-                            googlePurchase = it?.let { GooglePurchase.from(it) },
+                            googlePurchase = purchase?.let { GooglePurchase.from(it) },
                             renewing = renewing,
                             expiry = expiry,
                         )
@@ -193,9 +198,9 @@ class LumoBillingClientImpl(
         customerId: String?,
     ): Boolean {
         val activity = activityProvider.currentActivity()
-            ?: run {
-                return false
-            }
+        if (activity == null || customerId.isNullOrEmpty()) {
+            return false
+        }
 
         val builder = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(
@@ -207,11 +212,7 @@ class LumoBillingClientImpl(
                 )
             )
 
-        if (!customerId.isNullOrEmpty()) {
-            builder.setObfuscatedAccountId(customerId)
-        } else {
-            return false
-        }
+        builder.setObfuscatedAccountId(customerId)
 
         handleBillingClient { it.launchBillingFlow(activity, builder.build()) }
 
@@ -248,15 +249,18 @@ class LumoBillingClientImpl(
             productId = "giaplumo_lumo2025_1_renewing",
             planName = "1 Month",
             durationMonths = 1,
-            description = "Monthly subscription" // Note: This is a constant, localized descriptions are handled in UI
+            // Note: This is a constant, localized descriptions are handled in UI
+            description = "Monthly subscription",
         )
         val YEARLY_PLAN = SubscriptionPlan(
             productId = "giaplumo_lumo2025_12_renewing",
             planName = "12 Months",
             durationMonths = 12,
-            description = "Annual subscription (save 20%)" // Note: This is a constant, localized descriptions are handled in UI
+            // Note: This is a constant, localized descriptions are handled in UI
+            description = "Annual subscription (save 20%)",
         )
         val SUBSCRIPTION_PLANS = listOf(MONTHLY_PLAN, YEARLY_PLAN)
-    }
 
+        private const val TAG = "LumoBillingClient"
+    }
 }

@@ -3,6 +3,7 @@ package me.proton.android.lumo.billing
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.utils.takeIf
 
+@Suppress("LongMethod")
 fun billingReducer(
     state: BillingState,
     action: BillingAction
