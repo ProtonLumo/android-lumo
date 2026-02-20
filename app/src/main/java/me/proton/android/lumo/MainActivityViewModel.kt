@@ -55,7 +55,9 @@ class MainActivityViewModel @Inject constructor(
     }
 
     enum class PaymentEvent {
-        Default, BlackFriday
+        Default,
+        BlackFriday,
+        SpringSale
     }
 
     sealed interface WebEvent {
