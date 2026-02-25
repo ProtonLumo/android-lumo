@@ -1,0 +1,14 @@
+<network-security-config>
+    <base-config>
+        <trust-anchors>
+            <certificates src="@raw/cert"/>
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+    <domain-config>
+        <domain includeSubdomains="true">proton.dev</domain>
+        <trust-anchors>
+            <certificates src="@raw/cert"/>
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
