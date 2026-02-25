@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">Lumo</string>
   <string name="back_to_lumo">Torna a Lumo</string>
   <string name="loading">Caricamento di Lumo in corso</string>
@@ -9,6 +9,8 @@
   <string name="please_check_your_internet_connection_and_try_again">Verifica la connessione a Internet</string>
   <string name="retry_button">Riprova</string>
   <string name="retry_connection">Riprova la connessione</string>
+  <string name="settings">Impostazioni</string>
+  <string name="cancel">Annulla</string>
   <!-- Loading Messages -->
   <string name="loading_message_1">Richiede attenzione… e potenza di elaborazione…</string>
   <string name="loading_message_2">Colpendo le barre di caricamento…</string>
@@ -23,8 +25,10 @@
   <string name="loading_message_11">Mi stiro prima del grande salto</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Riconoscimento elaborato da Google</string>
-  <string name="speech_status_vosk">Riconoscimento elaborato da Vosk • Sul dispositivo • Privato</string>
+  <string name="speech_status_vosk" tools:ignore="MissingTranslation">Riconoscimento elaborato da Vosk • Sul dispositivo • Privato</string>
+  <string name="speech_status_google" tools:ignore="MissingTranslation">Riconoscimento elaborato da Google</string>
   <string name="speech_status_on_device">Nel dispositivo • Privato</string>
+  <string name="permission_rationale_title">Autorizzazioni mancanti</string>
   <string name="permission_mic_rationale">Accesso al microfono necessario per l\'inserimento vocale</string>
   <string name="speech_not_available">Riconoscimento vocale non disponibile</string>
   <string name="speech_error_format">Riconoscimento non riuscito: %1$s</string>
@@ -136,4 +140,6 @@
   <string name="error_failed_to_load_plans">Caricamento dei piani fallito: %1$s</string>
   <string name="error_loading_plans">Errore nel caricamento dei piani: %1$s</string>
   <string name="error_webview_not_available">WebView non disponibile</string>
+  <string name="error_open_external_link">Impossibile aprire il link esterno</string>
+  <string name="error_open_file_chooser">Impossibile aprire il selettore di file</string>
 </resources>

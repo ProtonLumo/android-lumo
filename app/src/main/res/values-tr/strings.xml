@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">Lumo</string>
   <string name="back_to_lumo">Lumo\'ya dön</string>
   <string name="loading">Lumo yükleniyor</string>
@@ -9,6 +9,8 @@
   <string name="please_check_your_internet_connection_and_try_again">Lütfen internet bağlantınızı denetleyip yeniden deneyin.</string>
   <string name="retry_button">Yeniden dene</string>
   <string name="retry_connection">Bağlantıyı yeniden dene</string>
+  <string name="settings">Ayarlar</string>
+  <string name="cancel">İptal</string>
   <!-- Loading Messages -->
   <string name="loading_message_1">Dikkatinizi… ve işlem gücünüzü istiyor…</string>
   <string name="loading_message_2">Yükleme ekranı yumruklanıyor…</string>
@@ -23,8 +25,10 @@
   <string name="loading_message_11">Büyük atlayıştan önce geriliyor…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Tanıma Google tarafından işlendi</string>
-  <string name="speech_status_vosk">Vosk ile işlenen tanıma • Aygıt üzerinde • Gizli</string>
+  <string name="speech_status_vosk" tools:ignore="MissingTranslation">Vosk ile işlenen tanıma • Aygıt üzerinde • Gizli</string>
+  <string name="speech_status_google" tools:ignore="MissingTranslation">Tanıma Google tarafından yapıldı</string>
   <string name="speech_status_on_device">Aygıt üzerinde • Gizli</string>
+  <string name="permission_rationale_title">İzin eksik</string>
   <string name="permission_mic_rationale">Konuşma tanıma için mikrofona erişme izni gerekli</string>
   <string name="speech_not_available">Konuşma tanıma kullanılamıyor</string>
   <string name="speech_error_format">Konuşma hatası: %1$s</string>
@@ -136,4 +140,6 @@
   <string name="error_failed_to_load_plans">Tarifeler yüklenemedi: %1$s</string>
   <string name="error_loading_plans">Tarifeler yüklenirken sorun çıktı: %1$s</string>
   <string name="error_webview_not_available">WebView kullanılamıyor</string>
+  <string name="error_open_external_link">Dış bağlantı açılamadı</string>
+  <string name="error_open_file_chooser">Dosya seçici açılamadı</string>
 </resources>

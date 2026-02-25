@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">Lumo</string>
   <string name="back_to_lumo">Вернуться к Lumo</string>
   <string name="loading">Загрузка Lumo</string>
@@ -9,6 +9,8 @@
   <string name="please_check_your_internet_connection_and_try_again">Проверьте подключение к Интернету и повторите попытку</string>
   <string name="retry_button">Повторить</string>
   <string name="retry_connection">Повторить подключение</string>
+  <string name="settings">Settings</string>
+  <string name="cancel">Cancel</string>
   <!-- Loading Messages -->
   <string name="loading_message_1">Demanding attention… and processing power…</string>
   <string name="loading_message_2">Batting at loading bars…</string>
@@ -23,8 +25,10 @@
   <string name="loading_message_11">Stretching before the big jump…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Распознавание обработано Google</string>
-  <string name="speech_status_vosk">Recognition processed by Vosk • On-device • Private</string>
+  <string name="speech_status_vosk" tools:ignore="MissingTranslation">Recognition processed by Vosk • On-device • Private</string>
+  <string name="speech_status_google" tools:ignore="MissingTranslation">Recognition processed by Google</string>
   <string name="speech_status_on_device">На устройстве • Конфиденциально</string>
+  <string name="permission_rationale_title">Missing permission</string>
   <string name="permission_mic_rationale">Для голосового ввода требуется разрешение на доступ к микрофону</string>
   <string name="speech_not_available">Распознавание речи недоступно</string>
   <string name="speech_error_format">Ошибка речи: %1$s</string>
@@ -136,4 +140,6 @@
   <string name="error_failed_to_load_plans">Failed to load plans: %1$s</string>
   <string name="error_loading_plans">Error loading plans: %1$s</string>
   <string name="error_webview_not_available">WebView not available</string>
+  <string name="error_open_external_link">Can\'t open the external link</string>
+  <string name="error_open_file_chooser">Can\'t open the file chooser</string>
 </resources>

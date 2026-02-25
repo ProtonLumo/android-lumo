@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">Lumo</string>
   <string name="back_to_lumo">Volver a Lumo</string>
   <string name="loading">Cargando Lumo</string>
@@ -9,6 +9,8 @@
   <string name="please_check_your_internet_connection_and_try_again">Verifique su conexión a internet e intente de nuevo.</string>
   <string name="retry_button">Reintentar</string>
   <string name="retry_connection">Volver a intentar la conexión</string>
+  <string name="settings">Ajustes</string>
+  <string name="cancel">Cancelar</string>
   <!-- Loading Messages -->
   <string name="loading_message_1">Exigiendo atención… y poder de procesamiento…</string>
   <string name="loading_message_2">Golpeando las barras de carga…</string>
@@ -23,8 +25,10 @@
   <string name="loading_message_11">Estirándome antes del gran salto…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Reconocimiento procesado por Google</string>
-  <string name="speech_status_vosk">Reconocimiento procesado por Vosk • En el dispositivo • Privado</string>
+  <string name="speech_status_vosk" tools:ignore="MissingTranslation">Reconocimiento procesado por Vosk • En el dispositivo • Privado</string>
+  <string name="speech_status_google" tools:ignore="MissingTranslation">Reconocimiento procesado por Google</string>
   <string name="speech_status_on_device">En el dispositivo • Privado</string>
+  <string name="permission_rationale_title">Permiso necesario</string>
   <string name="permission_mic_rationale">Se necesita permiso del micrófono para la entrada de voz</string>
   <string name="speech_not_available">Reconocimiento de voz no disponible</string>
   <string name="speech_error_format">Error de voz: %1$s</string>
@@ -136,4 +140,6 @@
   <string name="error_failed_to_load_plans">Error al cargar los planes: %1$s</string>
   <string name="error_loading_plans">Error al cargar los planes: %1$s</string>
   <string name="error_webview_not_available">WebView no disponible</string>
+  <string name="error_open_external_link">No se puede abrir el enlace externo</string>
+  <string name="error_open_file_chooser">No se puede abrir el selector de archivos</string>
 </resources>

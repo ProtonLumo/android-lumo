@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">Lumo</string>
   <string name="back_to_lumo">Powrót do Lumo</string>
   <string name="loading">Ładowanie Lumo</string>
@@ -9,22 +9,26 @@
   <string name="please_check_your_internet_connection_and_try_again">Sprawdź połączenie internetowe i spróbuj ponownie</string>
   <string name="retry_button">Spróbuj ponownie</string>
   <string name="retry_connection">Ponów połączenie</string>
+  <string name="settings">Ustawienia</string>
+  <string name="cancel">Anuluj</string>
   <!-- Loading Messages -->
-  <string name="loading_message_1">Demanding attention… and processing power…</string>
+  <string name="loading_message_1">Wymaga uwagi… i mocy obliczeniowej…</string>
   <string name="loading_message_2">Batting at loading bars…</string>
   <string name="loading_message_3">Odganianie brokerów danych…</string>
-  <string name="loading_message_4">Chasing digital mice…</string>
-  <string name="loading_message_5">Knocking things off invisible shelves…</string>
-  <string name="loading_message_6">Downloading… please wait…</string>
-  <string name="loading_message_7">Napping in a sunbeam… almost ready…</string>
-  <string name="loading_message_8">Plotting world domination… and your app launch…</string>
-  <string name="loading_message_9">Purring the engines to life…</string>
-  <string name="loading_message_10">Sharpening claws on your keyboard…</string>
-  <string name="loading_message_11">Stretching before the big jump…</string>
+  <string name="loading_message_4">W pogoni za cyfrową myszą...</string>
+  <string name="loading_message_5">Zrzucanie rzeczy z niewidzialnych półek…</string>
+  <string name="loading_message_6">Trwa pobieranie, proszę czekać…</string>
+  <string name="loading_message_7">Drzemka w promieniu słońca… prawie gotowe…</string>
+  <string name="loading_message_8">Planowanie dominacji nad światem… i uruchomienia Twojej aplikacji…</string>
+  <string name="loading_message_9">Mrucząc, silniki budzą się do życia...</string>
+  <string name="loading_message_10">Ostrzenie pazurów na Twojej klawiaturze…</string>
+  <string name="loading_message_11">Rozciąganie przed wielkim skokiem…</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Rozpoznawanie przetwarzane przez Google</string>
-  <string name="speech_status_vosk">Recognition processed by Vosk • On-device • Private</string>
+  <string name="speech_status_vosk" tools:ignore="MissingTranslation">Rozpoznawanie przetwarzane przez Vosk • W urządzeniu • Prywatne</string>
+  <string name="speech_status_google" tools:ignore="MissingTranslation">Rozpoznawanie przetwarzane przez Google</string>
   <string name="speech_status_on_device">Na urządzeniu • Prywatne</string>
+  <string name="permission_rationale_title">Brak uprawnień</string>
   <string name="permission_mic_rationale">Wymagane pozwolenie na dostęp do mikrofonu dla wprowadzania mowy</string>
   <string name="speech_not_available">Rozpoznawanie mowy niedostępne</string>
   <string name="speech_error_format">Błąd mowy: %1$s</string>
@@ -52,21 +56,21 @@
   <string name="speech_error_unknown">Nieznany błąd rozpoznawania mowy</string>
   <!-- SUbscription Strings -->
   <string name="payment_title">Wznieś swoje doświadczenia z AI na wyższy poziom</string>
-  <string name="payment_black_friday_title">Don\'t miss our special deal</string>
+  <string name="payment_black_friday_title">Nie przegap naszej specjalnej oferty</string>
   <string name="payment_subtitle">Korzystaj z preferencyjnego traktowania i funkcji premium dzięki Lumo Plus.</string>
-  <string name="payment_black_friday_subtitle">Unlock all premium features today on Lumo Plus with our best price yet.</string>
-  <string name="payment_checking">Checking subscription status…</string>
-  <string name="payment_loading_plans">Loading subscription plans…</string>
+  <string name="payment_black_friday_subtitle">Odblokuj wszystkie funkcje premium już dziś w Lumo Plus w naszej najlepszej jak dotąd cenie.</string>
+  <string name="payment_checking">Sprawdzam status subskrypcji…</string>
+  <string name="payment_loading_plans">Wczytywanie planów subskrypcji</string>
   <string name="payment_no_plans_available">Brak dostępnych planów subskrypcji</string>
   <string name="subscription_renewal">Wybrany plan będzie automatycznie odnawiany do momentu anulowania</string>
-  <string name="subscription_buy_lumo">Get Lumo Plus</string>
-  <string name="subscription_use_lumo_free">Use Lumo Free instead</string>
-  <string name="subscription_claim_black_friday_deal">Claim Black Friday Deal</string>
+  <string name="subscription_buy_lumo">Uzyskaj Lumo Plus</string>
+  <string name="subscription_use_lumo_free">Zamiast tego użyj Lumo Free</string>
+  <string name="subscription_claim_black_friday_deal">Skorzystaj z oferty Black Friday</string>
   <string name="subscription_manage">Zarządzaj subskrypcją</string>
   <string name="subscription_manage_info">Tą subskrypcją musisz zarządzać poprzez interfejs internetowy.</string>
-  <string name="discount_template">Save %s</string>
-  <string name="best_value">Best Value</string>
-  <string name="limited_black_friday_offer">Limited time Black Friday offer</string>
+  <string name="discount_template">Zaoszczędź %s</string>
+  <string name="best_value">Najlepsza oferta</string>
+  <string name="limited_black_friday_offer">Oferta Black Friday ograniczona czasowo</string>
   <string name="for_price">Za</string>
   <string name="month">Miesiąc</string>
   <string name="months">Mies.</string>
@@ -129,11 +133,13 @@
   <string name="subscription_monthly_description">Miesięczna subskrypcja</string>
   <string name="subscription_annual_description">Roczna subskrypcja (oszczędzasz 20%)</string>
   <!-- Subscription Error Messages -->
-  <string name="error_failed_to_load_subscriptions">Failed to load subscriptions: %1$s</string>
+  <string name="error_failed_to_load_subscriptions">Nie udało się załadować subskrypcji: %1$s</string>
   <string name="error_loading_subscriptions">Error loading subscriptions: %1$s</string>
   <string name="error_no_plans_with_pricing">No plans with pricing information available</string>
   <string name="error_problem_loading_subscriptions">There was a problem loading subscriptions</string>
   <string name="error_failed_to_load_plans">Failed to load plans: %1$s</string>
   <string name="error_loading_plans">Error loading plans: %1$s</string>
   <string name="error_webview_not_available">WebView not available</string>
+  <string name="error_open_external_link">Can\'t open the external link</string>
+  <string name="error_open_file_chooser">Can\'t open the file chooser</string>
 </resources>

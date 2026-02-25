@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">Lumo</string>
   <string name="back_to_lumo">Terug naar Lumo</string>
   <string name="loading">Lumo laden</string>
@@ -9,22 +9,26 @@
   <string name="please_check_your_internet_connection_and_try_again">Controleer uw internetverbinding en probeer het opnieuw.</string>
   <string name="retry_button">Opnieuw proberen</string>
   <string name="retry_connection">Verbinding opnieuw proberen</string>
+  <string name="settings">Instellingen</string>
+  <string name="cancel">Annuleren</string>
   <!-- Loading Messages -->
   <string name="loading_message_1">Vraagt aandacht... en verwerkingskracht...</string>
-  <string name="loading_message_2">Batting at loading bars…</string>
+  <string name="loading_message_2">Slaan tegen laadbalken...</string>
   <string name="loading_message_3">Wegjagen van datamakelaars…</string>
-  <string name="loading_message_4">Chasing digital mice…</string>
-  <string name="loading_message_5">Knocking things off invisible shelves…</string>
-  <string name="loading_message_6">Downloading… please wait…</string>
-  <string name="loading_message_7">Napping in a sunbeam… almost ready…</string>
-  <string name="loading_message_8">Plotting world domination… and your app launch…</string>
-  <string name="loading_message_9">Purring the engines to life…</string>
-  <string name="loading_message_10">Sharpening claws on your keyboard…</string>
-  <string name="loading_message_11">Stretching before the big jump…</string>
+  <string name="loading_message_4">Digitale muizen achterna zitten...</string>
+  <string name="loading_message_5">Dingen van onzichtbare planken stoten...</string>
+  <string name="loading_message_6">Bezig met downloaden... een ogenblik geduld...</string>
+  <string name="loading_message_7">Dutje in de zon... bijna klaar...</string>
+  <string name="loading_message_8">Wereldheerschappij plannen... en de lancering van uw app...</string>
+  <string name="loading_message_9">De motoren worden gestart...</string>
+  <string name="loading_message_10">Klauwen scherpen op uw toetsenbord...</string>
+  <string name="loading_message_11">Rekken voor de grote sprong...</string>
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Herkenning verwerkt door Google</string>
-  <string name="speech_status_vosk">Recognition processed by Vosk • On-device • Private</string>
+  <string name="speech_status_vosk" tools:ignore="MissingTranslation">Herkenning verwerkt door Vosk • Op het apparaat • Privé</string>
+  <string name="speech_status_google" tools:ignore="MissingTranslation">Herkenning verwerkt door Google</string>
   <string name="speech_status_on_device">Op apparaat • Privé</string>
+  <string name="permission_rationale_title">Toestemming ontbreekt</string>
   <string name="permission_mic_rationale">Microfoontoestemming nodig voor spraakinvoer</string>
   <string name="speech_not_available">Spraakherkenning niet beschikbaar</string>
   <string name="speech_error_format">Spraakfout: %1$s</string>
@@ -55,12 +59,12 @@
   <string name="payment_black_friday_title">Mis onze speciale aanbieding niet</string>
   <string name="payment_subtitle">Geniet van voorkeursbehandeling en premiumfuncties met Lumo Plus.</string>
   <string name="payment_black_friday_subtitle">Ontgrendel vandaag nog alle Lumo Plus premium features voor onze beste prijs tot nu toe.</string>
-  <string name="payment_checking">Checking subscription status…</string>
-  <string name="payment_loading_plans">Loading subscription plans…</string>
+  <string name="payment_checking">Abonnementsstatus controleren...</string>
+  <string name="payment_loading_plans">Abonnementen laden...</string>
   <string name="payment_no_plans_available">Er zijn momenteel geen abonnementsplannen beschikbaar</string>
   <string name="subscription_renewal">Het geselecteerde abonnement wordt automatisch verlengd totdat het wordt geannuleerd</string>
   <string name="subscription_buy_lumo">Neem Lumo Plus</string>
-  <string name="subscription_use_lumo_free">Use Lumo Free instead</string>
+  <string name="subscription_use_lumo_free">Gebruik in plaats daarvan Lumo Free</string>
   <string name="subscription_claim_black_friday_deal">Claim de Black Friday aanbieding</string>
   <string name="subscription_manage">Abonnement beheren</string>
   <string name="subscription_manage_info">Dit abonnement moet via de webinterface worden beheerd.</string>
@@ -131,9 +135,11 @@
   <!-- Subscription Error Messages -->
   <string name="error_failed_to_load_subscriptions">Kon abonnementen niet laden: %1$s</string>
   <string name="error_loading_subscriptions">Fout bij het ophalen van abonnementen: %1$s</string>
-  <string name="error_no_plans_with_pricing">No plans with pricing information available</string>
-  <string name="error_problem_loading_subscriptions">There was a problem loading subscriptions</string>
-  <string name="error_failed_to_load_plans">Failed to load plans: %1$s</string>
-  <string name="error_loading_plans">Error loading plans: %1$s</string>
-  <string name="error_webview_not_available">WebView not available</string>
+  <string name="error_no_plans_with_pricing">Geen abonnementen met prijsinformatie beschikbaar</string>
+  <string name="error_problem_loading_subscriptions">Er is een probleem opgetreden bij het laden van abonnementen</string>
+  <string name="error_failed_to_load_plans">Kon abonnementen niet laden: %1$s</string>
+  <string name="error_loading_plans">Fout bij het ophalen van abonnementen: %1$s</string>
+  <string name="error_webview_not_available">WebView niet beschikbaar</string>
+  <string name="error_open_external_link">Kan externe link niet openen</string>
+  <string name="error_open_file_chooser">Kan bestandskiezer niet openen</string>
 </resources>
