@@ -13,10 +13,10 @@ app/production/
 vosk-model/build
 .kotlin/
 .idea/
+obsidian
 
 # Environment variables (contains sensitive data)
 .env
-obsidian
 
 # Sentry Config File
 sentry.properties
