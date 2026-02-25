@@ -219,8 +219,8 @@ private fun ColumnScope.Header(
     Spacer(modifier = Modifier.height(16.dp))
     val paymentTitle = when (paymentEvent) {
         PaymentEvent.Default -> R.string.payment_title
-        PaymentEvent.BlackFriday,
-        PaymentEvent.SpringSale -> R.string.payment_black_friday_title
+        PaymentEvent.BlackFriday -> R.string.payment_black_friday_title
+        PaymentEvent.SpringSale -> R.string.payment_spring_sale_title
     }
     Text(
         text = stringResource(id = paymentTitle),

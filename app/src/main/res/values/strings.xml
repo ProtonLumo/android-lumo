@@ -62,6 +62,8 @@
     <string name="payment_subtitle">Enjoy preferred treatment and premium features with Lumo Plus.</string>
     <string name="payment_black_friday_subtitle">Unlock all premium features today on Lumo Plus with our best price yet.</string>
     <!-- tag(q1campaign) -->
+    <string name="payment_spring_sale_title">Don\'t miss our special deal</string>
+    <!-- tag(q1campaign) -->
     <string name="payment_spring_sale_subtitle">Unlock all premium features today on Lumo Plus for less.</string>
     <string name="payment_checking">Checking subscription status…</string>
     <string name="payment_loading_plans">Loading subscription plans…</string>
