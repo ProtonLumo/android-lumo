@@ -23,6 +23,7 @@ import me.proton.android.lumo.R
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.ui.theme.LumoTheme
 
+@Suppress("LongParameterList")
 @Composable
 fun BlackFridayPlanSelectorContent(
     isSelected: Boolean,

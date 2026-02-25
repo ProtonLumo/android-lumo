@@ -49,7 +49,7 @@ class MainActivityViewModel @Inject constructor(
     sealed class UiEvent {
         data class EvaluateJavascript(val script: String) : UiEvent()
         data class ShowToast(val message: UiText) : UiEvent()
-        class ShowPaymentDialog(val paymentEvent: PaymentEvent = PaymentEvent.SpringSale) : UiEvent()
+        class ShowPaymentDialog(val paymentEvent: PaymentEvent = PaymentEvent.Default) : UiEvent()
         object ShowSpeechSheet : UiEvent()
         data class MissingPermission(val missingPermission: String) : UiEvent()
     }

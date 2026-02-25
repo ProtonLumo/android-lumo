@@ -123,6 +123,7 @@ fun PlanSelectItem(
     }
 }
 
+@Suppress("LongParameterList", "LongMethod")
 @Composable
 fun PlanSelectorContent(
     isSelected: Boolean,
