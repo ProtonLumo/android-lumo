@@ -13,11 +13,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
@@ -29,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,7 +53,8 @@ fun PlanSelectItem(
         if (plan.cycle == 12) {
             when (paymentEvent) {
                 PaymentEvent.Default -> LumoTheme.colors.focus
-                PaymentEvent.BlackFriday -> LumoTheme.colors.interactionSecondary
+                PaymentEvent.BlackFriday,
+                PaymentEvent.SpringSale -> LumoTheme.colors.interactionSecondary
             }
         } else {
             LumoTheme.colors.focus
@@ -74,8 +72,9 @@ fun PlanSelectItem(
         label = "scaleAnimation"
     )
 
-    Row(
+    Box(
         modifier = modifier
+            .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .graphicsLayer(
                 scaleX = scale,
@@ -91,62 +90,52 @@ fun PlanSelectItem(
             .selectable(
                 selected = isSelected,
                 onClick = onSelect,
-            ),
-        verticalAlignment = Alignment.CenterVertically
+            )
     ) {
-        if (plan.cycle == 12 && paymentEvent == PaymentEvent.BlackFriday) {
-            Column {
-                PlanSelectorContent(isSelected, onSelect, borderColor, plan, paymentEvent)
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .background(LumoTheme.colors.interactionSecondary.copy(alpha = 0.3f))
-                        .padding(horizontal = 12.dp, vertical = 8.dp)
-                        .fillMaxWidth()
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_time),
-                            contentDescription = "",
-                            tint = LumoTheme.colors.interactionSecondary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = stringResource(R.string.limited_black_friday_offer),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = LumoTheme.colors.textNorm
-                        )
-                    }
-                    Icon(
-                        painter = painterResource(R.drawable.ic_sparkles),
-                        contentDescription = "",
-                        tint = LumoTheme.colors.interactionSecondary,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
-        } else {
-            PlanSelectorContent(isSelected, onSelect, borderColor, plan, paymentEvent)
-        }
+        when (plan.cycle) {
+            12 if paymentEvent == PaymentEvent.BlackFriday ->
+                BlackFridayPlanSelectorContent(
+                    isSelected = isSelected,
+                    onSelect = onSelect,
+                    borderColor = borderColor,
+                    plan = plan,
+                    paymentEvent = paymentEvent,
+                )
 
+            12 if paymentEvent == PaymentEvent.SpringSale ->
+                SpringSalePlanSelectorContent(
+                    isSelected = isSelected,
+                    onSelect = onSelect,
+                    borderColor = borderColor,
+                    plan = plan,
+                    paymentEvent = paymentEvent,
+                )
+
+            else -> PlanSelectorContent(
+                isSelected = isSelected,
+                onSelect = onSelect,
+                borderColor = borderColor,
+                plan = plan,
+                paymentEvent = paymentEvent,
+                modifier = Modifier.padding(vertical = 6.dp)
+            )
+        }
     }
 }
 
+@Suppress("LongParameterList", "LongMethod")
 @Composable
-private fun PlanSelectorContent(
+fun PlanSelectorContent(
     isSelected: Boolean,
     onSelect: () -> Unit,
     borderColor: Color,
     plan: JsPlanInfo,
     paymentEvent: PaymentEvent,
+    modifier: Modifier = Modifier,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(4.dp)
+        modifier = modifier
     ) {
         RadioButton(
             selected = isSelected,
@@ -218,12 +207,13 @@ private fun PlanSelectorContent(
                     ),
                     style = MaterialTheme.typography.bodySmall,
                     color = when (paymentEvent) {
-                        PaymentEvent.Default -> LumoTheme.colors.signalSuccess
+                        PaymentEvent.Default,
+                        PaymentEvent.SpringSale -> LumoTheme.colors.signalSuccess
+
                         PaymentEvent.BlackFriday -> LumoTheme.colors.interactionSecondary
                     }
                 )
             }
         }
-
     }
 }
