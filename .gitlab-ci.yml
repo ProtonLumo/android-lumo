@@ -174,7 +174,7 @@ i18n-commit-locales:
   variables:
     I18N_COMMIT_CROWDIN_PROJECT: android-lumo
     I18N_COMMIT_BRANCH_PUSH: main
-    I18N_COMMIT_BRANCH_ALLOWEDK: main
+    I18N_COMMIT_BRANCH_ALLOWED: main
   extends: .i18n-commit-locales-shared
 
 # ---------------------------------------------------------
