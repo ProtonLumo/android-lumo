@@ -22,4 +22,3 @@ obsidian
 sentry.properties
 unleash.properties
 ci/scripts/fdroid_release.sh
-/app/src/debug/res/raw/cert.pem
