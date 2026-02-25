@@ -103,7 +103,11 @@ private fun Content(
                 Spacer(modifier = Modifier.height(48.dp))
             }
 
-            planOptions.forEachIndexed { index, plan ->
+            if (paymentEvent == PaymentEvent.Default) {
+                planOptions
+            } else {
+                planOptions.reversed()
+            }.forEachIndexed { index, plan ->
                 if (plan.totalPrice.isNotEmpty()) {
                     PlanSelectItem(
                         plan = plan,
@@ -111,7 +115,6 @@ private fun Content(
                         paymentEvent = paymentEvent,
                         isSelected = selectedPlanIndex == index,
                         onSelect = { onSelectPlan(index) },
-                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -177,11 +180,12 @@ private fun Footer(
             shape = RoundedCornerShape(8.dp),
             enabled = true
         ) {
-            val buttonText =
-                if (paymentEvent == PaymentEvent.BlackFriday)
-                    R.string.subscription_claim_black_friday_deal
-                else
-                    R.string.subscription_buy_lumo
+            val buttonText = when(paymentEvent) {
+                PaymentEvent.Default -> R.string.subscription_buy_lumo
+                PaymentEvent.BlackFriday -> R.string.subscription_claim_black_friday_deal
+                PaymentEvent.SpringSale -> R.string.subscription_claim_spring_sale_deal
+            }
+
             Text(
                 text = stringResource(id = buttonText),
                 style = MaterialTheme.typography.bodyLarge,
@@ -216,6 +220,7 @@ private fun ColumnScope.Header(
     val paymentTitle = when (paymentEvent) {
         PaymentEvent.Default -> R.string.payment_title
         PaymentEvent.BlackFriday -> R.string.payment_black_friday_title
+        PaymentEvent.SpringSale -> R.string.payment_spring_sale_title
     }
     Text(
         text = stringResource(id = paymentTitle),
@@ -228,6 +233,7 @@ private fun ColumnScope.Header(
     val paymentSubtitle = when (paymentEvent) {
         PaymentEvent.Default -> R.string.payment_subtitle
         PaymentEvent.BlackFriday -> R.string.payment_black_friday_subtitle
+        PaymentEvent.SpringSale -> R.string.payment_spring_sale_subtitle
     }
     Text(
         text = stringResource(id = paymentSubtitle),

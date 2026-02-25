@@ -39,13 +39,21 @@ private fun HeaderImage(
             } else {
                 R.drawable.lumo_black_friday
             }
+
+        PaymentEvent.SpringSale ->
+            if (isDarkTheme) {
+                R.drawable.lumo_spring_sale_dark
+            } else {
+                R.drawable.lumo_spring_sale
+            }
     }
     Image(
         painter = painterResource(id = imageRes),
         contentScale =
             when (paymentEvent) {
                 PaymentEvent.Default -> ContentScale.Fit
-                PaymentEvent.BlackFriday -> ContentScale.Crop
+                PaymentEvent.BlackFriday,
+                PaymentEvent.SpringSale -> ContentScale.Crop
             },
         contentDescription = "Lumo Plus",
         modifier = modifier
@@ -55,7 +63,8 @@ private fun HeaderImage(
                     PaymentEvent.Default ->
                         Modifier.windowInsetsPadding(WindowInsets.systemBars)
 
-                    PaymentEvent.BlackFriday -> Modifier
+                    PaymentEvent.BlackFriday,
+                    PaymentEvent.SpringSale -> Modifier
                 }
             )
     )
