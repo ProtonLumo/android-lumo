@@ -1,170 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">Lumo</string>
-    <string name="back_to_lumo">Back to Lumo</string>
-    <string name="loading">Loading Lumo</string>
-    <string name="error_generic">An error occurred</string>
-    <string name="error_url">Error determining initial URL.</string>
-    <string name="unable_to_connect">Unable to connect</string>
-    <string name="please_check_your_internet_connection_and_try_again">Please check your internet connection and try again</string>
-    <string name="retry_button">Retry</string>
-    <string name="retry_connection">Retry Connection</string>
-    <string name="settings">Settings</string>
-    <string name="cancel">Cancel</string>
-    
-    <!-- Loading Messages -->
-    <string name="loading_message_1">Demanding attention… and processing power…</string>
-    <string name="loading_message_2">Batting at loading bars…</string>
-    <string name="loading_message_3">Chasing away data brokers…</string>
-    <string name="loading_message_4">Chasing digital mice…</string>
-    <string name="loading_message_5">Knocking things off invisible shelves…</string>
-    <string name="loading_message_6">Downloading… please wait…</string>
-    <string name="loading_message_7">Napping in a sunbeam… almost ready…</string>
-    <string name="loading_message_8">Plotting world domination… and your app launch…</string>
-    <string name="loading_message_9">Purring the engines to life…</string>
-    <string name="loading_message_10">Sharpening claws on your keyboard…</string>
-    <string name="loading_message_11">Stretching before the big jump…</string>
-
-    <!-- MainActivity Status/Errors -->
-    <string name="speech_status_network">Recognition processed by Google</string>
-    <string name="speech_status_vosk" tools:ignore="MissingTranslation">Recognition processed by Vosk • On-device • Private</string>
-    <string name="speech_status_google" tools:ignore="MissingTranslation">Recognition processed by Google</string>
-    <string name="speech_status_on_device">On-device • Private</string>
-    <string name="permission_rationale_title">Missing permission</string>
-    <string name="permission_mic_rationale">Microphone permission needed for speech input</string>
-    <string name="speech_not_available">Speech recognition not available</string>
-    <string name="speech_error_format">Speech Error: %1$s</string> <!-- Placeholder for error message -->
-    <string name="submit_prompt_failed">Failed to insert prompt into webview</string>
-    <string name="start_listener_error_format">Error starting listener: %1$s</string> <!-- Placeholder for exception message -->
-    <string name="fab_speak_prompt_desc">Speak prompt</string>
-    <string name="speech_intent_prompt">Speak your prompt</string>
-
-    <!-- Speech Input Sheet -->
-    <string name="speech_sheet_cancel_desc">Cancel Speech Input</string>
-    <string name="speech_sheet_submit_desc">Submit Prompt</string>
-    <string name="speech_sheet_listening">Listening…</string>
-    <string name="speech_sheet_waiting">Tap submit or speak</string>
-
-    <!-- Speech Recognizer Errors -->
-    <string name="speech_error_audio">Audio recording error</string>
-    <string name="speech_error_client">Client side error</string>
-    <string name="speech_error_insufficient_permissions">Insufficient permissions</string>
-    <string name="speech_error_network">Network error</string>
-    <string name="speech_error_network_timeout">Network timeout</string>
-    <string name="speech_error_no_match">No speech match</string>
-    <string name="speech_error_recognizer_busy">Recognizer busy</string>
-    <string name="speech_error_server">Server error</string>
-    <string name="speech_error_speech_timeout">No speech input</string>
-    <string name="speech_error_unknown">Unknown speech recognition error</string>
-
-    <!-- SUbscription Strings -->
-    <string name="payment_title">Elevate your AI experience</string>
-    <string name="payment_black_friday_title">Don\'t miss our special deal</string>
-    <string name="payment_subtitle">Enjoy preferred treatment and premium features with Lumo Plus.</string>
-    <string name="payment_black_friday_subtitle">Unlock all premium features today on Lumo Plus with our best price yet.</string>
-    <!-- tag(q1campaign) -->
-    <string name="payment_spring_sale_title">Don\'t miss our special deal</string>
-    <!-- tag(q1campaign) -->
-    <string name="payment_spring_sale_subtitle">Unlock all premium features today on Lumo Plus for less.</string>
-    <string name="payment_checking">Checking subscription status…</string>
-    <string name="payment_loading_plans">Loading subscription plans…</string>
-    <string name="payment_no_plans_available">No subscription plans are currently available</string>
-    <string name="subscription_renewal">The selected plan will auto-renew until cancelled</string>
-    <string name="subscription_buy_lumo">Get Lumo Plus</string>
-    <string name="subscription_use_lumo_free">Use Lumo Free instead</string>
-    <string name="subscription_claim_black_friday_deal">Claim Black Friday Deal</string>
-    <!-- tag(q1campaign) -->
-    <string name="subscription_claim_spring_sale_deal">Claim Spring Sale Deal</string>
-    <string name="subscription_manage">Manage Subscription</string>
-    <string name="subscription_manage_info">This subscription must be managed via the web interface.</string>
-    <string name="discount_template">Save %s</string>
-    <string name="best_value">Best Value</string>
-    <string name="limited_black_friday_offer">Limited time Black Friday offer</string>
-    <!-- tag(q1campaign) -->
-    <string name="limited_spring_sale_offer">Limited time Spring Sale offer</string>
-
-    <string name="for_price">For</string>
-    <string name="month">Month</string>
-    <string name="months">Month</string>
-    <string name="cancelled">Cancelled</string>
-
-    <!-- Time Periods -->
-    <string name="period_day">day</string>
-    <string name="period_week">week</string>
-    <string name="period_month">month</string>
-    <string name="period_quarter">quarter</string>
-    <string name="period_6_months">6 months</string>
-    <string name="period_year">year</string>
-
-    <!-- Plan Duration Text -->
-    <string name="plan_duration_1_month">1 month</string>
-    <string name="plan_duration_12_months">12 months</string>
-    <string name="plan_duration_n_months">%1$d Months</string>
-
-    <!-- Subscription Status -->
-    <string name="subscription_renews">Your subscription automatically renews on %1$s</string>
-    <string name="subscription_expires">Your subscription expires on %1$s</string>
-
-    <!-- Error Messages - Network -->
-    <string name="error_network_dns">Unable to connect to server. Please check your internet connection.</string>
-    <string name="error_network_connection">Connection failed. Please check your internet connection.</string>
-    <string name="error_network_no_route">Unable to reach server. Please check your internet connection.</string>
-    <string name="error_network_port_unreachable">Service temporarily unavailable.</string>
-    <string name="error_network_socket">Network connection error. Please try again.</string>
-    <string name="error_network_io">Network error occurred. Please try again.</string>
-    
-    <!-- Error Messages - Timeout -->
-    <string name="error_timeout_socket">Request timed out. Please try again.</string>
-    
-    <!-- Error Messages - SSL/Security -->
-    <string name="error_ssl_handshake">Secure connection failed. Please check your device\'s date and time.</string>
-    <string name="error_ssl_peer_unverified">Server certificate verification failed.</string>
-    <string name="error_ssl_protocol">Secure connection protocol error.</string>
-    <string name="error_ssl_general">Secure connection error.</string>
-    <string name="error_certificate">Server certificate error.</string>
-    
-    <!-- Error Messages - Authentication -->
-    <string name="error_auth_unauthorized">Authentication failed. Please sign in again.</string>
-    <string name="error_auth_forbidden">Access denied.</string>
-    
-    <!-- Error Messages - Client -->
-    <string name="error_client_not_found">Requested resource not found.</string>
-    <string name="error_client_protocol">Protocol error occurred.</string>
-    <string name="error_client_service_unknown">Service not supported.</string>
-    
-    <!-- Error Messages - Server -->
-    <string name="error_server_internal">Server error. Please try again later.</string>
-    <string name="error_server_bad_gateway">Service temporarily unavailable. Please try again.</string>
-    <string name="error_server_unavailable">Service temporarily unavailable. Please try again later.</string>
-    
-    <!-- Error Messages - Generic -->
-    <string name="error_unknown">An unexpected error occurred. Please try again.</string>
-
-    <!-- Billing Error Messages -->
-    <string name="billing_unavailable_old_api">This device\'s Google Play Billing version is too old. Please update Google Play Store or use the web version of Lumo.</string>
-    <string name="billing_unavailable_not_supported">In-app purchases are not supported on this device. Please use the web version of Lumo for subscriptions.</string>
-    <string name="billing_unavailable_generic">Billing unavailable: Please ensure Google Play Store is installed, updated and you are logged in</string>
-    <string name="billing_service_not_connected">Billing service not connected. Please try again.</string>
-    <string name="billing_google_play_required">Google Play Store is required for purchases</string>
-    <string name="billing_cannot_access_google_play">Cannot access Google Play Store</string>
-    <string name="billing_services_unavailable">Billing services unavailable: %1$s</string>
-    <string name="billing_api_not_available">Google Play Billing API not available</string>
-    <string name="billing_initialization_failed">Billing initialization failed: %1$s</string>
-    <string name="billing_connection_failed">Failed to connect to billing service: %1$s</string>
-    <string name="billing_application_context_unavailable">Application context unavailable</string>
-
-    <!-- Subscription Plan Descriptions -->
-    <string name="subscription_monthly_description">Monthly subscription</string>
-    <string name="subscription_annual_description">Annual subscription (save 20%)</string>
-
-    <!-- Subscription Error Messages -->
-    <string name="error_failed_to_load_subscriptions">Failed to load subscriptions: %1$s</string>
-    <string name="error_loading_subscriptions">Error loading subscriptions: %1$s</string>
-    <string name="error_no_plans_with_pricing">No plans with pricing information available</string>
-    <string name="error_problem_loading_subscriptions">There was a problem loading subscriptions</string>
-    <string name="error_failed_to_load_plans">Failed to load plans: %1$s</string>
-    <string name="error_loading_plans">Error loading plans: %1$s</string>
-    <string name="error_webview_not_available">WebView not available</string>
-    <string name="error_open_external_link">Can\'t open the external link</string>
-    <string name="error_open_file_chooser">Can\'t open the file chooser</string>
-
+  <string name="app_name">Lumo</string>
+  <string name="back_to_lumo">Takaisin Lumoon</string>
+  <string name="loading">Ladataan Lumoa</string>
+  <string name="error_generic">Tapahtui virhe</string>
+  <string name="error_url">Virhe ensimmäisen URL-osoitteen määrittämisessä.</string>
+  <string name="unable_to_connect">Yhdistäminen ei onnistu</string>
+  <string name="please_check_your_internet_connection_and_try_again">Tarkista internet-yhteytesi ja yritä uudelleen</string>
+  <string name="retry_button">Yritä uudelleen</string>
+  <string name="retry_connection">Yhdistä uudelleen</string>
+  <string name="settings">Asetukset</string>
+  <string name="cancel">Peruuta</string>
+  <!-- Loading Messages -->
+  <string name="loading_message_1">Pyydetään huomiota… ja prosessointitehoa</string>
+  <string name="loading_message_2">Tuijotetaan latauspalkkeja…</string>
+  <string name="loading_message_3">Hätistetään tiedonmyyjiä…</string>
+  <string name="loading_message_4">Jahdataan digitaalista hiirtä…</string>
+  <string name="loading_message_5">Tiputetaan tavaroita näkymättömiltä hyllyiltä…</string>
+  <string name="loading_message_6">Ladataan… ole hyvä ja odota…</string>
+  <string name="loading_message_7">Torkutaan auringonsäteessä… Kohta valmista</string>
+  <string name="loading_message_8">Valmistellaan maailmanvalloitusta… ja sovelluksesi käynnistymistä</string>
+  <string name="loading_message_9">Herätetään moottorit kehräämällä…</string>
+  <string name="loading_message_10">Teroitetaan kynsiä näppäimistöösi…</string>
+  <string name="loading_message_11">Venytellään ennen pitkää hyppyä…</string>
+  <!-- MainActivity Status/Errors -->
+  <string name="speech_status_network">Tunnistus on Googlen käsittelemä</string>
+  <string name="speech_status_vosk" tools:ignore="MissingTranslation">Vosk prosessoi tunnistuksen • Tapahtuu laitteellasi • Yksityinen</string>
+  <string name="speech_status_google" tools:ignore="MissingTranslation">Tunnistus on Googlen käsittelemä</string>
+  <string name="speech_status_on_device">Laitteella • Yksityinen</string>
+  <string name="permission_rationale_title">Käyttöoikeus puuttuu</string>
+  <string name="permission_mic_rationale">Mikrofonin käyttölupa vaaditaan puheen syöttämiseen.</string>
+  <string name="speech_not_available">Puheentunnistus ei ole saatavilla.</string>
+  <string name="speech_error_format">Puhevirhe: %1$s</string>
+  <!-- Placeholder for error message -->
+  <string name="submit_prompt_failed">Syötteen laitto verkkonäkymään epäonnistui</string>
+  <string name="start_listener_error_format">Virhe käynnistettäessä kuulijaa: %1$s</string>
+  <!-- Placeholder for exception message -->
+  <string name="fab_speak_prompt_desc">Puhesyöte</string>
+  <string name="speech_intent_prompt">Sano syötteesi</string>
+  <!-- Speech Input Sheet -->
+  <string name="speech_sheet_cancel_desc">Peruuta puheensyöttö</string>
+  <string name="speech_sheet_submit_desc">Vahvista syöte</string>
+  <string name="speech_sheet_listening">Kuunnellaan…</string>
+  <string name="speech_sheet_waiting">Näpäytä vahvistaaksesi, tai puhu</string>
+  <!-- Speech Recognizer Errors -->
+  <string name="speech_error_audio">Äänentallennuksen virhe</string>
+  <string name="speech_error_client">Asiakaspuolen virhe</string>
+  <string name="speech_error_insufficient_permissions">Riittämättömät oikeudet</string>
+  <string name="speech_error_network">Verkkovirhe</string>
+  <string name="speech_error_network_timeout">Verkkoyhteyden aikakatkaisu</string>
+  <string name="speech_error_no_match">Ei puheen vastaavuutta</string>
+  <string name="speech_error_recognizer_busy">Tunnistin on varattu</string>
+  <string name="speech_error_server">Palvelinvirhe</string>
+  <string name="speech_error_speech_timeout">Ei puhesyötettä</string>
+  <string name="speech_error_unknown">Tuntematon puheentunnistuksen virhe</string>
+  <!-- SUbscription Strings -->
+  <string name="payment_title">Kohota AI-kokemustasi</string>
+  <string name="payment_black_friday_title">Älä unohda erikoistarjoustamme</string>
+  <string name="payment_subtitle">Nauti etuoikeutetusta kohtelusta ja paremmista ominaisuuksista Lumo Plus:salla.</string>
+  <string name="payment_black_friday_subtitle">Avaa kaikki premium-ominaisuudet Lumo Plussalla tänään tähän mennessä parhaimpaan hintaamme.</string>
+  <!-- tag(q1campaign) -->
+  <string name="payment_spring_sale_title">Don\'t miss our special deal</string>
+  <!-- tag(q1campaign) -->
+  <string name="payment_spring_sale_subtitle">Unlock all premium features today on Lumo Plus for less.</string>
+  <string name="payment_checking">Tarkistetaan tilauksen tilaa…</string>
+  <string name="payment_loading_plans">Ladataan tilausvaihtoehtoja…</string>
+  <string name="payment_no_plans_available">Tilausvaihtoehtoja ei ole tällä hetkellä saatavilla.</string>
+  <string name="subscription_renewal">Valittu tilaus uusiutuu automaattisesti, kunnes se perutaan</string>
+  <string name="subscription_buy_lumo">Hanki Lumo Plus</string>
+  <string name="subscription_use_lumo_free">Käytä sen sijaan Lumo Freetä</string>
+  <string name="subscription_claim_black_friday_deal">Lunasta Black Friday -tarjouksesi</string>
+  <!-- tag(q1campaign) -->
+  <string name="subscription_claim_spring_sale_deal">Claim Spring Sale Deal</string>
+  <string name="subscription_manage">Hallitse tilausta</string>
+  <string name="subscription_manage_info">Tätä tilausta täytyy hallita verkkoliittymän kautta.</string>
+  <string name="discount_template">Säästä %s</string>
+  <string name="best_value">Paras arvo</string>
+  <string name="limited_black_friday_offer">Rajoitetun ajan Black Friday -tarjous</string>
+  <!-- tag(q1campaign) -->
+  <string name="limited_spring_sale_offer">Limited time Spring Sale offer</string>
+  <string name="for_price">Ajalle</string>
+  <string name="month">Kuukausi</string>
+  <string name="months">Kuukausi</string>
+  <string name="cancelled">Peruttu</string>
+  <!-- Time Periods -->
+  <string name="period_day">päivä</string>
+  <string name="period_week">viikko</string>
+  <string name="period_month">kuukausi</string>
+  <string name="period_quarter">neljännesvuosi</string>
+  <string name="period_6_months">kuusi kuukautta</string>
+  <string name="period_year">vuosi</string>
+  <!-- Plan Duration Text -->
+  <string name="plan_duration_1_month">Yksi kuukausi</string>
+  <string name="plan_duration_12_months">12 kuukautta</string>
+  <string name="plan_duration_n_months">%1$d kuukautta</string>
+  <!-- Subscription Status -->
+  <string name="subscription_renews">Tilauksesi uudistuu automaattisesti %1$s</string>
+  <string name="subscription_expires">Tilauksesi päättyy %1$s</string>
+  <!-- Error Messages - Network -->
+  <string name="error_network_dns">Palvelimeen ei saada yhteyttä. Tarkista internet-yhteytesi.</string>
+  <string name="error_network_connection">Yhteys katkesi. Tarkista internet-yhteytesi.</string>
+  <string name="error_network_no_route">Palvelimeen ei saada yhteyttä. Tarkista internet-yhteytesi.</string>
+  <string name="error_network_port_unreachable">Palvelu ei väliaikaisesti ole saatavilla.</string>
+  <string name="error_network_socket">Verkkoyhteyden virhe. Yritä uudestaan.</string>
+  <string name="error_network_io">Tapahtui verkkovirhe. Yritä uudestaan.</string>
+  <!-- Error Messages - Timeout -->
+  <string name="error_timeout_socket">Pyyntö aikakatkaistu. Yritä uudestaan.</string>
+  <!-- Error Messages - SSL/Security -->
+  <string name="error_ssl_handshake">Turvallisen yhteyden muodostaminen epäonnistui. Tarkista laitteesi päivämäärä ja aika.</string>
+  <string name="error_ssl_peer_unverified">Palvelimen varmenteen vahvistus epäonnistui.</string>
+  <string name="error_ssl_protocol">Turvallisen yhteyden protokollan virhe.</string>
+  <string name="error_ssl_general">Suojatun yhteyden virhe.</string>
+  <string name="error_certificate">Palvelimen varmenteen virhe.</string>
+  <!-- Error Messages - Authentication -->
+  <string name="error_auth_unauthorized">Varmennus epäonnistui. Kirjaudu uudelleen sisään.</string>
+  <string name="error_auth_forbidden">Pääsy evätty.</string>
+  <!-- Error Messages - Client -->
+  <string name="error_client_not_found">Pyydettyä resurssia ei löytynyt.</string>
+  <string name="error_client_protocol">Protokollavirhe.</string>
+  <string name="error_client_service_unknown">Palvelua ei tueta.</string>
+  <!-- Error Messages - Server -->
+  <string name="error_server_internal">Palvelinvirhe. Yritä myöhemmin uudestaan.</string>
+  <string name="error_server_bad_gateway">Palvelu ei väliaikaisesti ole saatavilla. Yritä myöhemmin uudestaan.</string>
+  <string name="error_server_unavailable">Palvelu ei väliaikaisesti ole saatavilla. Yritä myöhemmin uudestaan.</string>
+  <!-- Error Messages - Generic -->
+  <string name="error_unknown">Tapahtui odottamaton virhe. Yritä uudestaan.</string>
+  <!-- Billing Error Messages -->
+  <string name="billing_unavailable_old_api">Laitteen Google Play laskutuspalvelu on liian vanha. Päivitä Play Kauppa tai käytä Lumon nettiversiota.</string>
+  <string name="billing_unavailable_not_supported">Tämä laite ei tue sovelluksensisäisiä ostoksia. Käytä tilauksien hallintaan Lumon nettiversiota.</string>
+  <string name="billing_unavailable_generic">Laskutus ei ole saatavilla. Varmista, että Google Play Kauppa on asennettu, päivitetty ja olet kirjautunut sisään.</string>
+  <string name="billing_service_not_connected">Laskutuspalvelu ei ole yhdistetty. Yritä uudestaan.</string>
+  <string name="billing_google_play_required">Google Play Kauppa vaaditaan ostoksien tekemiseen.</string>
+  <string name="billing_cannot_access_google_play">Google Play Kauppaan ei saada yhteyttä.</string>
+  <string name="billing_services_unavailable">Laskutuspalvelu ei ole saatavilla: %1$s</string>
+  <string name="billing_api_not_available">Google Playn laskutuspalvelun API ei ole saatavilla.</string>
+  <string name="billing_initialization_failed">Laskutuksen aloittaminen epäonnistui: %1$s</string>
+  <string name="billing_connection_failed">Laskutuspalveluun yhdistäminen epäonnistui: %1$s</string>
+  <string name="billing_application_context_unavailable">Sovelluksen sisältö ei ole saatavilla</string>
+  <!-- Subscription Plan Descriptions -->
+  <string name="subscription_monthly_description">Kuukausitilaus</string>
+  <string name="subscription_annual_description">Vuositilaus (säästä 20 %)</string>
+  <!-- Subscription Error Messages -->
+  <string name="error_failed_to_load_subscriptions">Tilauksen lataaminen epäonnistui: %1$s</string>
+  <string name="error_loading_subscriptions">TIlauksen lataaminen epäonnistui: %1$s</string>
+  <string name="error_no_plans_with_pricing">Yhtäkään tilausta hintatiedoilla ei löytynyt</string>
+  <string name="error_problem_loading_subscriptions">Tilauksien lataamisessa tapahtui virhe</string>
+  <string name="error_failed_to_load_plans">Tilausvaihtoehtojen lataaminen epäonnistui: %1$s</string>
+  <string name="error_loading_plans">Tilausvaihtoehtojen lataamisessa tapahtui virhe: %1$s</string>
+  <string name="error_webview_not_available">WebView ei ole saatavilla</string>
+  <string name="error_open_external_link">Ulkoista linkkiä ei voitu avata</string>
+  <string name="error_open_file_chooser">Tiedostonvalitsinta ei voitu avata</string>
 </resources>

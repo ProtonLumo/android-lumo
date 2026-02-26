@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">Lumo</string>
-  <string name="back_to_lumo">Вернуться к Lumo</string>
-  <string name="loading">Загрузка Lumo</string>
-  <string name="error_generic">Произошла ошибка</string>
-  <string name="error_url">Ошибка определения начального URL.</string>
-  <string name="unable_to_connect">Не удается подключиться</string>
-  <string name="please_check_your_internet_connection_and_try_again">Проверьте подключение к Интернету и повторите попытку</string>
-  <string name="retry_button">Повторить</string>
-  <string name="retry_connection">Повторить подключение</string>
+  <string name="back_to_lumo">Voltar ao Lumo</string>
+  <string name="loading">Carregando o Lumo</string>
+  <string name="error_generic">Ocorreu um erro</string>
+  <string name="error_url">Erro ao determinar URL inicial.</string>
+  <string name="unable_to_connect">Não é possível conectar</string>
+  <string name="please_check_your_internet_connection_and_try_again">Por favor, verifique a sua ligação à internet e tente novamente</string>
+  <string name="retry_button">Tentar novamente</string>
+  <string name="retry_connection">Repetir Ligação</string>
   <string name="settings">Settings</string>
   <string name="cancel">Cancel</string>
   <!-- Loading Messages -->
   <string name="loading_message_1">Demanding attention… and processing power…</string>
   <string name="loading_message_2">Batting at loading bars…</string>
-  <string name="loading_message_3">Отгоняет дата-брокеров…</string>
+  <string name="loading_message_3">A afugentar corretores de dados...</string>
   <string name="loading_message_4">Chasing digital mice…</string>
   <string name="loading_message_5">Knocking things off invisible shelves…</string>
   <string name="loading_message_6">Downloading… please wait…</string>
@@ -24,40 +24,40 @@
   <string name="loading_message_10">Sharpening claws on your keyboard…</string>
   <string name="loading_message_11">Stretching before the big jump…</string>
   <!-- MainActivity Status/Errors -->
-  <string name="speech_status_network">Распознавание обработано Google</string>
+  <string name="speech_status_network">Reconhecimento processado pela Google</string>
   <string name="speech_status_vosk" tools:ignore="MissingTranslation">Recognition processed by Vosk • On-device • Private</string>
   <string name="speech_status_google" tools:ignore="MissingTranslation">Recognition processed by Google</string>
-  <string name="speech_status_on_device">На устройстве • Конфиденциально</string>
+  <string name="speech_status_on_device">No dispositivo • Privado</string>
   <string name="permission_rationale_title">Missing permission</string>
-  <string name="permission_mic_rationale">Для голосового ввода требуется разрешение на доступ к микрофону</string>
-  <string name="speech_not_available">Распознавание речи недоступно</string>
-  <string name="speech_error_format">Ошибка речи: %1$s</string>
+  <string name="permission_mic_rationale">Permissão de utilização de microfone necessária para entrada de voz</string>
+  <string name="speech_not_available">Reconhecimento de voz indisponível</string>
+  <string name="speech_error_format">Erro de Voz: %1$s</string>
   <!-- Placeholder for error message -->
-  <string name="submit_prompt_failed">Не удалось вставить запрос в веб-представление</string>
-  <string name="start_listener_error_format">Ошибка запуска прослушивателя: %1$s</string>
+  <string name="submit_prompt_failed">Falha ao inserir prompt na visualização web</string>
+  <string name="start_listener_error_format">Erro ao iniciar ouvinte: %1$s</string>
   <!-- Placeholder for exception message -->
-  <string name="fab_speak_prompt_desc">Произнесите запрос</string>
-  <string name="speech_intent_prompt">Произнесите запрос</string>
+  <string name="fab_speak_prompt_desc">Prompt de voz</string>
+  <string name="speech_intent_prompt">Diga o seu prompt</string>
   <!-- Speech Input Sheet -->
-  <string name="speech_sheet_cancel_desc">Отменить голосовой ввод</string>
-  <string name="speech_sheet_submit_desc">Отправить запрос</string>
-  <string name="speech_sheet_listening">Прослушивание…</string>
-  <string name="speech_sheet_waiting">Нажмите «Отправить» или произнесите</string>
+  <string name="speech_sheet_cancel_desc">Cancelar Entrada de Voz</string>
+  <string name="speech_sheet_submit_desc">Submeter Prompt</string>
+  <string name="speech_sheet_listening">Ouvindo...</string>
+  <string name="speech_sheet_waiting">Toque em submeter ou fale</string>
   <!-- Speech Recognizer Errors -->
-  <string name="speech_error_audio">Ошибка записи аудио</string>
-  <string name="speech_error_client">Ошибка на стороне клиента</string>
-  <string name="speech_error_insufficient_permissions">Недостаточно разрешений</string>
-  <string name="speech_error_network">Ошибка сети</string>
-  <string name="speech_error_network_timeout">Тайм-аут сети</string>
-  <string name="speech_error_no_match">Речь не распознана</string>
-  <string name="speech_error_recognizer_busy">Распознаватель занят</string>
-  <string name="speech_error_server">Ошибка сервера</string>
-  <string name="speech_error_speech_timeout">Нет голосового ввода</string>
-  <string name="speech_error_unknown">Неизвестная ошибка распознавания речи</string>
+  <string name="speech_error_audio">Erro na gravação do áudio</string>
+  <string name="speech_error_client">Erro do lado do cliente</string>
+  <string name="speech_error_insufficient_permissions">Permissões insuficientes</string>
+  <string name="speech_error_network">Erro de rede</string>
+  <string name="speech_error_network_timeout">Timeout da rede</string>
+  <string name="speech_error_no_match">Sem correspondência de voz</string>
+  <string name="speech_error_recognizer_busy">Reconhecedor ocupado</string>
+  <string name="speech_error_server">Erro de servidor</string>
+  <string name="speech_error_speech_timeout">Sem entrada de voz</string>
+  <string name="speech_error_unknown">Erro no reconhecimento de voz desconhecido</string>
   <!-- SUbscription Strings -->
-  <string name="payment_title">Повысьте качество вашего взаимодействия с ИИ</string>
+  <string name="payment_title">Eleve a sua experiência de IA</string>
   <string name="payment_black_friday_title">Don\'t miss our special deal</string>
-  <string name="payment_subtitle">Наслаждайтесь привилегированным обслуживанием и премиум-функциями с Lumo Plus.</string>
+  <string name="payment_subtitle">Desfrute de tratamento prioritário e funcionalidades premium com Lumo Plus.</string>
   <string name="payment_black_friday_subtitle">Unlock all premium features today on Lumo Plus with our best price yet.</string>
   <!-- tag(q1campaign) -->
   <string name="payment_spring_sale_title">Don\'t miss our special deal</string>
@@ -65,43 +65,43 @@
   <string name="payment_spring_sale_subtitle">Unlock all premium features today on Lumo Plus for less.</string>
   <string name="payment_checking">Checking subscription status…</string>
   <string name="payment_loading_plans">Loading subscription plans…</string>
-  <string name="payment_no_plans_available">Тарифные планы подписки в настоящее время недоступны</string>
-  <string name="subscription_renewal">Выбранный тариф будет автоматически продлеваться до отмены</string>
+  <string name="payment_no_plans_available">No subscription plans are currently available</string>
+  <string name="subscription_renewal">The selected plan will auto-renew until cancelled</string>
   <string name="subscription_buy_lumo">Get Lumo Plus</string>
   <string name="subscription_use_lumo_free">Use Lumo Free instead</string>
   <string name="subscription_claim_black_friday_deal">Claim Black Friday Deal</string>
   <!-- tag(q1campaign) -->
   <string name="subscription_claim_spring_sale_deal">Claim Spring Sale Deal</string>
-  <string name="subscription_manage">Управление подпиской</string>
-  <string name="subscription_manage_info">Этой подпиской необходимо управлять через веб-интерфейс.</string>
+  <string name="subscription_manage">Gerir subscrição</string>
+  <string name="subscription_manage_info">Esta subscrição só pode ser gerida através da do site.</string>
   <string name="discount_template">Save %s</string>
   <string name="best_value">Best Value</string>
   <string name="limited_black_friday_offer">Limited time Black Friday offer</string>
   <!-- tag(q1campaign) -->
   <string name="limited_spring_sale_offer">Limited time Spring Sale offer</string>
-  <string name="for_price">Для</string>
-  <string name="month">Месяц</string>
-  <string name="months">Месяц</string>
-  <string name="cancelled">Отменено</string>
+  <string name="for_price">For</string>
+  <string name="month">Month</string>
+  <string name="months">Month</string>
+  <string name="cancelled">Cancelled</string>
   <!-- Time Periods -->
-  <string name="period_day">день</string>
-  <string name="period_week">неделя</string>
-  <string name="period_month">месяц</string>
-  <string name="period_quarter">квартал</string>
-  <string name="period_6_months">6 месяцев</string>
-  <string name="period_year">год</string>
+  <string name="period_day">day</string>
+  <string name="period_week">week</string>
+  <string name="period_month">month</string>
+  <string name="period_quarter">quarter</string>
+  <string name="period_6_months">6 months</string>
+  <string name="period_year">year</string>
   <!-- Plan Duration Text -->
-  <string name="plan_duration_1_month">1 месяц</string>
-  <string name="plan_duration_12_months">12 месяцев</string>
-  <string name="plan_duration_n_months">%1$d Месяцев</string>
+  <string name="plan_duration_1_month">1 month</string>
+  <string name="plan_duration_12_months">12 months</string>
+  <string name="plan_duration_n_months">%1$d Months</string>
   <!-- Subscription Status -->
-  <string name="subscription_renews">Ваша подписка автоматически продлевается %1$s</string>
-  <string name="subscription_expires">Срок действия вашей подписки истекает %1$s</string>
+  <string name="subscription_renews">Your subscription automatically renews on %1$s</string>
+  <string name="subscription_expires">Your subscription expires on %1$s</string>
   <!-- Error Messages - Network -->
   <string name="error_network_dns">Unable to connect to server. Please check your internet connection.</string>
   <string name="error_network_connection">Connection failed. Please check your internet connection.</string>
-  <string name="error_network_no_route">Unable to reach server. Please check your internet connection.</string>
-  <string name="error_network_port_unreachable">Сервис временно недоступен.</string>
+  <string name="error_network_no_route">Não foi possível chegar ao servidor. Por favor, verifique a sua ligação à internet.</string>
+  <string name="error_network_port_unreachable">Serviço temporariamente indisponível.</string>
   <string name="error_network_socket">Network connection error. Please try again.</string>
   <string name="error_network_io">Network error occurred. Please try again.</string>
   <!-- Error Messages - Timeout -->
@@ -111,14 +111,14 @@
   <string name="error_ssl_peer_unverified">Server certificate verification failed.</string>
   <string name="error_ssl_protocol">Secure connection protocol error.</string>
   <string name="error_ssl_general">Secure connection error.</string>
-  <string name="error_certificate">Server certificate error.</string>
+  <string name="error_certificate">Erro de certificado do servidor.</string>
   <!-- Error Messages - Authentication -->
-  <string name="error_auth_unauthorized">Authentication failed. Please sign in again.</string>
-  <string name="error_auth_forbidden">Access denied.</string>
+  <string name="error_auth_unauthorized">Autenticação falhada. Por favor, tente novamente.</string>
+  <string name="error_auth_forbidden">Acesso negado.</string>
   <!-- Error Messages - Client -->
   <string name="error_client_not_found">Requested resource not found.</string>
   <string name="error_client_protocol">Protocol error occurred.</string>
-  <string name="error_client_service_unknown">Service not supported.</string>
+  <string name="error_client_service_unknown">Serviço não suportado.</string>
   <!-- Error Messages - Server -->
   <string name="error_server_internal">Server error. Please try again later.</string>
   <string name="error_server_bad_gateway">Service temporarily unavailable. Please try again.</string>
@@ -130,16 +130,16 @@
   <string name="billing_unavailable_not_supported">In-app purchases are not supported on this device. Please use the web version of Lumo for subscriptions.</string>
   <string name="billing_unavailable_generic">Billing unavailable: Please ensure Google Play Store is installed, updated and you are logged in</string>
   <string name="billing_service_not_connected">Billing service not connected. Please try again.</string>
-  <string name="billing_google_play_required">Google Play Store is required for purchases</string>
-  <string name="billing_cannot_access_google_play">Cannot access Google Play Store</string>
+  <string name="billing_google_play_required">Google Play Store é necessária para a compra</string>
+  <string name="billing_cannot_access_google_play">Não foi possível aceder à Google Play Store</string>
   <string name="billing_services_unavailable">Billing services unavailable: %1$s</string>
   <string name="billing_api_not_available">Google Play Billing API not available</string>
   <string name="billing_initialization_failed">Billing initialization failed: %1$s</string>
   <string name="billing_connection_failed">Failed to connect to billing service: %1$s</string>
   <string name="billing_application_context_unavailable">Application context unavailable</string>
   <!-- Subscription Plan Descriptions -->
-  <string name="subscription_monthly_description">Monthly subscription</string>
-  <string name="subscription_annual_description">Annual subscription (save 20%)</string>
+  <string name="subscription_monthly_description">Subscrição mensal</string>
+  <string name="subscription_annual_description">Subscrição anual (poupe 20%)</string>
   <!-- Subscription Error Messages -->
   <string name="error_failed_to_load_subscriptions">Failed to load subscriptions: %1$s</string>
   <string name="error_loading_subscriptions">Error loading subscriptions: %1$s</string>
