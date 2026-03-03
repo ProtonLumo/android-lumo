@@ -60,9 +60,9 @@
   <string name="payment_subtitle">Beneficiați de tratament preferențial și funcții premium cu Lumo Plus.</string>
   <string name="payment_black_friday_subtitle">Deblocați toate funcțiile premium din Lumo Plus cu cel mai bun preț.</string>
   <!-- tag(q1campaign) -->
-  <string name="payment_spring_sale_title">Don\'t miss our special deal</string>
+  <string name="payment_spring_sale_title">Nu ratați oferta specială</string>
   <!-- tag(q1campaign) -->
-  <string name="payment_spring_sale_subtitle">Unlock all premium features today on Lumo Plus for less.</string>
+  <string name="payment_spring_sale_subtitle">Deblocați astăzi mai ieftin toate funcțiile premium din Lumo Plus.</string>
   <string name="payment_checking">Se verifică starea abonamentului…</string>
   <string name="payment_loading_plans">Se încarcă planurile de abonament…</string>
   <string name="payment_no_plans_available">În prezent nu sunt disponibile planuri de abonament.</string>
@@ -71,14 +71,14 @@
   <string name="subscription_use_lumo_free">Folosire Lumo Free</string>
   <string name="subscription_claim_black_friday_deal">Revendicați oferta de Vinerea Neagră</string>
   <!-- tag(q1campaign) -->
-  <string name="subscription_claim_spring_sale_deal">Claim Spring Sale Deal</string>
+  <string name="subscription_claim_spring_sale_deal">Revendicați oferta de reduceri de primăvară</string>
   <string name="subscription_manage">Gestionare abonament</string>
   <string name="subscription_manage_info">Acest abonament trebuie gestionat prin intermediul interfeței web.</string>
   <string name="discount_template">Economisiți %s</string>
   <string name="best_value">Cel mai avantajos</string>
   <string name="limited_black_friday_offer">Ofertă limitată de Vinerea Neagră</string>
   <!-- tag(q1campaign) -->
-  <string name="limited_spring_sale_offer">Limited time Spring Sale offer</string>
+  <string name="limited_spring_sale_offer">Ofertă limitată de reduceri de primăvară</string>
   <string name="for_price">Pentru</string>
   <string name="month">lună</string>
   <string name="months">lună</string>
