@@ -59,10 +59,6 @@
   <string name="payment_black_friday_title">특별 할인을 놓치지 마세요</string>
   <string name="payment_subtitle">Lumo Plus로 특별한 혜택과 프리미엄 기능을 누려보세요.</string>
   <string name="payment_black_friday_subtitle">최고의 가격으로 Lumo Plus를 구매하여 모든 프리미엄 기능을 잠금 해제해 보세요.</string>
-  <!-- tag(q1campaign) -->
-  <string name="payment_spring_sale_title">특별 할인을 놓치지 마세요</string>
-  <!-- tag(q1campaign) -->
-  <string name="payment_spring_sale_subtitle">Lumo Plus의 모든 프리미엄 기능을 더 저렴하게 이용해보세요.</string>
   <string name="payment_checking">구독 상태를 확인하는 중...</string>
   <string name="payment_loading_plans">구독 플랜을 불러오는 중...</string>
   <string name="payment_no_plans_available">현재 사용 가능한 구독 플랜이 없습니다.</string>
@@ -70,15 +66,11 @@
   <string name="subscription_buy_lumo">Lumo Plus 구매</string>
   <string name="subscription_use_lumo_free">Lumo Free로 대신 사용하기</string>
   <string name="subscription_claim_black_friday_deal">블랙 프라이데이 할인 수락</string>
-  <!-- tag(q1campaign) -->
-  <string name="subscription_claim_spring_sale_deal">봄 할인 받기</string>
   <string name="subscription_manage">구독 관리</string>
   <string name="subscription_manage_info">이 구독은 웹 인터페이스를 통해 관리됩니다.</string>
   <string name="discount_template">%s 절약</string>
   <string name="best_value">최고의 가치</string>
   <string name="limited_black_friday_offer">기간 한정 블랙 프라이데이 할인</string>
-  <!-- tag(q1campaign) -->
-  <string name="limited_spring_sale_offer">기간 한정 봄 할인</string>
   <string name="for_price">매</string>
   <string name="month">월</string>
   <string name="months">월</string>
@@ -150,4 +142,12 @@
   <string name="error_webview_not_available">웹뷰를 이용할 수 없습니다</string>
   <string name="error_open_external_link">외부 링크를 열 수 없음</string>
   <string name="error_open_file_chooser">파일 선택기를 열 수 없음</string>
+  <!-- tag(q1campaign) -->
+  <string name="payment_spring_sale_title">특별 할인을 놓치지 마세요</string>
+  <!-- tag(q1campaign) -->
+  <string name="payment_spring_sale_subtitle">오늘 Lumo Plus에서 모든 premium 기능을 더 저렴하게 잠금 해제하세요.</string>
+  <!-- tag(q1campaign) -->
+  <string name="subscription_claim_spring_sale_deal">봄 세일 혜택 받기</string>
+  <!-- tag(q1campaign) -->
+  <string name="limited_spring_sale_offer">기간 한정 봄 세일 특가 할인</string>
 </resources>

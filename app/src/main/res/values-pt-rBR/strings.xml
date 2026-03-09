@@ -59,10 +59,6 @@
   <string name="payment_black_friday_title">Não perca nossa oferta especial</string>
   <string name="payment_subtitle">Aproveite tratamento preferencial e recursos premium com o Lumo Plus.</string>
   <string name="payment_black_friday_subtitle">Desbloqueie todos os recursos premium hoje no Lumo Plus com nosso melhor preço.</string>
-  <!-- tag(q1campaign) -->
-  <string name="payment_spring_sale_title">Não perca nossa oferta especial</string>
-  <!-- tag(q1campaign) -->
-  <string name="payment_spring_sale_subtitle">Desbloqueie todos os recursos premium hoje no Lumo Plus por menos.</string>
   <string name="payment_checking">Verificando status da assinatura...</string>
   <string name="payment_loading_plans">Carregando planos de assinatura...</string>
   <string name="payment_no_plans_available">Nenhum plano de assinatura está disponível no momento</string>
@@ -70,15 +66,11 @@
   <string name="subscription_buy_lumo">Obtenha o Lumo Plus</string>
   <string name="subscription_use_lumo_free">Use o Lumo Free em vez disso</string>
   <string name="subscription_claim_black_friday_deal">Aproveite a oferta da Black Friday</string>
-  <!-- tag(q1campaign) -->
-  <string name="subscription_claim_spring_sale_deal">Regatar oferta da promoção de primavera</string>
   <string name="subscription_manage">Gerenciar assinatura</string>
   <string name="subscription_manage_info">Esta assinatura deve ser gerenciada pela interface web.</string>
   <string name="discount_template">Economize %s</string>
   <string name="best_value">Melhor valor</string>
   <string name="limited_black_friday_offer">Oferta de Black Friday por tempo limitado</string>
-  <!-- tag(q1campaign) -->
-  <string name="limited_spring_sale_offer">Oferta por tempo limitado da promoção de primavera</string>
   <string name="for_price">Por</string>
   <string name="month">Mês</string>
   <string name="months">Mês</string>
@@ -150,4 +142,12 @@
   <string name="error_webview_not_available">WebView indisponível</string>
   <string name="error_open_external_link">Não é possível abrir link externo</string>
   <string name="error_open_file_chooser">Não é possível abrir o seletor de arquivo</string>
+  <!-- tag(q1campaign) -->
+  <string name="payment_spring_sale_title">Não perca nossa oferta especial</string>
+  <!-- tag(q1campaign) -->
+  <string name="payment_spring_sale_subtitle">Desbloqueie todos os recursos premium hoje no Lumo Plus por menos.</string>
+  <!-- tag(q1campaign) -->
+  <string name="subscription_claim_spring_sale_deal">Aproveitar oferta de Primavera</string>
+  <!-- tag(q1campaign) -->
+  <string name="limited_spring_sale_offer">Oferta de Primavera por tempo limitado</string>
 </resources>
