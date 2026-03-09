@@ -59,10 +59,6 @@
   <string name="payment_black_friday_title">Missa inte vårt specialerbjudande</string>
   <string name="payment_subtitle">Enjoy preferred treatment and premium features with Lumo Plus.</string>
   <string name="payment_black_friday_subtitle">Unlock all premium features today on Lumo Plus with our best price yet.</string>
-  <!-- tag(q1campaign) -->
-  <string name="payment_spring_sale_title">Don\'t miss our special deal</string>
-  <!-- tag(q1campaign) -->
-  <string name="payment_spring_sale_subtitle">Unlock all premium features today on Lumo Plus for less.</string>
   <string name="payment_checking">Kontrollerar prenumerationsstatus …</string>
   <string name="payment_loading_plans">Laddar in prenumerationspaket …</string>
   <string name="payment_no_plans_available">Inga prenumerationspaket är tillgängliga just nu</string>
@@ -70,15 +66,11 @@
   <string name="subscription_buy_lumo">Skaffa Lumo Plus</string>
   <string name="subscription_use_lumo_free">Använd Lumo Free istället</string>
   <string name="subscription_claim_black_friday_deal">Gör anspråk på Black Friday-erbjudande</string>
-  <!-- tag(q1campaign) -->
-  <string name="subscription_claim_spring_sale_deal">Claim Spring Sale Deal</string>
   <string name="subscription_manage">Hantera prenumeration</string>
   <string name="subscription_manage_info">This subscription must be managed via the web interface.</string>
   <string name="discount_template">Spara %s</string>
   <string name="best_value">Bäst värde</string>
   <string name="limited_black_friday_offer">Tidsbegränsat Black Friday-erbjudande</string>
-  <!-- tag(q1campaign) -->
-  <string name="limited_spring_sale_offer">Limited time Spring Sale offer</string>
   <string name="for_price">För</string>
   <string name="month">Månad</string>
   <string name="months">Månad</string>
@@ -150,4 +142,12 @@
   <string name="error_webview_not_available">WebView inte tillgänglig</string>
   <string name="error_open_external_link">Kan inte öppna externa länken</string>
   <string name="error_open_file_chooser">Kan inte öppna filväljaren</string>
+  <!-- tag(q1campaign) -->
+  <string name="payment_spring_sale_title">Missa inte vårt specialerbjudande</string>
+  <!-- tag(q1campaign) -->
+  <string name="payment_spring_sale_subtitle">Lås upp alla premiumfunktioner på Lumo Plus idag till ett lägre pris.</string>
+  <!-- tag(q1campaign) -->
+  <string name="subscription_claim_spring_sale_deal">Ta del av vårerbjudandet</string>
+  <!-- tag(q1campaign) -->
+  <string name="limited_spring_sale_offer">Tidsbegränsat vårerbjudande</string>
 </resources>
