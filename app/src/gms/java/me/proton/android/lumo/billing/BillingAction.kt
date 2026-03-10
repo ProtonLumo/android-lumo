@@ -1,6 +1,7 @@
 package me.proton.android.lumo.billing
 
 import com.android.billingclient.api.ProductDetails
+import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.data.SubscriptionResult
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
@@ -8,7 +9,7 @@ import me.proton.android.lumo.ui.text.UiText
 
 sealed interface BillingAction {
 
-    data object Initialize : BillingAction
+    data class Initialize(val paymentEvent: PaymentEvent) : BillingAction
     data object RetryConnection : BillingAction
     data object BillingConnected : BillingAction
     data class BillingDisconnected(

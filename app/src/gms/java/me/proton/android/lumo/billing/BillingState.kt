@@ -1,6 +1,7 @@
 package me.proton.android.lumo.billing
 
 import com.android.billingclient.api.ProductDetails
+import me.proton.android.lumo.MainActivityViewModel.PaymentEvent
 import me.proton.android.lumo.models.JsPlanInfo
 import me.proton.android.lumo.models.PlanFeature
 import me.proton.android.lumo.models.SubscriptionItemResponse
@@ -13,6 +14,7 @@ data class BillingState(
     val paymentState: PaymentState = PaymentState.Idle,
     val error: UiText? = null,
     val customerId: String? = null,
+    val paymentEvent: PaymentEvent = PaymentEvent.Default,
 )
 
 sealed interface ConnectionState {

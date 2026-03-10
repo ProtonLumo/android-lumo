@@ -103,11 +103,7 @@ private fun Content(
                 Spacer(modifier = Modifier.height(48.dp))
             }
 
-            if (paymentEvent == PaymentEvent.Default) {
-                planOptions
-            } else {
-                planOptions.reversed()
-            }.forEachIndexed { index, plan ->
+            planOptions.forEachIndexed { index, plan ->
                 if (plan.totalPrice.isNotEmpty()) {
                     PlanSelectItem(
                         plan = plan,
@@ -180,7 +176,7 @@ private fun Footer(
             shape = RoundedCornerShape(8.dp),
             enabled = true
         ) {
-            val buttonText = when(paymentEvent) {
+            val buttonText = when (paymentEvent) {
                 PaymentEvent.Default -> R.string.subscription_buy_lumo
                 PaymentEvent.BlackFriday -> R.string.subscription_claim_black_friday_deal
                 PaymentEvent.SpringSale -> R.string.subscription_claim_spring_sale_deal

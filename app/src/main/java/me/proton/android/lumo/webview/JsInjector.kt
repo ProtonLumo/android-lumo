@@ -1248,7 +1248,7 @@ fun injectBF2025PromotionHandler(webView: WebView) {
                 // Function to attach click handlers to BF2025 promotion buttons
                 function attachBF2025ClickHandlers() {
                     // Select all buttons with the BF2025 promotion classes
-                    const bf2025Buttons = document.querySelectorAll('.bf-2025-free');
+                    const bf2025Buttons = document.querySelectorAll('.lumo-spring-sale-2026-free');
 
                     if (bf2025Buttons.length > 0) {
                         console.log('Found ' + bf2025Buttons.length + ' BF2025 promotion button(s)');
@@ -1323,43 +1323,6 @@ fun injectBF2025PromotionHandler(webView: WebView) {
         Timber.tag(TAG).i("BF2025 promotion button handler JS evaluation result: $result")
     }
 }
-
-fun hideBfButton(): String =
-    """
-        (function() {
-            // Define a function to hide all matching elements
-            const hideElements = () => {
-                const elements = document.querySelectorAll('.bf-2025-free');
-                elements.forEach(el => {
-                    if (el.style.display !== 'none') {
-                        console.log('[hideBfButton] Hiding .bf-2025-free element');
-                        el.style.display = 'none';
-                    }
-                });
-            };
-
-            // Initial attempt in case elements already exist
-            hideElements();
-
-            // Set up a MutationObserver to monitor DOM changes
-            const observer = new MutationObserver((mutations) => {
-                for (const mutation of mutations) {
-                    if (mutation.type === 'childList' || mutation.type === 'subtree') {
-                        hideElements();
-                    }
-                }
-            });
-
-            // Start observing the entire document body
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
-
-            console.log('[hideBfButton] Observer registered');
-            return 'observer_active';
-        })();
-    """.trimIndent()
 
 fun injectUpgradeLinkHider(webView: WebView) {
     val js = """
