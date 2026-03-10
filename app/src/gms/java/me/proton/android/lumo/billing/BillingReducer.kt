@@ -1,5 +1,6 @@
 package me.proton.android.lumo.billing
 
+import me.proton.android.lumo.MainActivityViewModel.PaymentEvent.Default
 import me.proton.android.lumo.ui.text.UiText
 import me.proton.android.lumo.utils.takeIf
 
@@ -9,13 +10,14 @@ fun billingReducer(
     action: BillingAction
 ): Pair<BillingState, List<BillingEffect>> =
     when (action) {
-        BillingAction.Initialize -> {
+        is BillingAction.Initialize -> {
             state.copy(
                 connection = ConnectionState.Connecting,
                 error = null,
                 subscriptionState = SubscriptionState.Loading,
                 plansState = PlansState.Loading,
                 paymentState = PaymentState.Idle,
+                paymentEvent = action.paymentEvent,
             ) to listOf(BillingEffect.ConnectBilling)
         }
 
@@ -46,7 +48,11 @@ fun billingReducer(
 
         is BillingAction.ProductDetailsLoaded -> {
             val products = action.googleProductDetails
-            val planOptions = action.planOptions
+            val planOptions = if (state.paymentEvent == Default) {
+                action.planOptions
+            } else {
+                action.planOptions.reversed()
+            }
             state.copy(
                 plansState = PlansState.Success(
                     planOptions = planOptions,

@@ -161,7 +161,7 @@ class MainActivityViewModel @Inject constructor(
                     is WebEvent.ShowBlackFridaySale -> {
                         _eventChannel.trySend(
                             UiEvent.ShowPaymentDialog(
-                                paymentEvent = PaymentEvent.BlackFriday
+                                paymentEvent = PaymentEvent.SpringSale
                             )
                         )
                     }

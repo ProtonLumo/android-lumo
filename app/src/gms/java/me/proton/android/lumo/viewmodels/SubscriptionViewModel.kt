@@ -47,7 +47,7 @@ class SubscriptionViewModel @Inject constructor(
     init {
         observeBillingState()
 
-        billingStore.dispatch(BillingAction.Initialize)
+        billingStore.dispatch(BillingAction.Initialize(paymentEvent = paymentEvent))
     }
 
     private fun observeBillingState() {
