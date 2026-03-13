@@ -34,6 +34,7 @@ unleash = "3.2.3"
 inapp-review = "2.0.2"
 detekt = "2.0.0-alpha.2"
 detekt-rules-compose = "0.5.6"
+datastore = "1.1.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -84,6 +85,7 @@ unleash = { group = "io.getunleash", name = "unleash-android", version.ref = "un
 inapp-review = { group = "com.google.android.play", name = "review", version.ref = "inapp-review" }
 inapp-review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "inapp-review" }
 detekt-rules-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "detekt-rules-compose" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -259,6 +259,7 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.unleash)
     ksp(libs.hilt.compiler)
 
