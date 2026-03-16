@@ -147,7 +147,7 @@
   <!-- tag(q1campaign) -->
   <string name="payment_spring_sale_subtitle">Lås op for alle premium-funktioner i dag på Lumo Plus til en lavere pris.</string>
   <!-- tag(q1campaign) -->
-  <string name="subscription_claim_spring_sale_deal">Indløs forårsudsalgstilbud</string>
+  <string name="subscription_claim_spring_sale_deal">Få forårssalg-tilbuddet</string>
   <!-- tag(q1campaign) -->
-  <string name="limited_spring_sale_offer">Tidsbegrænset forårsudsalgstilbud</string>
+  <string name="limited_spring_sale_offer">Tidsbegrænset forårssalgstilbud</string>
 </resources>

@@ -147,7 +147,7 @@
   <!-- tag(q1campaign) -->
   <string name="payment_spring_sale_subtitle">Lumo Plusのすべてのプレミアム機能を、お得な価格で今すぐアンロックしましょう。</string>
   <!-- tag(q1campaign) -->
-  <string name="subscription_claim_spring_sale_deal">春のセール特典を受け取る</string>
+  <string name="subscription_claim_spring_sale_deal">スプリング セールの特典を入手</string>
   <!-- tag(q1campaign) -->
-  <string name="limited_spring_sale_offer">期間限定の春のセールオファー</string>
+  <string name="limited_spring_sale_offer">期間限定スプリング セールオファー</string>
 </resources>
