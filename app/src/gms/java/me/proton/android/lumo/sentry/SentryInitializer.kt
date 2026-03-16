@@ -9,7 +9,9 @@ import io.sentry.android.timber.SentryTimberIntegration
 import me.proton.android.lumo.BuildConfig
 
 
-fun Context.initialise() {
+private const val TRACE_SAMPLE_RATE = 0.2
+
+fun Context.initialiseSentry() {
     SentryAndroid.init(this.applicationContext) { options: SentryOptions ->
         with(options) {
             dsn = BuildConfig.SENTRY_DSN
@@ -18,7 +20,7 @@ fun Context.initialise() {
             environment = BuildConfig.BASE_DOMAIN
             isEnableUncaughtExceptionHandler = true
             setDiagnosticLevel(SentryLevel.ERROR)
-            tracesSampleRate = 0.2
+            tracesSampleRate = TRACE_SAMPLE_RATE
             addIntegration(
                 SentryTimberIntegration(
                     minEventLevel = SentryLevel.ERROR,
@@ -28,5 +30,4 @@ fun Context.initialise() {
             )
         }
     }
-
 }

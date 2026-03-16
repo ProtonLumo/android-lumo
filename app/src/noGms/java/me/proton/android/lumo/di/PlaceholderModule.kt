@@ -1,5 +1,6 @@
 package me.proton.android.lumo.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -8,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import me.proton.android.lumo.analytics.DefaultLumoAnalytics
 import me.proton.android.lumo.analytics.LumoAnalytics
+import me.proton.android.lumo.initializer.AppStartupInitializer
 import me.proton.android.lumo.review.DefaultInAppReviewManager
 import me.proton.android.lumo.review.InAppReviewManager
 import me.proton.android.lumo.tracer.LumoTracer
@@ -35,4 +37,11 @@ object PlaceholderModule {
     @Provides
     fun reviewManager(): InAppReviewManager =
         DefaultInAppReviewManager()
+
+    @Provides
+    fun appStartupInitializer(): AppStartupInitializer =
+        object : AppStartupInitializer {
+            override fun initialize(context: Context) {
+            }
+        }
 }
