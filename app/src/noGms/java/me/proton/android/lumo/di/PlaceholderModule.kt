@@ -41,6 +41,7 @@ object PlaceholderModule {
     @Provides
     fun appStartupInitializer(): AppStartupInitializer =
         object : AppStartupInitializer {
+            @Suppress("EmptyFunctionBlock")
             override fun initialize(context: Context) {
             }
         }
