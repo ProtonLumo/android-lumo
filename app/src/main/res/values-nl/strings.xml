@@ -147,7 +147,7 @@
   <!-- tag(q1campaign) -->
   <string name="payment_spring_sale_subtitle">Ontgrendel vandaag nog alle premium functies van Lumo Plus voor minder.</string>
   <!-- tag(q1campaign) -->
-  <string name="subscription_claim_spring_sale_deal">Profiteer van de lente-aanbieding</string>
+  <string name="subscription_claim_spring_sale_deal">Claim de lente sale-deal</string>
   <!-- tag(q1campaign) -->
-  <string name="limited_spring_sale_offer">Lente-aanbieding beperkt geldig</string>
+  <string name="limited_spring_sale_offer">Tijdelijke lente sale-aanbieding</string>
 </resources>

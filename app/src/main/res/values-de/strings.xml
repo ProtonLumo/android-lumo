@@ -147,7 +147,7 @@
   <!-- tag(q1campaign) -->
   <string name="payment_spring_sale_subtitle">Schalte noch heute alle Premium-Funktionen von Lumo Plus günstiger frei.</string>
   <!-- tag(q1campaign) -->
-  <string name="subscription_claim_spring_sale_deal">Sichere dir das Frühlingsangebot</string>
+  <string name="subscription_claim_spring_sale_deal">Spring Sale Deal sichern</string>
   <!-- tag(q1campaign) -->
-  <string name="limited_spring_sale_offer">Zeitlich befristetes Frühlingsangebot</string>
+  <string name="limited_spring_sale_offer">Spring Sale Angebot für begrenzte Zeit</string>
 </resources>

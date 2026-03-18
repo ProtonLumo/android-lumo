@@ -147,7 +147,7 @@
   <!-- tag(q1campaign) -->
   <string name="payment_spring_sale_subtitle">Avatkaa kaikki premium-ominaisuudet tänään Lumo Plus -palvelussa edullisemmin.</string>
   <!-- tag(q1campaign) -->
-  <string name="subscription_claim_spring_sale_deal">Lunastakaa kevättarjous</string>
+  <string name="subscription_claim_spring_sale_deal">Lunasta kevätaletarjous</string>
   <!-- tag(q1campaign) -->
-  <string name="limited_spring_sale_offer">Kevättarjous voimassa rajoitetun ajan</string>
+  <string name="limited_spring_sale_offer">Rajoitetun ajan kevätaletarjous</string>
 </resources>
