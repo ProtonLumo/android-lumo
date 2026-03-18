@@ -1,12 +1,15 @@
 package me.proton.android.lumo.data.repository
 
-import android.content.SharedPreferences
-import androidx.core.content.edit
-import kotlinx.coroutines.Dispatchers
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.withContext
 import me.proton.android.lumo.ui.theme.AppStyle
 import me.proton.android.lumo.webview.WebAppInterface
 import javax.inject.Inject
@@ -18,39 +21,34 @@ interface ThemeRepository {
 }
 
 class ThemeRepositoryImpl @Inject constructor(
-    private val prefs: SharedPreferences,
+    private val dataStore: DataStore<Preferences>,
     private val webBridge: WebAppInterface,
 ) : ThemeRepository {
 
-    private val _themeFlow = MutableStateFlow(loadTheme())
+    private val themeStream: Flow<AppStyle> = dataStore.data
+        .map { prefs -> AppStyle.fromInt(prefs[KEY_THEME] ?: AppStyle.Light.mode) }
+        .catch { emit(AppStyle.Light) }
 
     override suspend fun saveTheme(theme: AppStyle) {
-        withContext(Dispatchers.IO) {
-            prefs.edit { putInt(KEY_THEME, theme.mode) }
-        }
-        _themeFlow.value = theme
+        dataStore.edit { prefs -> prefs[KEY_THEME] = theme.mode }
     }
 
-    override suspend fun getTheme(): AppStyle = _themeFlow.value
+    override suspend fun getTheme(): AppStyle = themeStream.firstOrNull() ?: AppStyle.System
 
     override suspend fun observeTheme(isSystemInDarkMode: Boolean): Flow<AppStyle> =
-        _themeFlow
+        themeStream
             .onEach { theme ->
-                val (theme, mode) = when (theme) {
+                val (themeValue, mode) = when (theme) {
                     is AppStyle.System -> (if (isSystemInDarkMode) THEME_DARK else THEME_LIGHT) to MODE_SYSTEM
                     is AppStyle.Dark -> THEME_DARK to MODE_DARK
                     is AppStyle.Light -> THEME_LIGHT to MODE_LIGHT
                 }
 
-                webBridge.injectTheme(theme, mode)
+                webBridge.injectTheme(themeValue, mode)
             }
 
-    private fun loadTheme(): AppStyle {
-        return AppStyle.fromInt(prefs.getInt(KEY_THEME, AppStyle.Light.mode))
-    }
-
     companion object {
-        private const val KEY_THEME = "key::lumo::theme"
+        private val KEY_THEME = intPreferencesKey("key::lumo::theme")
         private const val THEME_DARK = 15
         private const val THEME_LIGHT = 14
         private const val MODE_SYSTEM = 0
