@@ -147,7 +147,7 @@
   <!-- tag(q1campaign) -->
   <string name="payment_spring_sale_subtitle">Deblocați astăzi toate caracteristicile premium pe Lumo Plus la un preț mai mic.</string>
   <!-- tag(q1campaign) -->
-  <string name="subscription_claim_spring_sale_deal">Revendică oferta de primăverii</string>
+  <string name="subscription_claim_spring_sale_deal">Revendică oferta primăverii</string>
   <!-- tag(q1campaign) -->
-  <string name="limited_spring_sale_offer">Ofertă de primăverii pe timp limitat</string>
+  <string name="limited_spring_sale_offer">Ofertă primăverii pe timp limitat</string>
 </resources>

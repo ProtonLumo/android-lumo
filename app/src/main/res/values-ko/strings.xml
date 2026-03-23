@@ -26,7 +26,7 @@
   <!-- MainActivity Status/Errors -->
   <string name="speech_status_network">Google로부터 음성 인식 진행됨</string>
   <string name="speech_status_vosk" tools:ignore="MissingTranslation">비공개 온디바이스 기반 Vosk로 인식 처리됨</string>
-  <string name="speech_status_google" tools:ignore="MissingTranslation">Google로부터 음성 인식 진행됨</string>
+  <string name="speech_status_google" tools:ignore="MissingTranslation">Google에서 음성 인식을 처리함</string>
   <string name="speech_status_on_device">온디바이스 • 비공개</string>
   <string name="permission_rationale_title">권한 없음</string>
   <string name="permission_mic_rationale">마이크 권한이 음성 인식에 필요합니다</string>
