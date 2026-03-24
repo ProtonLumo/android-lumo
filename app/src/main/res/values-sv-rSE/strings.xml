@@ -58,7 +58,7 @@
   <string name="payment_title">Förbättra din AI-upplevelse</string>
   <string name="payment_black_friday_title">Missa inte vårt specialerbjudande</string>
   <string name="payment_subtitle">Enjoy preferred treatment and premium features with Lumo Plus.</string>
-  <string name="payment_black_friday_subtitle">Unlock all premium features today on Lumo Plus with our best price yet.</string>
+  <string name="payment_black_friday_subtitle">Lås upp alla premiumfunktioner idag på Lumo Plus till vårt bästa pris hittills.</string>
   <string name="payment_checking">Kontrollerar prenumerationsstatus …</string>
   <string name="payment_loading_plans">Laddar in prenumerationspaket …</string>
   <string name="payment_no_plans_available">Inga prenumerationspaket är tillgängliga just nu</string>

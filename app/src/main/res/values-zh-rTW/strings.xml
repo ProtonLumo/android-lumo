@@ -120,28 +120,28 @@
   <!-- Billing Error Messages -->
   <string name="billing_unavailable_old_api">此裝置的 Google Play 付款過於老舊。請更新 Google Play 或使用網頁版的 Lum。。</string>
   <string name="billing_unavailable_not_supported">應用程式內購買不支援此裝置。 請使用網頁版的 Lumo 以訂閱。</string>
-  <string name="billing_unavailable_generic">Billing unavailable: Please ensure Google Play Store is installed, updated and you are logged in</string>
-  <string name="billing_service_not_connected">Billing service not connected. Please try again.</string>
-  <string name="billing_google_play_required">Google Play Store is required for purchases</string>
+  <string name="billing_unavailable_generic">無法使用帳單服務：請確保 Google Play 商店已安裝、已更新，且您已登入。</string>
+  <string name="billing_service_not_connected">帳單服務未連線。請再試一次。</string>
+  <string name="billing_google_play_required">進行購買需要 Google Play 商店</string>
   <string name="billing_cannot_access_google_play">無法存取 Google Play 商店。</string>
-  <string name="billing_services_unavailable">Billing services unavailable: %1$s</string>
+  <string name="billing_services_unavailable">帳單服務無法使用：%1$s</string>
   <string name="billing_api_not_available">Google Play 付款 API 無法使用</string>
   <string name="billing_initialization_failed">帳單初始化失敗: %1$s</string>
-  <string name="billing_connection_failed">Failed to connect to billing service: %1$s</string>
-  <string name="billing_application_context_unavailable">Application context unavailable</string>
+  <string name="billing_connection_failed">無法連線至計費服務：%1$s</string>
+  <string name="billing_application_context_unavailable">應用程式環境無法使用</string>
   <!-- Subscription Plan Descriptions -->
   <string name="subscription_monthly_description">每月訂閱</string>
   <string name="subscription_annual_description">年度訂閱 (節省 20%)</string>
   <!-- Subscription Error Messages -->
   <string name="error_failed_to_load_subscriptions">載入訂閱失敗: %1$s</string>
   <string name="error_loading_subscriptions">載入訂閱時錯誤: %1$s</string>
-  <string name="error_no_plans_with_pricing">No plans with pricing information available</string>
-  <string name="error_problem_loading_subscriptions">There was a problem loading subscriptions</string>
-  <string name="error_failed_to_load_plans">Failed to load plans: %1$s</string>
-  <string name="error_loading_plans">Error loading plans: %1$s</string>
+  <string name="error_no_plans_with_pricing">沒有提供定價資訊的方案</string>
+  <string name="error_problem_loading_subscriptions">載入訂閱時發生問題</string>
+  <string name="error_failed_to_load_plans">載入方案失敗: %1$s</string>
+  <string name="error_loading_plans">載入方案時錯誤: %1$s</string>
   <string name="error_webview_not_available">WebView不適用</string>
-  <string name="error_open_external_link">Can\'t open the external link</string>
-  <string name="error_open_file_chooser">Can\'t open the file chooser</string>
+  <string name="error_open_external_link">無法開啟外部連結</string>
+  <string name="error_open_file_chooser">無法打開檔案選擇器</string>
   <!-- tag(q1campaign) -->
   <string name="payment_spring_sale_title">切勿錯過我們的特別優惠</string>
   <!-- tag(q1campaign) -->
