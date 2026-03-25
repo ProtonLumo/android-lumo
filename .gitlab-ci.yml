@@ -189,6 +189,7 @@ release-publish-github:
     OAUTH_URL: "https://oauth2:${GITHUB_PAT}@github.com/ProtonLumo/android-lumo.git"
     RELEASE_SYNC_FROM_BRANCH: main
     RELEASE_SYNC_TO_BRANCH: main
+    GIT_DEPTH: 0
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: manual
