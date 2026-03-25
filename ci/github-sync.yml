@@ -7,7 +7,7 @@
 
 .release-publish-github-shared:
   tags:
-    - shared-small
+    - shared-large
   script:
     # Validate the OAUTH_URL
     - |
