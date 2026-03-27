@@ -54,7 +54,7 @@ MainActivity (single Activity)
 
 - **Repository layer** (`data/repository/`): `ThemeRepository` persists theme via `SharedPreferences` and injects it via JS. `WebAppRepository` handles web app URL and page events.
 
-- **DI** (`di/`): Hilt modules. `AppModule` provides `SharedPreferences`, `ActivityProvider`, Unleash client. `SpeechModule` provides speech recognizer implementations. Interfaces are bound in `AppBinder`/`SpeechBinder`.
+- **DI** (`di/`): Hilt modules. `AppModule` provides `SharedPreferences`, `ActivityProvider`. `SpeechModule` provides speech recognizer implementations. Interfaces are bound in `AppBinder`/`SpeechBinder`.
 
 - **AssistActivity** (`ui/assist/`): Translucent overlay Activity registered for `ACTION_ASSIST`. Shows a bottom-sheet `MessageComposer`, auto-starts recording. On submit, launches `MainActivity` with `EXTRA_PROMPT` — `MainActivity.onNewIntent` then injects the prompt via `webBridge.injectSpeechOutput()`.
 
@@ -63,7 +63,6 @@ MainActivity (single Activity)
 - **UiText**: Use `UiText.ResText(R.string.x)` for string resources, `.asString()` inside composables, `.getText(context)` outside composables.
 - **Events from ViewModel**: Collect in composables via `LaunchedEffect + repeatOnLifecycle + collectLatest`.
 - **JS injection**: Escape `\`, `"`, `'`, `\n`, `\r` before passing strings to `injectSpeechOutput()` (see `formatTextForJsInjection()`).
-- **Feature flags**: Unleash client injected via Hilt; flag keys are constants in `featureflag/`.
 - **Build flavor gating**: Use `BuildConfig` fields (e.g., `BuildConfig.PAYMENTS_ENABLED`) rather than checking flavor names directly.
 - **Tests**: JUnit 5 (`@Test` from `org.junit.jupiter.api`), `useJUnitPlatform()` is configured. Use MockK for mocking, Turbine for Flow testing, Truth for assertions.
 - **Detekt**: Config in `config/detekt/detekt.yml`. Max cyclomatic complexity is 14. Run detekt before submitting changes.

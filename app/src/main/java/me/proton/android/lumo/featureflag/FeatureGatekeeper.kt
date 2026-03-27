@@ -2,7 +2,6 @@ package me.proton.android.lumo.featureflag
 
 import kotlinx.coroutines.flow.Flow
 import me.proton.android.lumo.featureflag.datasource.LegacyFeatureFlagDataSource
-import me.proton.android.lumo.featureflag.datasource.UnleashDataSource
 import me.proton.android.lumo.featureflag.model.FeatureFlag
 import me.proton.android.lumo.featureflag.model.FeatureId
 import me.proton.android.lumo.featureflag.model.Scope
@@ -20,17 +19,18 @@ interface FeatureGatekeeper {
 
 class FeatureGatekeeperImpl @Inject constructor(
     private val legacyFeatureFlagDataSource: LegacyFeatureFlagDataSource,
-    private val unleashDataSource: UnleashDataSource,
 ) : FeatureGatekeeper {
 
     override fun start() {
 //        legacyFeatureFlagDataSource.start() todo; keep disabled til further notice
     }
 
+    @Suppress("ForbiddenComment")
     override fun getFeature(featureId: FeatureId): FeatureFlag =
         LumoFeatureFlags.flags[featureId]?.let { flag ->
             if (flag.scope == Scope.Unleash) {
-                unleashDataSource.getFeatureFlag(featureId)
+                // TODO: fetch the ff
+                FeatureFlag.DEFAULT
             } else {
                 legacyFeatureFlagDataSource.get(featureId)
             }

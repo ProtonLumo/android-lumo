@@ -14,8 +14,6 @@ plugins {
     alias(libs.plugins.detekt)
     id("version-tasks")
 }
-val unleashPropsFile = rootProject.file("unleash.properties")
-val unleashProps = Properties().apply { load(unleashPropsFile.inputStream()) }
 val versionPropsFile = rootProject.file("version.properties")
 val versionProps = Properties().apply { load(versionPropsFile.inputStream()) }
 
@@ -54,11 +52,6 @@ android {
         // Default production environment
         buildConfigField("String", "ENV_NAME", "\"\"")
         buildConfigField("String", "SENTRY_DSN", "\"${sentryProp("dsn")}\"")
-        buildConfigField(
-            "String",
-            "UNLEASH_PROXY",
-            "\"${unleashProps["PROXY"] as String}\""
-        )
 
         ndk {
             abiFilters += listOf(
@@ -133,11 +126,6 @@ android {
                 "OFFER_ID",
                 "\"${prop("OFFER_ID_PRODUCTION", "")}\""
             )
-            buildConfigField(
-                "String",
-                "UNLEASH_CLIENT_KEY",
-                "\"${unleashProps["CLIENT_KEY_PROD"] as String}\""
-            )
         }
 
         create("noble") {
@@ -152,11 +140,6 @@ android {
                 "String",
                 "OFFER_ID",
                 "\"${prop("OFFER_ID_NOBLE", "")}\""
-            )
-            buildConfigField(
-                "String",
-                "UNLEASH_CLIENT_KEY",
-                "\"${unleashProps["CLIENT_KEY_ATLAS"] as String}\""
             )
         }
     }
@@ -260,7 +243,6 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.unleash)
     ksp(libs.hilt.compiler)
 
     implementation("com.alphacephei:vosk-android:0.3.70@aar")
