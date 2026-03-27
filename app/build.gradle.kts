@@ -44,8 +44,8 @@ android {
     defaultConfig {
         minSdk = 29
         targetSdk = 36
-        versionName = versionProps["VERSION_NAME"] as String
-        versionCode = (versionProps["VERSION_CODE"] as String).toInt()
+        versionName = "1.2.18"
+        versionCode = 50
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -173,7 +173,7 @@ android {
         variant.outputs.all {
             val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
             val appName = "lumo"
-            val versionName = variant.versionName
+            val versionName = "1.2.18"
             val buildType = variant.buildType.name
             val flavor = variant.flavorName
 
